@@ -44,7 +44,8 @@ class ValidationService
                         $fieldRules[] = 'string';
                         break;
                     case 'file':
-                        $fieldRules[] = 'file';
+//                        $fieldRules[] = 'file';
+                        $fieldRules[] = 'array';
                         break;
                     case 'array':
                         $rules['form_data.' . $key . '.*'] = $fieldRules;
@@ -60,6 +61,7 @@ class ValidationService
                         $fieldRules[] = 'date_format:"H:i:s"';
                         break;
                 }
+
                 $this->pushMinAndMaxRules($fieldRules, $field);
                 if (in_array($key, $requiredFields)) {
                     $fieldRules[] = 'required';

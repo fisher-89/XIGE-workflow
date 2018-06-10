@@ -18,4 +18,8 @@ class Field extends Model
     public function grid(){
         return $this->belongsTo(FormGrid::class,'form_grid_id','id');
     }
+
+    public function getOptionsAttribute($value){
+        return json_decode($value,true);
+    }
 }

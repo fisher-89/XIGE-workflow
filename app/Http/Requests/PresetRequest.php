@@ -2,8 +2,10 @@
 
 namespace App\Http\Requests;
 
+use App\Repository\FlowRepository;
 use App\Services\Auth\FlowAuth;
 use Illuminate\Foundation\Http\FormRequest;
+use Illuminate\Validation\Rule;
 
 class PresetRequest extends FormRequest
 {
@@ -16,7 +18,8 @@ class PresetRequest extends FormRequest
      */
     public function authorize()
     {
-        return FlowAuth::checkFlowAuthorize($this->flow->id);
+        return true;
+//        return FlowAuth::checkFlowAuthorize($this->flow->id);
     }
 
     /**
@@ -26,9 +29,19 @@ class PresetRequest extends FormRequest
      */
     public function rules()
     {
-        $this->step = app('step')->getStartStepData($this->flow);//开始步骤数据
+        $flowRepository = new FlowRepository();
+        if($this->has('step_run_id') && intval($this->step_run_id)){
+            //通过 预提交
+            $this->step =$flowRepository->getCurrentStep($this->step_run_id);
+        }else{
+            //发起 预提交
+            $this->step = $flowRepository->getFlowFirstStep($this->flow);
+        }
 
         $basicRules = [
+            'step_run_id'=>[
+                Rule::exists('step_run','id')->where('flow_id',$this->flow->id)
+            ],
             'form_data' => [
                 'present',
                 'array',
@@ -48,6 +61,7 @@ class PresetRequest extends FormRequest
             return ['form_data.' . $field->key => $field->name];
         })->toArray();
         return array_collapse([$fieldAttributes, [
+            'step_run_id'=>'步骤运行ID',
             'form_data' => '表单数据',
         ]]);
     }

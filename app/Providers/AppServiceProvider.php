@@ -8,9 +8,15 @@ use App\Services\DefaultValueVariateService;
 use App\Services\FieldsService;
 use App\Services\FlowRunService;
 use App\Services\FormDataService;
+use App\Services\PresetService;
+use App\Services\RejectService;
+use App\Services\ResponseService;
+use App\Services\StartService;
 use App\Services\StepRunService;
 use App\Services\StepService;
+use App\Services\ThroughService;
 use App\Services\ValidationService;
+use App\Services\WithdrawService;
 use Illuminate\Support\ServiceProvider;
 
 class AppServiceProvider extends ServiceProvider
@@ -32,14 +38,16 @@ class AppServiceProvider extends ServiceProvider
      */
     public function register()
     {
+        $this->app->singleton('apiResponse',ResponseService::class);//response返回
         $this->app->singleton('validation', ValidationService::class);
-        $this->app->singleton('flowRun',FlowRunService::class);
-        $this->app->singleton('step',StepService::class);
         $this->app->singleton('formData',FormDataService::class);
-        $this->app->singleton('stepRun',StepRunService::class);
         $this->app->singleton('action',ActionService::class);
-        $this->app->singleton('field',FieldsService::class);
         $this->app->singleton('defaultValueVariate',DefaultValueVariateService::class);
         $this->app->singleton('defaultValueCalculation',DefaultValueCalculationService::class);
+        $this->app->singleton('preset',PresetService::class);
+        $this->app->singleton('start',StartService::class);//发起服务
+        $this->app->singleton('withdraw',WithdrawService::class);//撤回
+        $this->app->singleton('through',ThroughService::class);//通过
+        $this->app->singleton('reject',RejectService::class);//驳回
     }
 }

@@ -15,70 +15,145 @@ use Illuminate\Support\Facades\DB;
 class FormDataService
 {
 
-    protected $tableName;
-    protected $formId;
+    /*----------------------------------------------------*/
 
-    public function __construct($formId)
+    /**
+     * 获取过滤的表单data数据 进行填充默认值
+     * @param $formData
+     * @param $field
+     */
+    public function getFilterFormData(array $formData, $fields)
     {
-        $this->formId = $formId;
-        $this->tableName = 'form_data_' . $formId;
+        $newFormData = $fields['form']->map(function ($field) use ($formData) {
+            $response[$field->key] = !empty($formData[$field->key]) ? $formData[$field->key] : (!empty($field->default_value) ? $this->analysisDefaultValueVariate($field->default_value, $formData) : '');
+            return $response;
+        });
+        $newFormData = array_collapse($newFormData->toArray());
+
+        //控件字段过滤
+        if (count($fields['grid']) > 0) {
+            $gridData = $this->filterFormGridData($fields['grid'], $formData);
+            $newFormData = array_collapse([$newFormData, $gridData]);
+        }
+        return $newFormData;
     }
 
     /**
-     * 创建表单data数据
-     * @param $data
+     * 筛选控件与填充默认值
+     * @param $grid
+     * @param $formData
      */
-    public function create($data)
+    protected function filterFormGridData($grid, array $formData)
     {
-        return DB::table($this->tableName)->insertGetId($data);
+        $gridData = [];
+        foreach ($grid as $gridKey => $gridItem) {
+            $gridItemData = [];
+            foreach ($gridItem['fields'] as $fieldKey => $fieldItem) {
+                if (array_has($formData, $gridItem['key']) && $formData[$gridItem['key']]) {
+                    //表单data有数据
+                    foreach ($formData[$gridItem['key']] as $formKey => $formValue) {
+                        if (empty($formValue[$fieldItem['key']])) {
+                            $value = !empty($fieldItem['default_value']) ? $this->analysisDefaultValueVariate($fieldItem['default_value'], $formValue) : '';
+                        } else {
+                            $value = $formValue[$fieldItem['key']];
+                        }
+                        $gridItemData[$formKey][$fieldItem['key']] = $value;
+                        if (array_has($formValue, 'id')) {
+                            $gridItemData[$formKey]['id'] = $formValue['id'];
+                        }
+                    }
+                }
+            }
+            $gridData[$gridItem['key']] = $gridItemData;
+        }
+        return $gridData;
     }
 
     /**
-     * 创建控件数据
-     * @param $data
-     * @param $gridKey
+     * 解析默认值变量
+     * 系统变量、计算变量、字段变量
+     * @param $defaultValue
+     * @param $formData
      */
-    public function createGrid($data,$gridKey){
-        $tableName = $this->tableName.'_'.$gridKey;
-        DB::table($tableName)->insert($data);
+    public function analysisDefaultValueVariate($defaultValue, array $formData)
+    {
+        $value = $this->systemVariate($defaultValue);//系统变量解析
+        $value = $this->formFieldsVariate($value, $formData);//解析字段变量
+        $value = $this->calculation($value);//解析运算公式
+        return $value;
     }
 
     /**
-     * 获取表单字段data数据与控件字段数据
-     * @param $runId
+     * 解析默认值系统变量
+     * @param $defaultValue
+     * @return null|string|string[]
+     * @throws \Illuminate\Container\EntryNotFoundException
      */
-    public function getFormData($runId)
+    public function systemVariate($defaultValue)
     {
-//        DB::table()
+        $variate = app('defaultValueVariate')->get();
+        $value = preg_replace_callback('/{{(\w+)}}/', function ($matches) use ($variate) {
+            if (array_has($variate, $matches[1])) {
+                $response = '';
+                eval('$response = ' . $variate[$matches[1]]['code'] . ';');
+                return $response;
+            } else {
+                return $matches[0];
+            }
+        }, $defaultValue);
+        return $value;
     }
 
-    /*--------------------------------------*/
-    /**
-     * 获取当前表单data数据
-     * @param $id
-     */
-    public function find($id)
-    {
-        return DB::table($this->tableName)->where('id', $id)->first();
-    }
-
-    public function update($id, $data)
-    {
-        DB::table($this->tableName)->where('id', $id)->update($data);
-    }
-
-
-    public function getGridData()
-    {
-
-    }
 
     /**
-     * 获取表单控件
-     * @return mixed
+     * 解析表单字段变量
+     * @param $defaultValue
+     * @param $formFieldsModel
      */
-    protected function getFormGridData()
+    public function formFieldsVariate($defaultValue, array $formData)
     {
-        return FormGrid::where('form_id',$this->formId)->get();
+        $value = $defaultValue;
+        if (preg_match('/{\?(\w+)\?}/', $defaultValue)) {
+            $value = preg_replace_callback('/{\?(\w+)\?}/', function ($matches) use ($formData) {
+                if (array_has($formData, $matches[1])) {
+                    $response = $formData[$matches[1]];
+                    return $response;
+                }
+                return $matches[1];
+            }, $defaultValue);
+        }
+        return $value;
+    }
+
+
+    /**
+     * 解析默认值运算符号变量
+     * @param $defaultValue
+     */
+    public function calculation($defaultValue)
+    {
+        $calculations = app('defaultValueCalculation')->get();
+        $lastCalculation = '';
+        $value = preg_replace_callback('/(.*?)({<(\d+)>}|$)/', function ($matches) use ($calculations, &$lastCalculation) {
+            if (array_has($matches, 3) && array_has($calculations, $matches[3])) {
+                $calculation = $calculations[$matches[3]]['code'];
+                $text = ($calculation == '(' && !empty($matches[1])) ? '\'' . $matches[1] . '\'.' : $this->decorateText($matches[1]);
+            } else {
+                $calculation = '';
+                $text = $this->decorateText($matches[0]);
+            }
+            if ($lastCalculation == ')' && !empty($text)) {
+                $text = '.' . (preg_match('/^\'/', $text) == 0 ? "'$text'" : $text);
+            }
+            $lastCalculation = $calculation;
+            return $text . $calculation;
+        }, $defaultValue);
+        eval('$value = ' . $value . ';');
+        return $value;
+    }
+
+    protected function decorateText($text)
+    {
+        return (is_numeric($text) || empty($text)) ? $text : "'$text'";
     }
 }

@@ -12,5 +12,7 @@ class DatabaseSeeder extends Seeder
     public function run()
     {
         // $this->call(UsersTableSeeder::class);
+        $this->call(DefaultValueCalculationsSeeder::class);//运算值
+        $this->call(DefaultValueVariatesSeeder::class);//系统变量
     }
 }

@@ -38,15 +38,17 @@ class CreateWorkflowTable extends Migration
             $table->unique(['name', 'deleted_at']);
         });
 
-        /*表单列表*/
+        /*表单列表控件*/
         Schema::create('form_grids', function (Blueprint $table) {
             $table->increments('id');
+            $table->char('name',20)->comment('控件名称');
             $table->char('key',20)->comment('键名');
             $table->unsignedInteger('form_id')->comment('表单id');
             $table->foreign('form_id')->references('id')->on('forms');
             $table->timestamps();
+            $table->softDeletes();
         });
-        /*表单列表*/
+        /*表单列表控件*/
 
         /* 字段 */
         Schema::create('fields', function (Blueprint $table) {
@@ -60,6 +62,7 @@ class CreateWorkflowTable extends Migration
             $table->char('max', 20)->comment('最大值')->default('');
             $table->unsignedTinyInteger('scale')->comment('小数位数')->default(0);
             $table->string('default_value', 500)->comment('默认值/计算公式')->default('');
+            $table->text('options')->nullable()->comment('可选值');
             $table->unsignedTinyInteger('is_editable')->comment('默认值是否可编辑')->default(0);
             $table->unsignedInteger('form_id')->comment('表单ID');
             $table->unsignedInteger('form_grid_id')->comment('列表控件ID')->nullable();
@@ -166,13 +169,13 @@ class CreateWorkflowTable extends Migration
                 ->default('');
             $table->string('allow_condition', 800)->comment('访问条件，字段：${field}，其他参数：_params_')->default('');
             $table->string('skip_condition', 800)->comment('略过条件')->default('');
-            $table->unsignedTinyInteger('send_back_type')->comment('退回类型：0.禁止 1.到上一步 2.到之前任意步骤')->default(0);
+            $table->unsignedTinyInteger('reject_type')->comment('退回类型：0.禁止 1.到上一步 2.到之前任意步骤')->default(0);
             $table->unsignedTinyInteger('concurrent_type')->comment('并发类型：0.禁止 1.允许 2.强制')->default(0);
             $table->unsignedTinyInteger('merge_type')->comment('合并类型：0.非必须 1.必须')->default(0);
             $table->string('start_callback_uri')->comment('开始回调地址')->default('');
             $table->string('check_callback_uri')->comment('查看回调地址')->default('');
             $table->string('approve_callback_uri')->comment('通过回调地址')->default('');
-            $table->string('send_back_callback_uri')->comment('退回回调地址')->default('');
+            $table->string('reject_callback_uri')->comment('退回回调地址')->default('');
             $table->string('transfer_callback_uri')->comment('转交回调地址')->default('');
             $table->string('end_callback_uri')->comment('结束回调地址')->default('');
             $table->timestamps();
@@ -185,14 +188,16 @@ class CreateWorkflowTable extends Migration
         Schema::create('flow_run', function (Blueprint $table) {
             $table->increments('id');
             $table->unsignedInteger('flow_id')->comment('流程ID');
+            $table->unsignedInteger('flow_type_id')->comment('流程分类ID');
             $table->unsignedInteger('form_id')->comment('表单ID');
             $table->char('name', 20)->comment('流程名称');
             $table->unsignedMediumInteger('creator_sn')->comment('发起人编号');
             $table->char('creator_name', 10)->comment('发起人姓名');
-            $table->tinyInteger('status')->comment('流程状态 0:运行中 1:结束 -1:撤回')->default(0);
+            $table->tinyInteger('status')->comment('流程状态 0:运行中 1:结束 -1:撤回 -2:驳回')->default(0);
             $table->dateTime('end_at')->comment('结束时间')->nullable();
             $table->timestamps();
             $table->softDeletes();
+            $table->index('flow_type_id');
             $table->foreign('flow_id')->references('id')->on('flows');
             $table->foreign('form_id')->references('id')->on('forms');
         });
@@ -201,7 +206,9 @@ class CreateWorkflowTable extends Migration
         Schema::create('step_run', function (Blueprint $table) {
             $table->increments('id');
             $table->unsignedInteger('step_id')->comment('步骤ID');
+            $table->unsignedInteger('step_key')->comment('步骤key');
             $table->char('step_name', 20)->comment('步骤名称');
+            $table->unsignedInteger('flow_type_id')->comment('流程分类ID');
             $table->unsignedInteger('flow_id')->comment('流程ID');
             $table->char('flow_name', 20)->comment('流程名称');
             $table->unsignedInteger('flow_run_id')->comment('运行ID');
@@ -211,13 +218,16 @@ class CreateWorkflowTable extends Migration
             $table->char('approver_name', 10)->comment('审批人姓名');
             $table->dateTime('checked_at')->comment('查看时间')->nullable();
             $table->tinyInteger('action_type')->default(0)->comment('操作类型 0:未操作,1：发起，2：通过，3：转交，-1：驳回,-2:撤回,-3:取消');
-            $table->unsignedTinyInteger('is_rejected')->default(0)->comment('上一步为驳回 1是 0否');
             $table->dateTime('acted_at')->comment('操作时间')->nullable();
             $table->char('remark', 200)->comment('操作备注')->default('');
+            $table->unsignedTinyInteger('is_rejected')->default(0)->comment('上一步为驳回 1是 0否');
+            $table->char('next_id',20)->default('')->comment('下一步id');
             $table->timestamps();
             $table->softDeletes();
+            $table->index('step_key');
             $table->index('approver_sn');
             $table->index('flow_run_id');
+            $table->index('flow_type_id');
             $table->foreign('flow_id')->references('id')->on('flows');
             $table->foreign('flow_run_id')->references('id')->on('flow_run');
             $table->foreign('step_id')->references('id')->on('steps');
@@ -244,8 +254,8 @@ class CreateWorkflowTable extends Migration
         Schema::dropIfExists('fields_has_validators');
         Schema::dropIfExists('fields');
         Schema::dropIfExists('validators');
-        Schema::dropIfExists('forms');
         Schema::dropIfExists('form_grids');
+        Schema::dropIfExists('forms');
         Schema::dropIfExists('form_types');
     }
 }

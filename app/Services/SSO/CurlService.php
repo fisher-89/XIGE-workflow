@@ -15,6 +15,7 @@ class CurlService
     private $resource;
     private $url;
     private $port;
+    private $headers;
 
     public function __construct($url = '')
     {
@@ -60,7 +61,7 @@ class CurlService
         curl_setopt($this->resource, CURLOPT_POST, true);
         $message = json_encode($message);
         curl_setopt($this->resource, CURLOPT_POSTFIELDS, $message);
-        $this->setHeader(['Content-Type:application/json']);
+        $this->setHeader(['Content-Type'=>'application/json']);
         $response = $this->get($url);
         return $response;
     }
@@ -90,8 +91,9 @@ class CurlService
 
     public function setHeader($headers)
     {
+        $this->headers = array_collapse([$this->headers,$headers]);
         $stringifyHeader = [];
-        foreach ($headers as $key => $value) {
+        foreach ($this->headers as $key => $value) {
             array_push($stringifyHeader, $key . ':' . $value);
         }
         curl_setopt($this->resource, CURLOPT_HTTPHEADER, $stringifyHeader);

@@ -9,20 +9,18 @@
 namespace App\Services;
 
 
-use Illuminate\Support\Facades\Auth;
-use Illuminate\Support\Facades\DB;
-use Mockery\Exception;
+use App\Models\StepRun;
+use App\Repository\FlowRepository;
 
 class ActionService
 {
-    use Through;
 
-//    protected $user;
-//
-//    public function __construct()
-//    {
-//        $this->user = Auth::user();
-//    }
+    protected $formRepository;
+
+    public function __construct()
+    {
+        $this->formRepository = new \App\Repository\FormRepository();
+    }
 
     /**
      * 预提交处理
@@ -31,144 +29,221 @@ class ActionService
      */
     public function preset($request, $flow)
     {
-        DB::transaction(function () use ($request, $flow) {
-            //创建流程运行数据
-            $flowRunData = $this->createFlowData($flow->id);
-            //创建表单data字段数据与控件字段数据
-            $dataId = $this->createFormData($request->form_data, $flowRunData, $flow);
-            //创建步骤运行数据
-            $this->createStartStepRunData($flow,$flowRunData,$dataId);
-        });
+        $requestFormData = $request->input('form_data');
+        $step = $this->getStep($request, $flow);//步骤数据
+        $filterRequestFormData = $this->filterRequestFormData($requestFormData, $step);//过滤request表单data
+        $dbFormData = $this->getEditableDbFormData($request, $step->editable_fields, $flow->form_id);//获取数据库可写的表单数据
+
+        //替换数据库的表单data数据
+        $formData = $this->formRepository->replaceFormData($filterRequestFormData, $dbFormData);
+
+        $fields = $this->formRepository->getOnlyEditableFields($step->editable_fields, $flow->form_id);//获取可写字段信息
+        $filterFormData = app('formData')->getFilterFormData($formData, $fields);//获取筛选过后的表单数据
+
+        $nextStep = [];
+        if (empty($step->next_step_key)) {
+            //结束流程
+            $step_end = 1;
+        } else {
+            //流程未结束  获取下一步骤数据
+            $step_end = 0;
+            $nextStep = app('preset')->getNextStep($step, $filterFormData);//下一步数据
+            if (empty($nextStep)) {
+                abort(400,'该步骤为合并类型，后台配置错误，只能有一个审批步骤');
+            }
+
+            $nextStep = $nextStep->map(function ($field) {
+                return $field->only(['id', 'name', 'approvers']);
+            })->toArray();
+
+        }
+        $cacheData = [
+            'form_data' => $filterFormData,//表单data数据
+            'available_steps' => $nextStep,//下一步骤数据
+            'step_end' => $step_end,//是否结束步骤
+            'concurrent_type' => $step->concurrent_type,//步骤并发类型
+            'step_run_id' => $request->input('step_run_id')//步骤运行ID
+        ];
+        $timestamp = app('preset')->setPresetDataToCache($cacheData);//预提交数据存入cache
+        $responseData = [
+            'available_steps' => $nextStep,
+            'step_end' => $step_end,
+            'timestamp' => $timestamp,
+            'concurrent_type' => $step->concurrent_type,
+            'flow_id' => $flow->id,
+        ];
+        return $responseData;
     }
 
     /**
-     * 创建流程运行数据
-     * @param $flowId
+     *过滤request的表单data
+     * @param $requestFormData
+     * @param $step
      */
-    private function createFlowData($flowId)
+    protected function filterRequestFormData(array $requestFormData, $step)
     {
-        return app('flowRun')->create($flowId);
+        $hiddenFields = $step->hidden_fields;
+        $editableFields = $step->editable_fields;
+        $formData = $this->exceptHiddenFormData($hiddenFields, $requestFormData);//去除hidden_fields数据
+        $formData = $this->onlyEditableFormData($editableFields, $formData);//包含可写字段数据
+        return $formData;
     }
 
     /**
-     * 创建表单data字段数据与控件字段数据
-     * @param $request
+     * 过滤去除Request表单hidden字段
+     * @param $hiddenFields
+     * @param array $requestFormData
      */
-    private function createFormData($formData, $flowRunData, $flowModel)
+    protected function exceptHiddenFormData($hiddenFields, array $requestFormData)
     {
-        $dataId = $this->createFormFieldsData($formData, $flowRunData, $flowModel);//创建表单data字段数据
-        $this->createGridFieldsData($formData, $flowRunData, $flowModel,$dataId);//创建表单控件字段数据
-        return $dataId;
+        $data = [];
+        foreach ($requestFormData as $k => $v) {
+            if (is_array($v) && $v) {
+                //控件字段过滤
+                foreach ($v as $gridKey => $gridValue) {
+                    if (is_array($gridValue) && $gridValue) {
+                        foreach ($gridValue as $field => $fieldValue) {
+                            $fieldName = $k . '.*.' . $field;
+                            if ((!in_array($fieldName, $hiddenFields))) {
+                                $data[$k][$gridKey][$field] = $fieldValue;
+                            }
+                        }
+                    } else {
+                        //不是控件（文件数据）
+                        $data[$k] = $v;
+                    }
+                }
+            } else {
+                //表单字段过滤
+                if (!in_array($k, $hiddenFields)) {
+                    $data[$k] = $v;
+                }
+            }
+        }
+        return $data;
     }
 
     /**
-     * 创建表单data数据
+     * 取出包含可写字段的formData
+     * @param $editableFields
      * @param $formData
-     * @param $flowRunData
-     * @param $flowModel
+     */
+    protected function onlyEditableFormData($editableFields, $formData)
+    {
+        $data = [];
+        foreach ($formData as $k => $v) {
+            if (is_array($v) && $v) {
+                //控件字段过滤
+                foreach ($v as $gridKey => $gridValue) {
+                    if (is_array($gridValue) && $gridValue) {
+                        foreach ($gridValue as $field => $fieldValue) {
+                            $fieldName = $k . '.*.' . $field;
+                            if (in_array($fieldName, $editableFields) || $field == 'id') {
+                                $data[$k][$gridKey][$field] = $fieldValue;
+                            }
+                        }
+                    } else {
+                        //表单字段过滤(文件数组数据)
+                        $data[$k] = $v;
+                    }
+                }
+            } else {
+                //表单字段过滤
+                if (in_array($k, $editableFields)) {
+                    $data[$k] = $v;
+                }
+            }
+        }
+        return $data;
+    }
+
+    /**
+     * 获取数据库可写的表单data数据
+     * @param $request
+     * @param $editableFields
+     */
+    protected function getEditableDbFormData($request, $editableFields, $formId)
+    {
+        $allDatabaseFormData = $this->getDatabaseFormData($request);
+        $fields = $this->formRepository->getOnlyEditableFields($editableFields, $formId);
+        $filterDatabaseFormData = app('formData')->getFilterFormData($allDatabaseFormData, $fields);//获取筛选过后的表单数据
+        return $filterDatabaseFormData;
+    }
+
+    /**
+     * 获取步骤数据
+     * @param $request
+     * @param $flow
      * @return mixed
      */
-    private function createFormFieldsData($formData, $flowRunData, $flowModel)
+    protected function getStep($request, $flow)
     {
-        //获取表单字段
-        $formFields = $flowModel->form->fields->filter(function ($field) {
-            return $field->form_grid_id == null;
-        })->pluck('key')->all();
-        $formFieldsData = array_only($formData, $formFields);
-        $formFieldsData['run_id'] = $flowRunData->id;
-        $id = app('formData', ['formId' => $flowRunData->form_id])->create($formFieldsData);//创建表单data数据
-        return $id;
-    }
-
-    /**
-     * 创建表单控件数据
-     * @param $formData
-     * @param $flowRunData
-     * @param $flowModel
-     */
-    private function createGridFieldsData($formData, $flowRunData, $flowModel,$dataId)
-    {
-        $gridFields = $flowModel->form->grid->load('fields')->keyBy('key');//获取表单控件字段数据
-        $gridKeys= $gridFields->pluck('key')->all();//控件的key
-        foreach ($formData as $k=>$v){
-           if(in_array($k,$gridKeys)){
-               //包含控件
-               $v =data_fill($v,'*.run_id',$flowRunData->id);//添加运行id字段数据
-               $v = data_fill($v,'*.data_id',$dataId);//添加dataID
-               app('formData',['formId'=>$flowRunData->form_id])->createGrid($v,$k);
-//                $itemFields = $gridFields[$k]['fields']->pluck('key')->all();//单个控件字段
-           }
+        $flowRepository = new FlowRepository();
+        if ($request->has('step_run_id') && intval($request->input('step_run_id'))) {
+            //通过 预提交
+            $step = $flowRepository->getCurrentStep($request->input('step_run_id'));
+        } else {
+            //发起 预提交
+            $step = $flowRepository->getFlowFirstStep($flow);
         }
+        return $step;
     }
 
     /**
-     * 创建开始步骤运行数据
+     * 获取数据库的formData
+     * @param $request
+     * @return array
      */
-    private function createStartStepRunData($flowModel, $flowRunData, $formDataId)
+    protected function getDatabaseFormData($request)
     {
-        $startStepData = app('step')->getStartStepData($flowModel);
-        app('stepRun')->createStartStepRun($startStepData, $flowRunData, $formDataId);
+        if ($request->has('step_run_id') && intval($request->input('step_run_id'))) {
+            $flowRunId = StepRun::find($request->input('step_run_id'))->flow_run_id;
+            $formData = $this->formRepository->getFormData($flowRunId);//获取表单data数据
+        } else {
+            $formData = $this->formRepository->getFormData();//获取表单data数据
+        }
+        return $formData;
     }
 
-
-    /*---------------------------------------------------------------------------*/
     /**
      * 流程发起处理
      * @param $request
      */
-    public function start($request)
+    public function start($request, $flow)
     {
-        DB::transaction(function () use ($request) {
-            $flowRunData = $this->createFlowData($request->flow_id);
-            $formDataId = $this->createFormData($request, $flowRunData);
-            $this->createStartStepRunData($request->flow_id, $flowRunData, $formDataId);
-            $this->createNextStepRunData($request, $flowRunData, $formDataId);
-        });
+        $cacheFormData = app('preset')->getPresetData($request->input('timestamp'));
+        if (!$cacheFormData)
+            abort(404, '预提交数据已失效，请重新提交数据');
+        $this->checkStartRequest($request, $cacheFormData);//检测审批人数据与step_run_id是否正确、缓存是否失效
+
+        $flowRunData = app('start')->startSave($request, $flow);//发起保存
+        return $flowRunData;
     }
 
     /**
-     * 获取该流程的当前人数据
+     * 检测发起数据
      * @param $request
      */
-    public function getCurrentUserStepData($flowId)
+    public function checkStartRequest($request, $cacheData)
     {
-//        dd(app('auth')->user());
-        return app('stepRun')->getCurrentUserStepData($flowId);
-    }
-
-    /**
-     * 通过
-     * @param $request
-     */
-    public function through($request)
-    {
-        DB::transaction(function () use ($request) {
-            $stepRunData = $this->saveThrough($request);//修改为通过状态
-            if ($request->has('form_data') && $request->form_data)
-                app('formData', ['formId' => $stepRunData->form_id])->update($stepRunData->data_id, $request->form_data);//修改表单data表数据
-            $isOverFlow = $this->checkNextStep($stepRunData);//检测是否为结束流程并进行处理
-            if ($isOverFlow == false) {//步骤未结束
-//                $this->throughCreateNextStepRunData($request,$stepRunData);
-                $flowRunData = app('flowRun')->find($stepRunData->flow_run_id);//获取流程运行数据
-                $this->createNextStepRunData($request, $flowRunData, $stepRunData->form_id);//创建下一步骤运行数据
+        if ($cacheData['step_run_id'] != $request->input('step_run_id')) {
+            abort(400, '步骤运行ID与提交数据不一致');
+        }
+        if (!empty($cacheData['available_steps'])) {
+            $availableStepStaffSn = [];//下一步审批人编号
+            foreach ($cacheData['available_steps'] as $v) {
+                foreach ($v['approvers'] as $step) {
+                    $availableStepStaffSn[] = $step['staff_sn'];
+                }
             }
-        });
-    }
-
-
-
-    /**
-     * 创建下一运行步骤数据
-     * @param $request
-     * @param $flowRunData
-     * @param $formDataId
-     */
-    private function createNextStepRunData($request, $flowRunData, $formDataId)
-    {
-        foreach ($request->approvers as $k => $v) {
-            $stepData = app('step')->getStep($request->flow_id, $v['step_key']);
-            app('stepRun')->createStepRun($stepData, $flowRunData, $formDataId, $v);
+            //检测提交的下一步审批人是否在审批人中
+            foreach ($request->input('next_step') as $v) {
+                if (!in_array($v['approver_sn'], $availableStepStaffSn)) {
+                    abort(400, $v['approver_name'] . '不在下一步审批人中');
+                }
+            }
         }
     }
+
 
 }

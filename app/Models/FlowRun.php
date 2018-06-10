@@ -10,7 +10,11 @@ class FlowRun extends Model
     use SoftDeletes;
 
     protected $table = 'flow_run';
-    protected $hidden = ['created_at', 'updated_at', 'deleted_at'];
-    protected $fillable = ['flow_id', 'form_id', 'name', 'creator_sn', 'creator_name', 'status'];
+    protected $hidden = ['updated_at', 'deleted_at'];
+    protected $fillable = ['flow_id', 'flow_type_id', 'form_id', 'name', 'creator_sn', 'creator_name', 'status'];
 
+    public function stepRun()
+    {
+        return $this->hasMany('App\Models\StepRun', 'flow_run_id');
+    }
 }

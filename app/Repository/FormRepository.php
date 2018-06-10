@@ -82,11 +82,11 @@ class FormRepository
     {
         foreach ($databaseFormData as $k => $v) {
             if (array_has($requestFormData, $k)) {
-                if (is_array($v)) {
-                    if (count($v) > 0) {
-                        $databaseFormData[$k] = $this->replaceGridFormData($v, $requestFormData);
-                    }
-                }
+//                if (is_array($v)) {
+//                    if (count($v) > 0) {
+//                        $databaseFormData[$k] = $this->replaceGridFormData($k, $v, $requestFormData);
+//                    }
+//                }
                 $databaseFormData[$k] = $requestFormData[$k];
             }
         }
@@ -99,17 +99,17 @@ class FormRepository
      * @param $requestFormData
      * @return mixed
      */
-    protected function replaceGridFormData($gridData, $requestFormData)
-    {
-        foreach ($gridData as $gridKey => $gridItem) {
-            foreach ($gridItem as $field => $value) {
-                if (array_has($requestFormData[$gridKey], $field)) {
-                    $gridData[$gridKey][$field] = $requestFormData[$gridKey][$field];
-                }
-            }
-        }
-        return $gridData;
-    }
+//    protected function replaceGridFormData($gridDataKey, $gridData, $requestFormData)
+//    {
+//        foreach ($gridData as $gridKey => $gridItem) {
+//            foreach ($gridItem as $field => $value) {
+//                if (array_has($requestFormData[$gridKey], $field)) {
+//                    $gridData[$gridKey][$field] = $requestFormData[$gridKey][$field];
+//                }
+//            }
+//        }
+//        return $gridData;
+//    }
 
     /**
      * 获取表单控件数据与控件字段
@@ -121,6 +121,39 @@ class FormRepository
             $query->orderBy('sort', 'asc');
         }])->whereFormId($formId)->get();
         return $gridData;
+    }
+
+    /**
+     * 获取文件字段
+     * @param $fromId
+     */
+    public function getFileFields($formId)
+    {
+        $fields = $this->getFields($formId);
+        $fileFields = $this->getFormDataFileFields($fields);//获取文件字段
+        return $fileFields;
+    }
+
+    /**
+     * 获取表单的文件字段
+     * @param $fields
+     * @return mixed
+     */
+    protected function getFormDataFileFields($fields)
+    {
+        $fields['form'] = $fields['form']->filter(function ($field) {
+            return $field['type'] == 'file';
+        })->pluck('key');
+        if (!empty($fields['grid'])) {
+            $fields['grid'] = $fields['grid']->map(function ($grid) {
+                $gridData = $grid->toArray();
+                $gridData['fields'] = $grid->fields->filter(function ($filed) {
+                    return $filed->type == 'file';
+                })->pluck('key');
+                return collect($gridData);
+            })->pluck('fields', 'key');
+        }
+        return $fields->toArray();
     }
 
     /**
@@ -139,6 +172,34 @@ class FormRepository
                     ->get()->map(function ($item) {
                         return (array)$item;
                     })->toArray();
+            }
+        }
+        $formData = $this->fileFieldsToArray($formData, $flowRun->form_id);//文件字段json转数组
+        return $formData;
+    }
+
+    /**
+     * 表单文件字段转数组
+     * @param $formData
+     * @param $formId
+     */
+    protected function fileFieldsToArray($formData, $formId)
+    {
+        $fileFields = $this->getFileFields($formId);
+        foreach ($formData as $field => $value) {
+            if (in_array($field, $fileFields['form']) && !empty($value)) {
+                $formData[$field] = json_decode($value, true);
+            }
+
+            if (is_array($value) && (!empty($value)) && array_has($fileFields['grid'], $field)) {
+                //控件文件字段处理
+                foreach ($value as $gridKey => $gridValue) {
+                    foreach ($gridValue as $k => $v) {
+                        if (in_array($k, $fileFields['grid'][$field]) && !empty($v)) {
+                            $formData[$field][$gridKey][$k] = json_decode($v, true);
+                        }
+                    }
+                }
             }
         }
         return $formData;
@@ -167,7 +228,7 @@ class FormRepository
             $gridData['fields'] = $fields;
             return collect($gridData);
         });
-        return $allFields;
+        return collect($allFields);
     }
 
     /**
