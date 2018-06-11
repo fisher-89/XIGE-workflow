@@ -71,6 +71,7 @@ class ActionService
             'timestamp' => $timestamp,
             'concurrent_type' => $step->concurrent_type,
             'flow_id' => $flow->id,
+            'step_run_id' => $request->input('step_run_id')//步骤运行ID
         ];
         return $responseData;
     }

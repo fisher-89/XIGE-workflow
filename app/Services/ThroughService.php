@@ -111,6 +111,11 @@ class ThroughService
     {
         $formFields = Field::where('form_id', $this->stepRun->form_id)->whereNull('form_grid_id')->pluck('key')->all();
         $formData = array_only($this->formData, $formFields);
+        $formData = array_map(function($item){
+            if(is_array($item))
+                $item = json_encode($item);
+            return $item;
+        },$formData);
         DB::table($this->tablePrefix . $this->stepRun->form_id)
             ->where('id', $this->stepRun->data_id)
             ->update($formData);

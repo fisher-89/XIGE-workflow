@@ -16,6 +16,9 @@ use Illuminate\Http\Request;
 Route::middleware('auth:api')->get('/user', function (Request $request) {
     return $request->user();
 });
+Route::options('{a?}/{b?}/{c?}', function () {
+    return response('', 204);
+})->middleware('crossDomain');
 
 Route::middleware('auth:api')->group(function () {
     Route::get('list', 'ResourceController@getFlowList');//获取可发起的流程
@@ -32,6 +35,3 @@ Route::middleware('auth:api')->group(function () {
 
     Route::post('files','FileController@index')->middleware('crossDomain');//临时存储文件
 });
-Route::options('{a?}/{b?}/{c?}', function () {
-    return response('', 204);
-})->middleware('crossDomain');

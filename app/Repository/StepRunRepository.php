@@ -58,7 +58,8 @@ class StepRunRepository
             'step' => $currentStepData,
             'form_data' => $filterFormData,
             'fields' => $fields,
-            'flow_run' => $stepRun->flowRun->toArray()
+            'flow_run' => $stepRun->flowRun->toArray(),
+            'step_run'=>$stepRun,
         ];
         return $data;
     }
