@@ -30,4 +30,8 @@ Route::middleware('auth:api')->group(function () {
     Route::patch('through','ActionController@through');//通过处理
     Route::patch('reject','ActionController@reject');//驳回
 
+    Route::post('files','FileController@index')->middleware('crossDomain');//临时存储文件
 });
+Route::options('{a?}/{b?}/{c?}', function () {
+    return response('', 204);
+})->middleware('crossDomain');
