@@ -29,25 +29,24 @@ class PresetService
             $allowCondition = empty($stepItem->allow_condition) ? true : app('formData')->analysisDefaultValueVariate($stepItem->allow_condition, $formData);
             $skipCondition = empty($stepItem->skip_condition) ? false : app('formData')->analysisDefaultValueVariate($stepItem->skip_condition, $formData);
             $stepItem->approvers = $this->getUserInfo($stepItem->approvers);//获取审批人信息
-
             if ($allowCondition && $skipCondition) {//访问条件通过 略过条件true
-                if($stepItem->merge_type ==1 && count($step->next_step_key)>1){
+                if ($stepItem->merge_type == 1 && count($step->next_step_key) > 1) {
                     $isNext = true;
                     break;
-                }else{
+                } else {
                     $skipStep = $this->getNextStep($stepItem, $formData);
                     $nextStep = array_collapse([$nextStep, $skipStep]);
                 }
             } elseif ($allowCondition && !$skipCondition) {//访问条件通过  未略过条件
-                if($stepItem->merge_type ==1 && count($step->next_step_key)>1){
+                if ($stepItem->merge_type == 1 && count($step->next_step_key) > 1) {
                     $isNext = true;
                     break;
-                }else{
+                } else {
                     $nextStep[] = $stepItem;
                 }
             }
         }
-        if($isNext){
+        if ($isNext) {
             return [];
         }
         return collect($nextStep);
@@ -55,7 +54,6 @@ class PresetService
 
 
     /**
-     * TODO  角色接口未完成
      * 从OA获取人员数据
      * @param $data
      * staff 员工编号 array
@@ -64,34 +62,36 @@ class PresetService
      */
     public function getUserInfo(array $data)
     {
-//        dump($data);
-        $url = config('oa.host') . '/api/get_user';
-        $staffData = [
-            'staff_sn' => $data['staff'],
-            ['status_id', '>', 0]
-        ];
-        $staffResponse = app('curl')->sendMessageByPost($url, $staffData)['data'];
-        $staffResponse = $this->filterUserInfo($staffResponse);//筛选字段
+        $staffData = [];
+        $roleData = [];
+        $departmentData = [];
+        if (!empty($data['staff']))
+            $staffData = $this->getOaUser($data['staff'], 'staff_sn');
+        if (!empty($data['roles']))
+            $roleData = $this->getOaUser($data['roles'], 'position_id');
+        if (!empty($data['departments']))
+            $departmentData = $this->getOaUser($data['departments'], 'department_id');
+        $userData = array_collapse([$staffData, $roleData, $departmentData]);//合并数据
+        $userData = $this->filterUserInfo($userData);//筛选字段
+        $userData = $this->userDistinct($userData);//去除重复的员工
+        return $userData;
+    }
 
-//        $roleData = [
-//            'role' => $data['roles'],
-//            ['status_id', '>', 0],
-//            'start'=>0,
-//            'pageSize'=>10
-//        ];
-//        $roleResponse = app('curl')->sendMessageByPost($url, $roleData);
-//        $roleResponse = $this->filterUserInfo($roleResponse);//筛选字段
-//        dd($roleResponse);
-        $departmentData = [
-            'department_id' => $data['departments'],
-            ['status_id', '>', 0]
-        ];
-        $departmentResponse = app('curl')->sendMessageByPost($url, $departmentData)['data'];
-        $departmentResponse = $this->filterUserInfo($departmentResponse);//筛选字段
-
-        $user = array_collapse([$staffResponse, $departmentResponse]);//合并数据
-        $user = $this->userDistinct($user);//去除重复的员工
-        return $user;
+    /**
+     * 通过接口获取OA用户信息
+     * @param array $data
+     * @param $field
+     * @return mixed
+     * @throws \Illuminate\Container\EntryNotFoundException
+     */
+    protected function getOaUser(array $data, $field)
+    {
+        $path = config('oa.get_staff');
+        $dataStr = implode(',', $data);
+        $filter = '?filters=' . $field . '=[' . $dataStr . '];status_id>0';
+        $url = $path . $filter;
+        $response = app('curl')->get($url);
+        return $response;
     }
 
     /**
@@ -121,7 +121,8 @@ class PresetService
      * @param $timestamp
      * @throws \Exception
      */
-    public function forgetPresetData($timestamp){
+    public function forgetPresetData($timestamp)
+    {
         $cacheName = $timestamp . app('auth')->user()->staff_sn;
         cache()->forget($cacheName);
     }
@@ -137,7 +138,6 @@ class PresetService
             $user['staff_sn'] = $item['staff_sn'];
             $user['realname'] = $item['realname'];
             $user['department_id'] = $item['department']['id'];
-            $user['department_name'] = $item['department']['name'];
             $user['department_full_name'] = $item['department']['full_name'];
             $user['position_name'] = $item['position']['name'];
             return $user;
