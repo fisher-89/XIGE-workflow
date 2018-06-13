@@ -38,6 +38,7 @@ class FlowRunRepository
             ->when(($status || $status === 0), function ($query) use ($status) {
                 return $query->where('status', $status);
             })
+            ->orderBy('created_at','desc')
             ->paginate(15);
         return $data;
     }
