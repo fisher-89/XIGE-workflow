@@ -14,6 +14,9 @@ class FileController extends Controller
         if ($request->isMethod('post')) {
             $file = $request->file('upFile');
             if($file==null){return back()->with('errors','没找到文件');}
+            $size = $file->getClientSize();//文件大小  单位字节
+            if(!$size)
+                abort(400,'文件大于服务器配置的文件大小');
             if ($file->isValid()) {//todo
 //                $originalName = $file->getClientOriginalName(); // 文件原名
                 $ext = $file->getClientOriginalExtension();     // 扩展名
