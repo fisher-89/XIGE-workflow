@@ -193,7 +193,7 @@ class CreateWorkflowTable extends Migration
             $table->char('name', 20)->comment('流程名称');
             $table->unsignedMediumInteger('creator_sn')->comment('发起人编号');
             $table->char('creator_name', 10)->comment('发起人姓名');
-            $table->tinyInteger('status')->comment('流程状态 0:运行中 1:结束 -1:撤回 -2:驳回')->default(0);
+            $table->tinyInteger('status')->comment('流程状态 0:运行中 1:结束 -2:撤回 -1:驳回')->default(0);
             $table->dateTime('end_at')->comment('结束时间')->nullable();
             $table->timestamps();
             $table->softDeletes();

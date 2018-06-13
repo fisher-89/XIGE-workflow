@@ -30,7 +30,7 @@ class RejectService
         $stepRunData->remark = trim($request->input('remark'));
         $stepRunData->save();
 
-        $stepRunData->flowRun->status = -2;
+        $stepRunData->flowRun->status = -1;
         $stepRunData->flowRun->end_at = date('Y-m-d H:i:s');
         $stepRunData->flowRun->save();
         return $stepRunData;

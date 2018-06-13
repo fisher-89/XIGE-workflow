@@ -60,10 +60,10 @@ class FlowRunRepository
                 $status = 1;
                 break;
             case 'withdraw'://撤回
-                $status = -1;
+                $status = -2;
                 break;
             case 'rejected'://驳回
-                $status = -2;
+                $status = -1;
                 break;
             default:
                 $status = [];

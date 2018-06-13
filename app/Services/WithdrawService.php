@@ -32,7 +32,7 @@ class WithdrawService
         }])->find($flowRunId);
         DB::transaction(function()use(&$flowRunData){
             //修改发起状态
-            $flowRunData->status = -1;
+            $flowRunData->status = -2;
             $flowRunData->end_at = date('Y-m-d H:i:s');
             $flowRunData->save();
             //修改步骤运行状态
