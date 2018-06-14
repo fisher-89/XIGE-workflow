@@ -2,12 +2,14 @@
 
 namespace App\Http\Controllers;
 
+use App\Http\Requests\DeliverRequest;
 use App\Http\Requests\PresetRequest;
 use App\Http\Requests\RejectRequest;
 use App\Http\Requests\StartRequest;
 use App\Http\Requests\ThroughRequest;
 use App\Http\Requests\WithdrawRequest;
 use App\Models\Flow;
+use App\Services\DeliverService;
 use App\Services\RejectService;
 use Illuminate\Http\Request;
 
@@ -66,5 +68,17 @@ class ActionController extends Controller
     {
         $stepRunData = $rejectService->reject($request);
         return app('apiResponse')->patch($stepRunData);
+    }
+
+    /**
+     * 转交
+     * @param DeliverRequest $request
+     * @param DeliverService $deliverService
+     * @return mixed
+     */
+    public function deliver(DeliverRequest $request, DeliverService $deliverService)
+    {
+        $stepRunData = $deliverService->deliver($request);
+        return app('apiResponse')->post($stepRunData);
     }
 }

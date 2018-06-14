@@ -32,6 +32,7 @@ Route::middleware('auth:api')->group(function () {
     Route::patch('withdraw','ActionController@withdraw');//撤回
     Route::patch('through','ActionController@through');//通过处理
     Route::patch('reject','ActionController@reject');//驳回
+    Route::post('deliver','ActionController@deliver');//转交
 
     Route::post('files','FileController@index')->middleware('crossDomain');//临时存储文件
 });
