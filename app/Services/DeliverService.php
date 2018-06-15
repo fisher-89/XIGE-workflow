@@ -22,12 +22,14 @@ class DeliverService
     public function deliver($request)
     {
         $stepRun = StepRun::find($request->input('step_run_id'));
-        $stepRunData = array_except($stepRun->toArray(), ['id', 'approver_sn', 'approver_name', 'created_at', 'updated_at', 'deleted_at']);
         $deliverData = [];
-        DB::transaction(function () use ($request,$stepRunData, &$deliverData) {
+        DB::transaction(function () use ($request,$stepRun, &$deliverData) {
+            $stepRun->action_type = 3;
+            $stepRun->save();
+            $stepRunData = array_except($stepRun->toArray(), ['id', 'approver_sn', 'approver_name', 'created_at', 'updated_at', 'deleted_at']);
             foreach ($request->input('deliver') as $staff) {
                 $data = $stepRunData;
-                $data['action_type'] = 3;
+                $data['action_type'] = 0;
                 $data = array_collapse([$data, $staff]);
                 $deliverStepRunData = StepRun::create($data);
                 $deliverData[] = $deliverStepRunData->toArray();
