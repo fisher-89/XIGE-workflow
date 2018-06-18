@@ -68,7 +68,7 @@ class PresetService
         if (!empty($data['staff']))
             $staffData = $this->getOaUser($data['staff'], 'staff_sn');
         if (!empty($data['roles']))
-            $roleData = $this->getOaUser($data['roles'], 'position_id');
+            $roleData = $this->getOaUser($data['roles'], 'role.id');
         if (!empty($data['departments']))
             $departmentData = $this->getOaUser($data['departments'], 'department_id');
         $userData = array_collapse([$staffData, $roleData, $departmentData]);//合并数据
