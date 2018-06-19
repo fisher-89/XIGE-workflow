@@ -78,8 +78,12 @@ class FormDataService
     public function analysisDefaultValueVariate($defaultValue, array $formData)
     {
         $value = $this->systemVariate($defaultValue);//系统变量解析
-        $value = $this->formFieldsVariate($value, $formData);//解析字段变量
-        $value = $this->calculation($value);//解析运算公式
+        if(!empty($formData)){
+            $value = $this->formFieldsVariate($value, $formData);//解析字段变量
+            $value = $this->calculation($value);//解析运算公式
+        }else{
+            $value = '';
+        }
         return $value;
     }
 
