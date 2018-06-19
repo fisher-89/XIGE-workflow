@@ -82,7 +82,8 @@ class FormDataService
             $value = $this->formFieldsVariate($value, $formData);//解析字段变量
             $value = $this->calculation($value);//解析运算公式
         }else{
-            $value = '';
+            if(preg_match('/{\?(\w+)\?}/',$value))
+                $value = '';
         }
         return $value;
     }
