@@ -36,9 +36,12 @@ class ResourceController extends Controller
      */
     public function start(Flow $flow)
     {
+
         $flowAuthorized = (bool)FlowAuth::checkFlowAuthorize($flow->id);//该流程的当前用户权限
         if ($flowAuthorized === false)
             abort(403, '该流程你无权限');
+        if($flow->is_active === 0)
+            abort(403,'该流程未启动');
         $flowRepository = new \App\Repository\FlowRepository();
         $firstStepData = $flowRepository->getFlowFirstStep($flow);//开始步骤数据
 
