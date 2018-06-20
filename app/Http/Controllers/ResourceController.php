@@ -47,7 +47,8 @@ class ResourceController extends Controller
 
         $formRepository = new \App\Repository\FormRepository();
         //表单字段  去除了hidden字段
-        $fields = $formRepository->getExceptHiddenFields($firstStepData->hidden_fields, $flow->form_id);
+        $fields = $formRepository->getFields($flow->form_id);//全部字段
+//        $fields = $formRepository->getExceptHiddenFields($firstStepData->hidden_fields, $flow->form_id);
 
         $formData = $formRepository->getFormData();//获取表单data数据
         $filterFormData = app('formData')->getFilterFormData($formData, $fields);//获取筛选过后的表单数据
