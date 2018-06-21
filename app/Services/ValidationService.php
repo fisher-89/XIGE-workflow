@@ -65,6 +65,9 @@ class ValidationService
                 $this->pushMinAndMaxRules($fieldRules, $field);
                 if (in_array($key, $requiredFields)) {
                     $fieldRules[] = 'required';
+                    if (strpos($key, '.*.')) {
+                        $rules['form_data.' . $field->grid->key] = 'required';
+                    }
                 }
                 $rules['form_data.' . $key] = $fieldRules;
             }
