@@ -78,11 +78,11 @@ class FormDataService
     public function analysisDefaultValueVariate($defaultValue, array $formData)
     {
         $value = $this->systemVariate($defaultValue);//系统变量解析
-        if(!empty($formData)){
+        if (!empty($formData)) {
             $value = $this->formFieldsVariate($value, $formData);//解析字段变量
             $value = $this->calculation($value);//解析运算公式
-        }else{
-            if(preg_match('/{\?(\w+)\?}/',$value))
+        } else {
+            if (preg_match('/{\?(\w+)\?}/', $value))
                 $value = '';
         }
         return $value;
@@ -153,6 +153,8 @@ class FormDataService
             $lastCalculation = $calculation;
             return $text . $calculation;
         }, $defaultValue);
+        if (preg_match('/{\?.*\?}/', $value, $reg) || preg_match('/{<(\d+)>}/', $value, $reg) || preg_match('/{{(\w+)}}/', $value, $reg))
+            abort(400, $reg[0] . '配置错误,请联系管理员');
         eval('$value = ' . $value . ';');
         return $value;
     }
