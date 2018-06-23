@@ -48,4 +48,15 @@ class FileController extends Controller
         }
 
     }
+
+    /**
+     * 清楚临时文件
+     * @return mixed
+     */
+    public function clearTempFile(){
+        $tempFile = Storage::disk('public')->deleteDirectory('uploads/temporary');
+        if(!$tempFile)
+            abort(403,'清楚临时文件失败');
+        return app('apiResponse')->delete();
+    }
 }

@@ -35,4 +35,5 @@ Route::middleware('auth:api')->group(function () {
     Route::post('deliver','ActionController@deliver');//转交
 
     Route::post('files','FileController@index')->middleware('crossDomain');//临时存储文件
+    Route::delete('clear-temp-file','FileController@clearTempFile');//清楚临时文件
 });
