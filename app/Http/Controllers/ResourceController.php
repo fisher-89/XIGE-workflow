@@ -2,18 +2,15 @@
 
 namespace App\Http\Controllers;
 
-use App\Http\Requests\GetStartRequest;
+
 use App\Http\Requests\StartRequest;
 use App\Http\Resources\StepResource;
 use App\Models\Flow;
-use App\Models\Step;
 use App\Models\StepRun;
 use App\Repository\FlowRunRepository;
 use App\Repository\StepRunRepository;
 use App\Services\Auth\FlowAuth;
 use Illuminate\Http\Request;
-use Illuminate\Support\Facades\Auth;
-use Illuminate\Support\Facades\DB;
 
 class ResourceController extends Controller
 {
@@ -41,7 +38,7 @@ class ResourceController extends Controller
         if ($flowAuthorized === false)
             abort(403, '该流程你无权限');
         if($flow->is_active === 0)
-            abort(403,'该流程未启动');
+            abort(404,'该流程未启动');
         $flowRepository = new \App\Repository\FlowRepository();
         $firstStepData = $flowRepository->getFlowFirstStep($flow);//开始步骤数据
 
@@ -54,7 +51,7 @@ class ResourceController extends Controller
         $filterFormData = app('formData')->getFilterFormData($formData, $fields);//获取筛选过后的表单数据
 
         $data = [
-            'step' => $firstStepData,
+            'step' => new StepResource($firstStepData),
             'form_data' => $filterFormData,
             'fields' => $fields,
         ];
