@@ -30,7 +30,7 @@ class DeliverRequest extends FormRequest
                 'required',
                 Rule::exists('step_run', 'id')
                     ->where('approver_sn', Auth::id())
-                    ->where('action_type', 2)
+                    ->where('action_type', 0)
                     ->whereNull('deleted_at')
             ],
             'deliver' => [
