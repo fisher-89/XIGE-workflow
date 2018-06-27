@@ -175,9 +175,10 @@ class CreateWorkflowTable extends Migration
             $table->string('start_callback_uri')->comment('开始回调地址')->default('');
             $table->string('check_callback_uri')->comment('查看回调地址')->default('');
             $table->string('approve_callback_uri')->comment('通过回调地址')->default('');
-            $table->string('reject_callback_uri')->comment('退回回调地址')->default('');
+            $table->string('reject_callback_uri')->comment('驳回回调地址')->default('');
             $table->string('transfer_callback_uri')->comment('转交回调地址')->default('');
             $table->string('end_callback_uri')->comment('结束回调地址')->default('');
+            $table->string('withdraw_callback_uri')->comment('撤回回调地址')->default('');
             $table->timestamps();
             $table->softDeletes();
             $table->unique(['flow_id', 'step_key']);
