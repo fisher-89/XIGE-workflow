@@ -47,7 +47,6 @@ class StartService
             $this->createStartStepRunData($flow, $flowRunData, $dataId);//创建开始步骤运行数据
             $this->createNextStepRunData($flow, $flowRunData, $dataId, $request->input('next_step'));
         });
-        app('preset')->forgetPresetData($request->input('timestamp'));//清楚预提交缓存数据
         return $flowRunData;
     }
 

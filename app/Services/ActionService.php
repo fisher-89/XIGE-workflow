@@ -218,6 +218,7 @@ class ActionService
         $this->checkStartRequest($request, $cacheFormData);//检测审批人数据与step_run_id是否正确、缓存是否失效
 
         $flowRunData = app('start')->startSave($request, $flow);//发起保存
+        app('preset')->forgetPresetData($request->input('timestamp'));//清楚预提交缓存数据
         return $flowRunData;
     }
 
