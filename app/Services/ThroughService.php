@@ -41,6 +41,7 @@ class ThroughService
        // $this->checkStartRequest($request, $cacheFormData);//检测审批人数据与step_run_id是否正确、缓存是否失效
         $this->formData = $cacheFormData['form_data'];
         $this->saveThrough($request, $cacheFormData['step_end']);
+        app('preset')->forgetPresetData($request->input('timestamp'));//清楚预提交缓存数据
         return $this->stepRun;
     }
 
