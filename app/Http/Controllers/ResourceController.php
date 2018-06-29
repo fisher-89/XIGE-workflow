@@ -10,6 +10,7 @@ use App\Models\StepRun;
 use App\Repository\FlowRunRepository;
 use App\Repository\StepRunRepository;
 use App\Services\Auth\FlowAuth;
+use App\Services\CallbackService;
 use Illuminate\Http\Request;
 
 class ResourceController extends Controller
@@ -77,10 +78,11 @@ class ResourceController extends Controller
      * @param StepRun $stepRun
      * @return array
      */
-    public function getApprovalDetail(StepRun $stepRun)
+    public function getApprovalDetail(StepRun $stepRun, CallbackService $callbackService)
     {
         $stepRunRepository = new \App\Repository\StepRunRepository();
         $data = $stepRunRepository->getDetail($stepRun);
+        $callbackService->checkCallback($data);//触发查看回调
         return app('apiResponse')->get($data);
     }
 
