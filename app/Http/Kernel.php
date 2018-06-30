@@ -42,6 +42,11 @@ class Kernel extends HttpKernel
             'throttle:60,1',
             'bindings',
         ],
+        //后台
+        'admin' => [
+            'throttle:60,1',
+            'bindings',
+        ],
     ];
 
     /**
