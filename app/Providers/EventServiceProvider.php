@@ -2,6 +2,7 @@
 
 namespace App\Providers;
 
+use App\Models\FlowType;
 use App\Models\FormType;
 use App\Observers\TypeObserver;
 use Illuminate\Support\Facades\Event;
@@ -29,6 +30,7 @@ class EventServiceProvider extends ServiceProvider
     {
         parent::boot();
         FormType::observe(TypeObserver::class);//表单分类缓存处理
+        FlowType::observe(TypeObserver::class);//流程分类缓存处理
         //
     }
 }
