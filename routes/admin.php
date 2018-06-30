@@ -11,4 +11,6 @@ Route::namespace('Api\Admin')->middleware('auth:api')->group(function(){
     Route::apiResource('form-type', 'FormTypeController');
     //流程分类
     Route::apiResource('flow-type', 'FlowTypeController');
+    //验证规则
+    Route::apiResource('validator', 'ValidatorController');
 });
