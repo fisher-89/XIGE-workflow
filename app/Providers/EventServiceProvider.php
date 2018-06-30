@@ -2,6 +2,8 @@
 
 namespace App\Providers;
 
+use App\Models\FormType;
+use App\Observers\TypeObserver;
 use Illuminate\Support\Facades\Event;
 use Illuminate\Foundation\Support\Providers\EventServiceProvider as ServiceProvider;
 
@@ -26,7 +28,7 @@ class EventServiceProvider extends ServiceProvider
     public function boot()
     {
         parent::boot();
-
+        FormType::observe(TypeObserver::class);//表单分类缓存处理
         //
     }
 }
