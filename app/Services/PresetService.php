@@ -88,7 +88,7 @@ class PresetService
     {
         $path = config('oa.get_staff');
         $dataStr = implode(',', $data);
-        $filter = '?filters=' . $field . '=[' . $dataStr . '];status_id>0';
+        $filter = '?filters=' . $field . '=[' . $dataStr . '];status_id>=0';
         $url = $path . $filter;
         $response = app('curl')->get($url);
         return $response;
