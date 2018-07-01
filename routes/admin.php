@@ -13,6 +13,8 @@ Route::namespace('Api\Admin')->middleware('auth:api')->group(function(){
     Route::apiResource('flow-type', 'FlowTypeController');
     //验证规则
     Route::apiResource('validator', 'ValidatorController');
+    //表单
+    Route::apiResource('form', 'FormController')->parameter('form', 'id');
 
     Route::get('variate-calculation','VariateController@index');//获取默认值的变量数据与计算公式数据
 });

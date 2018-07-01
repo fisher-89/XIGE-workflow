@@ -3,17 +3,15 @@
 namespace App\Providers;
 
 use App\Services\ActionService;
+use App\Services\Admin\FormFieldsService;
+use App\Services\Admin\FormService;
 use App\Services\DefaultValueCalculationService;
 use App\Services\DefaultValueVariateService;
-use App\Services\FieldsService;
-use App\Services\FlowRunService;
 use App\Services\FormDataService;
 use App\Services\PresetService;
 use App\Services\RejectService;
 use App\Services\ResponseService;
 use App\Services\StartService;
-use App\Services\StepRunService;
-use App\Services\StepService;
 use App\Services\ThroughService;
 use App\Services\ValidationService;
 use App\Services\WithdrawService;
@@ -49,5 +47,9 @@ class AppServiceProvider extends ServiceProvider
         $this->app->singleton('withdraw',WithdrawService::class);//撤回
         $this->app->singleton('through',ThroughService::class);//通过
         $this->app->singleton('reject',RejectService::class);//驳回
+
+        //后台
+        $this->app->bind('formService',FormService::class);//表单
+        $this->app->bind('FormFieldsService', FormFieldsService::class);//表单字段处理
     }
 }

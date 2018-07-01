@@ -8,10 +8,11 @@ use Illuminate\Database\Eloquent\SoftDeletes;
 class FormGrid extends Model
 {
     use SoftDeletes;
-    protected $fillable = ['key','form_id'];
+
+    protected $fillable = ['key','name','form_id'];
     protected $hidden = ['created_at','updated_at','deleted_at'];
 
     public function fields(){
-        return $this->hasMany('App\Models\Field');
+        return $this->hasMany(Field::class)->orderBy('sort','asc');
     }
 }
