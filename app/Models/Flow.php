@@ -37,20 +37,20 @@ class Flow extends Model
         return $this->hasMany(FlowHasStaff::class, 'flow_id');
     }
 
-    public function flowsHasStaff()
-    {
-        return $this->hasMany(FlowHasStaff::class);
-    }
-
-    public function flowsHasRoles()
-    {
-        return $this->hasMany(FlowHasRole::class);
-    }
-
-    public function flowsHasDepartments()
-    {
-        return $this->hasMany(FlowHasDepartment::class);
-    }
+//    public function flowsHasStaff()
+//    {
+//        return $this->hasMany(FlowHasStaff::class);
+//    }
+//
+//    public function flowsHasRoles()
+//    {
+//        return $this->hasMany(FlowHasRole::class);
+//    }
+//
+//    public function flowsHasDepartments()
+//    {
+//        return $this->hasMany(FlowHasDepartment::class);
+//    }
     public function subSteps()
     {
         return $this->hasMany(SubStep::class);

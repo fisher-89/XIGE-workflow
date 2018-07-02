@@ -15,6 +15,7 @@ use App\Services\StartService;
 use App\Services\ThroughService;
 use App\Services\ValidationService;
 use App\Services\WithdrawService;
+use Illuminate\Support\Facades\Validator;
 use Illuminate\Support\ServiceProvider;
 
 class AppServiceProvider extends ServiceProvider
@@ -26,7 +27,18 @@ class AppServiceProvider extends ServiceProvider
      */
     public function boot()
     {
-        //
+        Validator::extend('not_in_array', function ($attribute, $value, $parameters, $validator) {
+            $attributeGroup = explode('.', $attribute);
+            $parameterGroup = explode('.', $parameters[0]);
+            $newParameter = '';
+            foreach ($parameterGroup as $index => $item) {
+                $newParameter .= ($item == '*' && is_numeric($attributeGroup[$index])) ? $attributeGroup[$index] : $item;
+                $newParameter .= '.';
+            }
+            $newParameter = trim($newParameter,'.');
+            $array = array_get($validator->getData(),$newParameter);
+            return !in_array($value,$array);
+        });
     }
 
     /**
