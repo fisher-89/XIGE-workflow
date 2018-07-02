@@ -11,6 +11,7 @@ namespace App\Services;
 
 
 use App\Models\Step;
+use App\Services\OA\OaApiService;
 
 class PresetService
 {
@@ -86,11 +87,9 @@ class PresetService
      */
     protected function getOaUser(array $data, $field)
     {
-        $path = config('oa.get_staff');
         $dataStr = implode(',', $data);
-        $filter = '?filters=' . $field . '=[' . $dataStr . '];status_id>=0';
-        $url = $path . $filter;
-        $response = app('curl')->get($url);
+        $filters = 'filters=' . $field . '=[' . $dataStr . '];status_id>=0';
+        $response = OaApiService::getStaff($filters);
         return $response;
     }
 
