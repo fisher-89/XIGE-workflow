@@ -40,16 +40,16 @@ class CallbackService
      * 开始回调
      * @param $flowRunData
      */
-    public function startCallback($flowRunData, Array $formData)
+    public function startCallback($stepRunData, Array $formData)
     {
-        $uri = $flowRunData->stepRun->steps->start_callback_uri;
+        $uri = $stepRunData->steps->start_callback_uri;
         $sendData = [
-            'flow_run_id' => $flowRunData->id,
-            'flow_run_name' => $flowRunData->name,
-            'operator_sn' => $flowRunData->creator_sn,
-            'operator_name' => $flowRunData->creator_name,
-            'operator_status' => $flowRunData->status,
-            'operator_at' => $flowRunData->created_at,
+            'flow_run_id' => $stepRunData->flow_run_id,
+            'flow_run_name' => $stepRunData->flowRun->name,
+            'operator_sn' => $stepRunData->flowRun->creator_sn,
+            'operator_name' => $stepRunData->flowRun->creator_name,
+            'operator_status' => $stepRunData->flowRun->status,
+            'operator_at' => $stepRunData->flowRun->created_at,
             'form_data' => $formData,
         ];
         if (!empty($uri))
