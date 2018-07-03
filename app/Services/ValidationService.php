@@ -28,7 +28,7 @@ class ValidationService
         $fields->each(function ($field) use (&$rules, $editableFields, $requiredFields) {
             $key = $field->grid ? $field->grid->key . '.*.' . $field->key : $field->key;
             if (in_array($key, $editableFields)) {
-                $fieldRules = $field->validators->map(function ($validator) {
+                $fieldRules = $field->validator->map(function ($validator) {
                     return $validator->type . ($validator->params ? ':' . $validator->params : '');
                 })->toArray();
 

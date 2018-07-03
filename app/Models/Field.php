@@ -18,10 +18,10 @@ class Field extends Model
       'options'=>'array',
     ];
 
-    public function validators()
-    {
-        return $this->belongsToMany(Validator::class, 'fields_has_validators', 'field_id', 'validator_id');
-    }
+//    public function validators()
+//    {
+//        return $this->belongsToMany(Validator::class, 'fields_has_validators', 'field_id', 'validator_id');
+//    }
 
     public function validator()
     {
