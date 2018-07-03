@@ -40,14 +40,13 @@ class StartService
     public function startSave($request, $flow)
     {
         $this->flowId = $flow->id;
-        $flowRunData = [];
-        DB::transaction(function () use ($request, $flow,&$flowRunData) {
+        DB::transaction(function () use ($request, $flow,&$stepRunData) {
             $flowRunData = $this->createFlowRun($flow->id);//创建流程运行数据
             $dataId = $this->createFormData($request, $flowRunData);//创建表单data数据（表单与控件）
-            $this->createStartStepRunData($flow, $flowRunData, $dataId);//创建开始步骤运行数据
+            $stepRunData = $this->createStartStepRunData($flow, $flowRunData, $dataId);//创建开始步骤运行数据
             $this->createNextStepRunData($flow, $flowRunData, $dataId, $request->input('next_step'));
         });
-        return $flowRunData;
+        return $stepRunData;
     }
 
     /**
@@ -55,7 +54,7 @@ class StartService
      */
     protected function createFlowRun($flowId)
     {
-        $flowData = Flow::select('id as flow_id', 'name', 'form_id','flow_type_id')->find($flowId);
+        $flowData = Flow::select('id','id as flow_id', 'name', 'form_id','flow_type_id')->find($flowId);
         $flowData->creator_sn = $this->user->staff_sn;
         $flowData->creator_name = $this->user->realname;
         $data = FlowRun::create($flowData->toArray());
@@ -88,27 +87,6 @@ class StartService
         return $this->fileFieldsReplace($formData,$fileFields);
     }
 
-    /**
-     * 获取表单的文件字段
-     * @param $fields
-     * @return mixed
-     */
-//    protected function getFormDataFileFields($fields)
-//    {
-//        $fields['form'] = $fields['form']->filter(function ($field) {
-//            return $field['type'] == 'file';
-//        })->pluck('key');
-//        if (!empty($fields['grid'])){
-//            $fields['grid'] = $fields['grid']->map(function ($grid) {
-//                $gridData = $grid->toArray();
-//                $gridData['fields'] = $grid->fields->filter(function($filed){
-//                   return $filed->type == 'file';
-//                })->pluck('key');
-//                return collect($gridData);
-//            })->pluck('fields','key');
-//        }
-//        return $fields->toArray();
-//    }
 
     /**
      * 文件路径处理
@@ -231,7 +209,8 @@ class StartService
         $column['approver_sn'] = $this->user->staff_sn;
         $column['approver_name'] = $this->user->realname;
         $column['action_type'] = 1;
-        StepRun::create($column);
+        $stepRunData = StepRun::create($column);
+        return $stepRunData;
     }
 
     /**

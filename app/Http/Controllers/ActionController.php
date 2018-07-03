@@ -35,9 +35,9 @@ class ActionController extends Controller
     public function start(StartRequest $request, Flow $flow, CallbackService $callbackService)
     {
         $cacheFormData = app('preset')->getPresetData($request->input('timestamp'))['form_data'];
-        $flowRunData = app('action')->start($request, $flow);
-        $callbackService->startCallback($flowRunData,$cacheFormData);//触发开始回调
-        return app('apiResponse')->post($flowRunData);
+        $stepRunData = app('action')->start($request, $flow);
+        $callbackService->startCallback($stepRunData,$cacheFormData);//触发开始回调
+        return app('apiResponse')->post($stepRunData);
     }
 
     /**
