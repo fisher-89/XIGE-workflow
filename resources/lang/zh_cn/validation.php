@@ -37,7 +37,7 @@ return [
     'digits'               => 'The :attribute must be :digits digits.',
     'digits_between'       => 'The :attribute must be between :min and :max digits.',
     'dimensions'           => 'The :attribute has invalid image dimensions.',
-    'distinct'             => 'The :attribute field has a duplicate value.',
+    'distinct'             => 'The :attribute 字段具有重复的值.',
     'email'                => ':attribute 必须是电子邮件格式。',
     'exists'               => ':attribute 记录不存在。',
     'file'                 => 'The :attribute must be a file.',
@@ -49,7 +49,7 @@ return [
     'ip'                   => ':attribute 必须是一个有效的IP地址。',
     'ipv4'                 => ':attribute 必须是一个有效的IPv4地址。',
     'ipv6'                 => ':attribute 必须是一个有效的IPv6地址。',
-    'json'                 => ':attribute 必须是json字符串。',
+    'json'                 => ':attribute 必须是一个有效的JSON字符串',
     'max'                  => [
         'numeric' => ':attribute 不能大于 :max 。',
         'file'    => ':attribute 文件大小不能大于 :maxK 。',
@@ -64,7 +64,7 @@ return [
         'string'  => ':attribute 长度不能小于 :min 。',
         'array'   => ':attribute 必须包含 :min 个以上元素。',
     ],
-    'not_in'               => 'The selected :attribute is invalid.',
+    'not_in'               => '所选的 :attribute 是无效的.',
     'numeric'              => ':attribute 必须是数字。',
     'present'              => 'The :attribute field must be present.',
     'regex'                => ':attribute 格式不正确。',
@@ -82,11 +82,11 @@ return [
         'string'  => 'The :attribute must be :size characters.',
         'array'   => 'The :attribute must contain :size items.',
     ],
-    'string'               => 'The :attribute must be a string.',
+    'string'               => 'The :attribute 必须是一个字符串.',
     'timezone'             => 'The :attribute must be a valid zone.',
     'unique'               => ':attribute 已经存在。',
     'uploaded'             => 'The :attribute failed to upload.',
-    'url'                  => 'The :attribute format is invalid.',
+    'url'                  => 'The :attribute 格式是无效的.',
 
     /*
     |--------------------------------------------------------------------------
