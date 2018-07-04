@@ -41,7 +41,7 @@ class FormTypeReqeust extends FormRequest
     public function attributes()
     {
         return [
-            'name' => '表单分类名称',
+            'name' => '名称',
             'sort' => '排序'
         ];
     }
