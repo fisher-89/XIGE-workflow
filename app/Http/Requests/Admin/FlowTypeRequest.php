@@ -41,7 +41,7 @@ class FlowTypeRequest extends FormRequest
     public function attributes()
     {
         return [
-            'name' => '流程分类名称',
+            'name' => '名称',
             'sort' => '排序'
         ];
     }
