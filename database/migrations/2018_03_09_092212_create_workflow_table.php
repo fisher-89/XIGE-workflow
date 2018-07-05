@@ -63,7 +63,6 @@ class CreateWorkflowTable extends Migration
             $table->unsignedTinyInteger('scale')->comment('小数位数')->default(0);
             $table->string('default_value', 500)->comment('默认值/计算公式')->default('');
             $table->text('options')->nullable()->comment('可选值');
-            $table->unsignedTinyInteger('is_editable')->comment('默认值是否可编辑')->default(0);
             $table->unsignedInteger('form_id')->comment('表单ID');
             $table->unsignedInteger('form_grid_id')->comment('列表控件ID')->nullable();
             $table->unsignedTinyInteger('sort')->default(0)->comment('字段排序');

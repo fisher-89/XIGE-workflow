@@ -9,7 +9,7 @@ class Field extends Model
 {
     use SoftDeletes;
 
-    protected $fillable = ['key', 'name', 'description', 'type', 'max', 'min', 'scale', 'default_value','options', 'is_editable', 'form_id', 'form_grid_id', 'sort'];
+    protected $fillable = ['key', 'name', 'description', 'type', 'max', 'min', 'scale', 'default_value','options', 'form_id', 'form_grid_id', 'sort'];
     protected $appends = ['validator_id'];
 
     protected $hidden = ['created_at','updated_at','deleted_at'];

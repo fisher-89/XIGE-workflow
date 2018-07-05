@@ -96,9 +96,6 @@ class FormsRequest extends FormRequest
             'fields.*.options' => [
                 'array',
             ],
-            'fields.*.is_editable' => [
-                Rule::in([0, 1])
-            ],
             'fields.*.validator_id' => [
                 'nullable',
                 'array'
@@ -166,9 +163,6 @@ class FormsRequest extends FormRequest
             'grids.*.fields.*.options' => [
                 'array',
             ],
-            'grids.*.fields.*.is_editable' => [
-                Rule::in([0, 1])
-            ],
             'grids.*.fields.*.validator_id' => [
                 'nullable',
                 'array'
@@ -182,23 +176,22 @@ class FormsRequest extends FormRequest
     public function attributes()
     {
         return [
-            'name' => '表单名称',
-            'description' => '表单描述',
+            'name' => '名称',
+            'description' => '描述',
             'form_type_id' => '表单分类',
             'sort' => '排序',
             //字段
-            'fields' => '字段数据',
-            'fields.*.id'=>'字段id',
-            'fields.*.key' => '字段键名',
-            'fields.*.name' => '字段名称',
-            'fields.*.description' => '字段描述',
+            'fields' => '字段',
+            'fields.*.id'=>'字段ID',
+            'fields.*.key' => '键名',
+            'fields.*.name' => '名称',
+            'fields.*.description' => '描述',
             'fields.*.type' => '字段类型',
             'fields.*.max' => '最大值',
             'fields.*.min' => '最小值',
             'fields.*.scale' => '小数位数',
             'fields.*.default_value' => '默认值',
             'fields.*.options' => '可选值',
-            'fields.*.is_editable' => '默认值是否可编辑',
             'fields.*.validator_id' => '规则',
             'fields.*.validator_id.*' => '规则id',
             //字段列表
@@ -215,7 +208,6 @@ class FormsRequest extends FormRequest
             'grids.*.fields.*.scale' => '小数位数',
             'grids.*.fields.*.default_value' => '默认值',
             'grids.*.fields.*.options' => '可选值',
-            'grids.*.fields.*.is_editable' => '默认值是否可编辑',
             'grids.*.fields.*.validator_id' => '规则',
             'grids.*.fields.*.validator_id.*' => '规则id',
         ];
