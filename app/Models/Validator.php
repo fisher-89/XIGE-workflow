@@ -8,7 +8,9 @@ use Illuminate\Database\Eloquent\SoftDeletes;
 class Validator extends Model
 {
     use SoftDeletes;
+
     protected $fillable = ['name', 'description', 'type','params'];
+    protected $hidden = ['deleted_at'];
 
     public function fields()
     {
