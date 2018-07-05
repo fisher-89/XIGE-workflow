@@ -63,9 +63,9 @@ class ValidatorRequest extends FormRequest
     public function attributes()
     {
         return [
-            'name' => '规则名称',
-            'description' => '规则描述',
-            'type'=>'规则类型',
+            'name' => '名称',
+            'description' => '描述',
+            'type' => '规则类型',
             'params' => '规则参数'
         ];
     }
