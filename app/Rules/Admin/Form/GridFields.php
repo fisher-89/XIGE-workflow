@@ -6,7 +6,6 @@ use Illuminate\Contracts\Validation\Rule;
 
 class GridFields implements Rule
 {
-    protected $msg = '';
     /**
      * Create a new rule instance.
      *
@@ -28,7 +27,6 @@ class GridFields implements Rule
     {
         $keyArray =  array_pluck($value,'key');
         if (count($keyArray) != count(array_unique($keyArray))) {
-            $this->msg = '键名';
             return false;
         }
         return true;
@@ -41,6 +39,6 @@ class GridFields implements Rule
      */
     public function message()
     {
-        return '控件字段'.$this->msg.'重复';
+        return '列表控件 字段 键名 重复';
     }
 }
