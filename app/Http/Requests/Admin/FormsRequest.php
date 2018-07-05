@@ -2,7 +2,7 @@
 
 namespace App\Http\Requests\Admin;
 
-use App\Rules\Admin\GridFields;
+use App\Rules\Admin\Form\GridFields;
 use Illuminate\Foundation\Http\FormRequest;
 use Illuminate\Validation\Rule;
 
@@ -25,6 +25,7 @@ class FormsRequest extends FormRequest
      */
     public function rules()
     {
+        $fieldsType = ['int', 'text', 'date', 'datetime', 'time', 'file', 'array'];//字段type类型
         $notInFields = ['id', 'run_id', 'created_at', 'updated_at', 'deleted_at'];//过滤字段
         return [
             'name' => [
@@ -51,7 +52,7 @@ class FormsRequest extends FormRequest
                 'array'
             ],
             'fields.*.id' => [
-                Rule::exists('fields', 'id')->whereNull('deleted_at')
+                Rule::exists('fields', 'id')->where('form_id', $this->route('id'))->whereNull('deleted_at')
             ],
             'fields.*.key' => [
                 'required',
@@ -74,7 +75,7 @@ class FormsRequest extends FormRequest
                 'required',
                 'max:20',
                 'string',
-                Rule::in(['int', 'text', 'date', 'datetime', 'time', 'file', 'array'])
+                Rule::in($fieldsType)
             ],
             'fields.*.min' => [
                 'string',
@@ -91,7 +92,8 @@ class FormsRequest extends FormRequest
             ],
             'fields.*.default_value' => [
                 'nullable',
-                'string'
+                'string',
+                'max:500'
             ],
             'fields.*.options' => [
                 'array',
@@ -101,10 +103,16 @@ class FormsRequest extends FormRequest
                 'array'
             ],
             'fields.*.validator_id.*' => [
-                Rule::exists('validators', 'id')
+                Rule::exists('validators', 'id')->whereNull('deleted_at')
             ],
             'grids' => [
                 'array',
+            ],
+            'grids.*.name' => [
+                'required',
+                'string',
+                'distinct',
+                'max:20',
             ],
             'grids.*.key' => [
                 'required',
@@ -119,7 +127,7 @@ class FormsRequest extends FormRequest
                 new GridFields()//验证控件字段key不重复
             ],
             'grids.*.fields.*.id' => [
-                Rule::exists('fields', 'id')->whereNull('deleted_at')
+                Rule::exists('fields', 'id')->where('form_id', $this->route('id'))->whereNull('deleted_at')
             ],
             'grids.*.fields.*.key' => [
                 'required',
@@ -141,7 +149,7 @@ class FormsRequest extends FormRequest
                 'required',
                 'max:20',
                 'string',
-                Rule::in(['int', 'text', 'date', 'datetime', 'time', 'file', 'array'])
+                Rule::in($fieldsType)
             ],
             'grids.*.fields.*.min' => [
                 'string',
@@ -158,7 +166,8 @@ class FormsRequest extends FormRequest
             ],
             'grids.*.fields.*.default_value' => [
                 'nullable',
-                'string'
+                'string',
+                'max:500',
             ],
             'grids.*.fields.*.options' => [
                 'array',
@@ -168,7 +177,7 @@ class FormsRequest extends FormRequest
                 'array'
             ],
             'grids.*.fields.*.validator_id.*' => [
-                Rule::exists('validators', 'id')
+                Rule::exists('validators', 'id')->whereNull('deleted_at')
             ],
         ];
     }
@@ -182,7 +191,7 @@ class FormsRequest extends FormRequest
             'sort' => '排序',
             //字段
             'fields' => '字段',
-            'fields.*.id'=>'字段ID',
+            'fields.*.id' => '字段ID',
             'fields.*.key' => '键名',
             'fields.*.name' => '名称',
             'fields.*.description' => '描述',
@@ -192,24 +201,25 @@ class FormsRequest extends FormRequest
             'fields.*.scale' => '小数位数',
             'fields.*.default_value' => '默认值',
             'fields.*.options' => '可选值',
-            'fields.*.validator_id' => '规则',
-            'fields.*.validator_id.*' => '规则id',
+            'fields.*.validator_id' => '验证规则',
+            'fields.*.validator_id.*' => '验证规则ID',
             //字段列表
-            'grids'=>'列表控件',
-            'grids.*.key'=>'键名',
-            'grids.*.fields' => '字段数据',
-            'grids.*.fields.*.id'=>'字段id',
-            'grids.*.fields.*.key' => '字段键名',
-            'grids.*.fields.*.name' => '字段名称',
-            'grids.*.fields.*.description' => '字段描述',
+            'grids' => '列表控件',
+            'grids.*.name' => '名称',
+            'grids.*.key' => '键名',
+            'grids.*.fields' => '字段',
+            'grids.*.fields.*.id' => '字段ID',
+            'grids.*.fields.*.key' => '键名',
+            'grids.*.fields.*.name' => '名称',
+            'grids.*.fields.*.description' => '描述',
             'grids.*.fields.*.type' => '字段类型',
             'grids.*.fields.*.max' => '最大值',
             'grids.*.fields.*.min' => '最小值',
             'grids.*.fields.*.scale' => '小数位数',
             'grids.*.fields.*.default_value' => '默认值',
             'grids.*.fields.*.options' => '可选值',
-            'grids.*.fields.*.validator_id' => '规则',
-            'grids.*.fields.*.validator_id.*' => '规则id',
+            'grids.*.fields.*.validator_id' => '验证规则',
+            'grids.*.fields.*.validator_id.*' => '验证规则ID',
         ];
     }
 }
