@@ -4,6 +4,7 @@ namespace App\Http\Controllers\Api\Admin;
 
 use App\Http\Requests\Admin\FlowTypeRequest;
 use App\Models\FlowType;
+use App\Services\ResponseService;
 use Illuminate\Http\Request;
 use App\Http\Controllers\Controller;
 
@@ -47,14 +48,14 @@ class FlowTypeController extends Controller
      * 流程分类列表
      * @param Request $request
      */
-    public function index()
+    public function index(ResponseService $responseService)
     {
         $response = cache()->get('flow_types',function(){
            $data = FlowType::orderBy('sort','asc')->get()->toArray();
            cache()->forever('flow_types',$data);
            return $data;
         });
-        return app('apiResponse')->get($response);
+        return $responseService->get($response);
     }
 
     /**
