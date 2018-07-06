@@ -51,11 +51,11 @@ class FormService
     protected function addSave($request)
     {
         $formData = Form::create($request->input());//表单数据保存
+        $request->offsetSet('form_id', $formData->id);
+        $this->fieldsSave($request);//表单字段数据保存
         if ($request->has('grids') && $request->grids) {
-            $this->formGridsSave($request, $formData->id);//保存列表控件数据
+            $this->formGridsSave($request);//保存列表控件数据 并创建控件表
         }
-
-        $this->fieldsSave($request->fields, $formData->id);//表单字段数据保存
         app('FormFieldsService', ['formId' => $formData->id])->createFormDataTable();//创建表单数据表
         return $formData;
     }
@@ -65,11 +65,10 @@ class FormService
      * @param $request
      * @param $formData
      */
-    protected function formGridsSave($request, $formId)
+    protected function formGridsSave($request)
     {
-//        dd($request->grids);
         foreach ($request->grids as $v) {
-            $v['form_id'] = $formId;
+            $v['form_id'] = $request->form_id;
             $this->gridItemSave($v);
         }
     }
@@ -82,7 +81,7 @@ class FormService
     protected function gridItemSave($gridItem)
     {
         $formGridData = FormGrid::create($gridItem);//保存控件数据
-        $this->gridsFieldsSave($gridItem['fields'], $formGridData->id, $gridItem['form_id']);//保存字段数据
+        $this->gridsFieldsSave($gridItem, $formGridData->id);//保存字段数据
         app('FormFieldsService', ['formId' => $gridItem['form_id']])->createFormGridsTable($gridItem);//创建列表控件表
     }
 
@@ -90,27 +89,13 @@ class FormService
      * 列表字段保存
      * @param $data
      */
-    protected function gridsFieldsSave($fields, $formGridId, $formId)
+    protected function gridsFieldsSave($gridItem, $formGridId)
     {
-        foreach ($fields as $k => $v) {
+        foreach ($gridItem['fields'] as $k => $v) {
             $v['sort'] = $k;
             $v['form_grid_id'] = $formGridId;
-            $v['form_id'] = $formId;
-            $this->gridFieldsItemSave($v);
-        }
-    }
-
-    /**
-     * 列表单字段保存
-     * @param $fieldsItem
-     * @param $formGridId
-     * @param $formId
-     */
-    protected function gridFieldsItemSave($fieldsItem)
-    {
-        $fieldData = Field::create($fieldsItem);
-        if (isset($fieldsItem['validator_id']) && !empty($fieldsItem['validator_id'])) {
-            $fieldData->validator()->sync($fieldsItem['validator_id']);//字段验证数据保存
+            $v['form_id'] = $gridItem['form_id'];
+            $this->fieldsItemSave($v);
         }
     }
 
@@ -119,15 +104,26 @@ class FormService
      * @param $fields
      * @param $formId
      */
-    protected function fieldsSave($fields, $formId)
+    protected function fieldsSave($request)
     {
-        foreach ($fields as $k => $v) {
-            $v['form_id'] = $formId;
+        foreach ($request->input('fields') as $k => $v) {
+            $v['form_id'] = $request->form_id;
             $v['sort'] = $k;
-            $fieldData = Field::create($v);
-            if (isset($v['validator_id']) && !empty($v['validator_id'])) {
-                $fieldData->validator()->sync($v['validator_id']);//字段验证数据保存
-            }
+            $this->fieldsItemSave($v);
+        }
+    }
+
+    /**
+     * 单个字段保存
+     * @param $fieldsItem
+     * @param $formGridId
+     * @param $formId
+     */
+    protected function fieldsItemSave($fieldsItem)
+    {
+        $fieldData = Field::create($fieldsItem);
+        if (isset($fieldsItem['validator_id']) && !empty($fieldsItem['validator_id'])) {
+            $fieldData->validator()->sync($fieldsItem['validator_id']);//字段验证数据保存
         }
     }
     /*-----------------------------------------------新增end----------------------------------------*/
@@ -141,7 +137,7 @@ class FormService
     {
         $form = Form::find($request->id);
         if (empty($form))
-            abort(404,'该表单不存在');
+            abort(404, '该表单不存在');
         if ($this->getFormDataCount($request->id) > 0) {
             //表单数据表含有数据
             $form->delete();
@@ -333,7 +329,7 @@ class FormService
                 $this->formGridFieldSave($v);
             } else {
                 //新增
-                $this->gridFieldsItemSave($v);//新增控件字段
+                $this->fieldsItemSave($v);//新增控件字段
             }
         }
         return $gridUpdateFieldsId;
