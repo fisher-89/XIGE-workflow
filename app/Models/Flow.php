@@ -19,22 +19,22 @@ class Flow extends Model
 
     public function steps()
     {
-        return $this->hasMany(Step::class, 'flow_id');
+        return $this->hasMany(Step::class);
     }
 
     public function departments()
     {
-        return $this->hasMany(FlowHasDepartment::class, 'flow_id');
+        return $this->hasMany(FlowHasDepartment::class);
     }
 
     public function roles()
     {
-        return $this->hasMany(FlowHasRole::class, 'flow_id');
+        return $this->hasMany(FlowHasRole::class);
     }
 
     public function staff()
     {
-        return $this->hasMany(FlowHasStaff::class, 'flow_id');
+        return $this->hasMany(FlowHasStaff::class);
     }
 
 //    public function flowsHasStaff()
