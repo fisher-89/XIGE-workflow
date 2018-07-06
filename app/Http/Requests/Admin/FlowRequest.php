@@ -3,12 +3,12 @@
 namespace App\Http\Requests\Admin;
 
 use App\Rules\Admin\DepartmentExists;
-use App\Rules\Admin\FormFields;
-use App\Rules\Admin\MergeType;
+use App\Rules\Admin\Flow\FormFields;
+use App\Rules\Admin\FLow\MergeType;
 use App\Rules\Admin\RoleExists;
 use App\Rules\Admin\StaffExists;
-use App\Rules\Admin\StepApprover;
-use App\Rules\Admin\StepGroup;
+use App\Rules\Admin\Flow\StepApprover;
+use App\Rules\Admin\Flow\StepGroup;
 use Illuminate\Foundation\Http\FormRequest;
 use Illuminate\Validation\Rule;
 
@@ -65,12 +65,14 @@ class FlowRequest extends FormRequest
             'start_callback_uri' => [
                 'nullable',
                 'string',
-                'url'
+                'url',
+                'max:255',
             ],
             'end_callback_uri' => [
                 'nullable',
                 'string',
-                'url'
+                'url',
+                'max:255',
             ],
             /*--------流程验证end-------*/
 
@@ -243,9 +245,9 @@ class FlowRequest extends FormRequest
             'start_callback_uri' => '发起回调地址',
             'end_callback_uri' => '结束回调地址',
             //权限
-            'flow_has_staff' => '发起人',
-            'flow_has_roles' => '发起角色',
-            'flow_has_departments' => '发起部门',
+            'flows_has_staff' => '发起人',
+            'flows_has_roles' => '发起角色',
+            'flows_has_departments' => '发起部门',
             //步骤
             'steps'=>'步骤',
             'steps.*.name' => '步骤名称',
