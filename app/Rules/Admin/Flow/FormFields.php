@@ -1,6 +1,6 @@
 <?php
 
-namespace App\Rules\Admin;
+namespace App\Rules\Admin\Flow;
 
 use App\Models\Field;
 use App\Models\FormGrid;
