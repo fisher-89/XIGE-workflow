@@ -17,10 +17,10 @@ class Form extends Model
         return $this->hasMany(Field::class)->whereNull('form_grid_id')->orderBy('sort','asc');
     }
 
-    public function grid()
-    {
-        return $this->hasMany(FormGrid::class);
-    }
+//    public function grid()
+//    {
+//        return $this->hasMany(FormGrid::class);
+//    }
 
     public function grids()
     {
