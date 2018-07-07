@@ -10,6 +10,12 @@ use App\Http\Controllers\Controller;
 
 class FlowTypeController extends Controller
 {
+    protected $response;
+
+    public function __construct(ResponseService $responseService)
+    {
+        $this->response = $responseService;
+    }
 
     /**
      * 流程分类新增保存
@@ -18,17 +24,17 @@ class FlowTypeController extends Controller
     public function store(FlowTypeRequest $request)
     {
         $data = FlowType::create($request->input());
-        return app('apiResponse')->post($data);
+        return $this->response->post($data);
     }
 
     /**
      * 流程分类编辑保存
      * @param FlowTypeRequest $request
      */
-    public function update(FlowTypeRequest $request,FlowType $flowType)
+    public function update(FlowTypeRequest $request, FlowType $flowType)
     {
         $flowType->update($request->input());
-        return app('apiResponse')->put($flowType);
+        return $this->response->put($flowType);
     }
 
     /**
@@ -38,9 +44,9 @@ class FlowTypeController extends Controller
     public function destroy(FlowType $flowType)
     {
         if (count($flowType->flow) > 0)
-            abort(403,'该分类已经有流程在使用了,不能进行删除');
+            abort(403, '该分类已经有流程在使用了,不能进行删除');
         $flowType->delete();
-        return app('apiResponse')->delete();
+        return $this->response->delete();
     }
 
 
@@ -48,14 +54,14 @@ class FlowTypeController extends Controller
      * 流程分类列表
      * @param Request $request
      */
-    public function index(ResponseService $responseService)
+    public function index()
     {
-        $response = cache()->get('flow_types',function(){
-           $data = FlowType::orderBy('sort','asc')->get()->toArray();
-           cache()->forever('flow_types',$data);
-           return $data;
+        $response = cache()->get('flow_types', function () {
+            $data = FlowType::orderBy('sort', 'asc')->get()->toArray();
+            cache()->forever('flow_types', $data);
+            return $data;
         });
-        return $responseService->get($response);
+        return $this->response->get($response);
     }
 
     /**
@@ -64,7 +70,7 @@ class FlowTypeController extends Controller
      */
     public function show(FlowType $flowType)
     {
-        return app('apiResponse')->get($flowType);
+        return $this->response->get($flowType);
     }
 
 }
