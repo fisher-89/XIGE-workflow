@@ -4,6 +4,7 @@ namespace App\Http\Controllers\Api\Admin;
 
 use App\Models\DefaultValueCalculation;
 use App\Models\DefaultValueVariate;
+use App\Services\ResponseService;
 use Illuminate\Http\Request;
 use App\Http\Controllers\Controller;
 
@@ -14,13 +15,13 @@ class VariateController extends Controller
      * @return mixed
      * @throws \Illuminate\Container\EntryNotFoundException
      */
-    public function index(){
+    public function index(ResponseService $responseService){
         $variateData = DefaultValueVariate::get()->toArray();
         $calculationData = DefaultValueCalculation::get()->toArray();
         $data =[
             'variate'=>$variateData,
             'calculation'=>$calculationData
         ];
-        return app('apiResponse')->get($data);
+        return $responseService->get($data);
     }
 }
