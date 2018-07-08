@@ -33,7 +33,7 @@ class ResourceController extends Controller
     {
         $flowId = FlowAuth::getCurrentUserFlowAuthorize();//获取当前用户有权限的流程
         $flow = Flow::whereIsActive(1)->select('id', 'name', 'description')->orderBy('sort', 'asc')->find($flowId);
-        return app('apiResponse')->get($flow);
+        return $this->response->get($flow);
     }
 
     /**
@@ -43,12 +43,11 @@ class ResourceController extends Controller
      */
     public function start(Flow $flow)
     {
-
         $flowAuthorized = (bool)FlowAuth::checkFlowAuthorize($flow->id);//该流程的当前用户权限
         if ($flowAuthorized === false)
             abort(403, '该流程你无权限');
-        if($flow->is_active === 0)
-            abort(404,'该流程未启动');
+        if ($flow->is_active === 0)
+            abort(404, '该流程未启动');
         $flowRepository = new \App\Repository\FlowRepository();
         $firstStepData = $flowRepository->getFlowFirstStep($flow);//开始步骤数据
 
@@ -65,7 +64,7 @@ class ResourceController extends Controller
             'form_data' => $filterFormData,
             'fields' => $fields,
         ];
-        return app('apiResponse')->get($data);
+        return $this->response->get($data);
     }
 
     /**
@@ -78,7 +77,7 @@ class ResourceController extends Controller
     {
         $stepRunRepository = new StepRunRepository();
         $data = $stepRunRepository->getApproval($request);
-        return app('apiResponse')->get($data);
+        return $this->response->get($data);
     }
 
     /**
@@ -92,7 +91,7 @@ class ResourceController extends Controller
         $stepRunRepository = new \App\Repository\StepRunRepository();
         $data = $stepRunRepository->getDetail($stepRun);
         $callbackService->checkCallback($data);//触发查看回调
-        return app('apiResponse')->get($data);
+        return $this->response->get($data);
     }
 
     /**
@@ -103,7 +102,7 @@ class ResourceController extends Controller
     {
         $flowRunRepository = new FlowRunRepository();
         $data = $flowRunRepository->getSponsor($request);
-        return app('apiResponse')->get($data);
+        return $this->response->get($data);
     }
 
     /**
@@ -115,6 +114,6 @@ class ResourceController extends Controller
         $stepRun = StepRun::where(['flow_run_id' => $flowRunId, 'approver_sn' => app('auth')->id(), 'action_type' => 1])->first();
         $stepRunRepository = new \App\Repository\StepRunRepository();
         $data = $stepRunRepository->getDetail($stepRun);
-        return app('apiResponse')->get($data);
+        return $this->response->get($data);
     }
 }
