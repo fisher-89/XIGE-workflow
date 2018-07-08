@@ -20,7 +20,7 @@ Route::options('{a?}/{b?}/{c?}', function () {
     return response('', 204);
 })->middleware('crossDomain');
 
-Route::middleware('auth:api')->group(function () {
+Route::middleware('auth:api')->namespace('Api\Web')->group(function () {
     Route::get('list', 'ResourceController@getFlowList');//获取可发起的流程
     Route::get('start/{flow}', 'ResourceController@start');//获取发起数据
     Route::post('preset/{flow}', 'ActionController@preset');//预提交处理

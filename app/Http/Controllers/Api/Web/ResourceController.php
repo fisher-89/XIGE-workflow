@@ -1,20 +1,29 @@
 <?php
 
-namespace App\Http\Controllers;
+namespace App\Http\Controllers\Api\Web;
 
 
+use App\Http\Controllers\Controller;
 use App\Http\Requests\StartRequest;
 use App\Http\Resources\StepResource;
 use App\Models\Flow;
 use App\Models\StepRun;
 use App\Repository\FlowRunRepository;
 use App\Repository\StepRunRepository;
-use App\Services\Auth\FlowAuth;
+use App\Repository\Web\Auth\FlowAuth;
 use App\Services\CallbackService;
+use App\Services\ResponseService;
 use Illuminate\Http\Request;
 
 class ResourceController extends Controller
 {
+
+    protected $response;
+
+    public function __construct(ResponseService $responseService)
+    {
+        $this->response = $responseService;
+    }
 
     /**
      * 获取可发起的流程

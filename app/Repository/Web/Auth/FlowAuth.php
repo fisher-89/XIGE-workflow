@@ -6,7 +6,7 @@
  * Time: 13:27
  */
 
-namespace App\Services\Auth;
+namespace App\Repository\Web\Auth;
 
 
 use App\Models\Flow;
