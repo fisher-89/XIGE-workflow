@@ -3,7 +3,6 @@
 namespace App\Http\Requests;
 
 use App\Repository\FlowRepository;
-use App\Services\Auth\FlowAuth;
 use Illuminate\Foundation\Http\FormRequest;
 use Illuminate\Validation\Rule;
 
@@ -19,7 +18,6 @@ class PresetRequest extends FormRequest
     public function authorize()
     {
         return true;
-//        return FlowAuth::checkFlowAuthorize($this->flow->id);
     }
 
     /**
