@@ -4,11 +4,19 @@ namespace App\Http\Controllers\Api\Admin;
 
 use App\Http\Requests\Admin\ValidatorRequest;
 use App\Models\Validator;
+use App\Services\ResponseService;
 use Illuminate\Http\Request;
 use App\Http\Controllers\Controller;
 
 class ValidatorController extends Controller
 {
+    protected $response;
+
+    public function __construct(ResponseService $responseService)
+    {
+        $this->response = $responseService;
+    }
+
     /**
      * 验证规则新增保存
      * @param ValidatorRequest $request
@@ -16,7 +24,7 @@ class ValidatorController extends Controller
     public function store(ValidatorRequest $request)
     {
         $data = Validator::create($request->input());
-        return app('apiResponse')->post($data);
+        return $this->response->post($data);
     }
 
     /**
@@ -24,10 +32,10 @@ class ValidatorController extends Controller
      * @param ValidatorRequest $request
      * @return mixed
      */
-    public function update(ValidatorRequest $request,Validator $validator)
+    public function update(ValidatorRequest $request, Validator $validator)
     {
         $validator->update($request->input());
-        return app('apiResponse')->put($validator);
+        return $this->response->put($validator);
     }
 
     /**
@@ -38,9 +46,9 @@ class ValidatorController extends Controller
     public function destroy(Validator $validator)
     {
         if ($validator->fields->count() > 0)
-            abort(403,'该验证规则已经被使用了,不能进行删除');
+            abort(403, '该验证规则已经被使用了,不能进行删除');
         $validator->delete();
-        return app('apiResponse')->delete();
+        return $this->response->delete();
     }
 
     /**
@@ -49,8 +57,8 @@ class ValidatorController extends Controller
      */
     public function index()
     {
-        $data = Validator::orderBy('id','desc')->get();
-        return app('apiResponse')->get($data);
+        $data = Validator::orderBy('id', 'desc')->get();
+        return $this->response->get($data);
     }
 
     /**
@@ -59,6 +67,6 @@ class ValidatorController extends Controller
      */
     public function show(Validator $validator)
     {
-        return app('apiResponse')->get($validator);
+        return $this->response->get($validator);
     }
 }
