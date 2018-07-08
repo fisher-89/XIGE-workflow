@@ -2,12 +2,9 @@
 
 namespace App\Http\Requests;
 
-use App\Models\Flow;
-use App\Models\Step;
-use App\Services\Auth\FlowAuth;
+
+use App\Repository\Web\Auth\FlowAuth;
 use Illuminate\Foundation\Http\FormRequest;
-use Illuminate\Support\Facades\Auth;
-use Illuminate\Validation\Rule;
 
 class StartRequest extends FormRequest
 {
