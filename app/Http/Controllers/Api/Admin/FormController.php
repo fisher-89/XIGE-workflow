@@ -5,11 +5,20 @@ namespace App\Http\Controllers\Api\Admin;
 use App\Http\Requests\Admin\FormsRequest;
 use App\Models\Flow;
 use App\Models\Form;
+use App\Services\ResponseService;
 use Illuminate\Http\Request;
 use App\Http\Controllers\Controller;
 
 class FormController extends Controller
 {
+
+    protected $response;
+
+    public function __construct(ResponseService $responseService)
+    {
+        $this->response = $responseService;
+    }
+
     /**
      * 表单新增保存
      * @param FormsRequest $request
@@ -18,7 +27,7 @@ class FormController extends Controller
     public function store(FormsRequest $request)
     {
         $data = app('formService')->create($request);
-        return app('apiResponse')->post($data);
+        return $this->response->post($data);
     }
 
     /**
@@ -29,7 +38,7 @@ class FormController extends Controller
     public function update(FormsRequest $request)
     {
         $data = app('formService')->update($request);
-        return app('apiResponse')->put($data);
+        return $this->response->put($data);
     }
 
     /**
@@ -39,7 +48,7 @@ class FormController extends Controller
     public function index()
     {
         $data = Form::orderBy('sort', 'asc')->get();
-        return app('apiResponse')->get($data);
+        return $this->response->get($data);
     }
 
 
@@ -56,7 +65,7 @@ class FormController extends Controller
         if ($flowData > 0)
             abort(403, '改表单已被流程使用了');
         $data->delete();
-        return app('apiResponse')->delete();
+        return $this->response->delete();
     }
 
     /**
@@ -68,6 +77,6 @@ class FormController extends Controller
         $data = Form::with(['fields.validator', 'grids.fields.validator'])->find($id);
         if (empty($data))
             abort(404,'该表单不存在');
-        return app('apiResponse')->get($data);
+        return $this->response->get($data);
     }
 }
