@@ -6,7 +6,7 @@
  * Time: 16:21
  */
 
-namespace App\Repository;
+namespace App\Repository\Web;
 
 
 use App\Models\FlowRun;

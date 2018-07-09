@@ -8,9 +8,11 @@ use App\Http\Requests\StartRequest;
 use App\Http\Resources\StepResource;
 use App\Models\Flow;
 use App\Models\StepRun;
-use App\Repository\FlowRunRepository;
-use App\Repository\StepRunRepository;
+use App\Repository\Web\FlowRunRepository;
+use App\Repository\Web\FormRepository;
+use App\Repository\Web\StepRunRepository;
 use App\Repository\Web\Auth\FlowAuth;
+use App\Repository\Web\FlowRepository;
 use App\Services\CallbackService;
 use App\Services\ResponseService;
 use Illuminate\Http\Request;
@@ -48,10 +50,10 @@ class ResourceController extends Controller
             abort(403, '该流程你无权限');
         if ($flow->is_active === 0)
             abort(404, '该流程未启动');
-        $flowRepository = new \App\Repository\FlowRepository();
+        $flowRepository = new FlowRepository();
         $firstStepData = $flowRepository->getFlowFirstStep($flow);//开始步骤数据
 
-        $formRepository = new \App\Repository\FormRepository();
+        $formRepository = new FormRepository();
         //表单字段  去除了hidden字段
         $fields = $formRepository->getFields($flow->form_id);//全部字段
 //        $fields = $formRepository->getExceptHiddenFields($firstStepData->hidden_fields, $flow->form_id);
@@ -88,7 +90,7 @@ class ResourceController extends Controller
      */
     public function getApprovalDetail(StepRun $stepRun, CallbackService $callbackService)
     {
-        $stepRunRepository = new \App\Repository\StepRunRepository();
+        $stepRunRepository = new StepRunRepository();
         $data = $stepRunRepository->getDetail($stepRun);
         $callbackService->checkCallback($data);//触发查看回调
         return $this->response->get($data);
@@ -112,7 +114,7 @@ class ResourceController extends Controller
     public function getSponsorDetail($flowRunId)
     {
         $stepRun = StepRun::where(['flow_run_id' => $flowRunId, 'approver_sn' => app('auth')->id(), 'action_type' => 1])->first();
-        $stepRunRepository = new \App\Repository\StepRunRepository();
+        $stepRunRepository = new StepRunRepository();
         $data = $stepRunRepository->getDetail($stepRun);
         return $this->response->get($data);
     }

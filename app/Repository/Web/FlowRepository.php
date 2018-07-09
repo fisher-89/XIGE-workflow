@@ -6,7 +6,7 @@
  * Time: 16:32
  */
 
-namespace App\Repository;
+namespace App\Repository\Web;
 
 
 use App\Models\Flow;

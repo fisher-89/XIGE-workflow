@@ -10,7 +10,8 @@ namespace App\Services;
 
 
 use App\Models\StepRun;
-use App\Repository\FlowRepository;
+use App\Repository\Web\FlowRepository;
+use App\Repository\Web\FormRepository;
 
 class ActionService
 {
@@ -19,7 +20,7 @@ class ActionService
 
     public function __construct()
     {
-        $this->formRepository = new \App\Repository\FormRepository();
+        $this->formRepository = new FormRepository();
     }
 
     /**

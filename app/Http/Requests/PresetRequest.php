@@ -2,7 +2,7 @@
 
 namespace App\Http\Requests;
 
-use App\Repository\FlowRepository;
+use App\Repository\Web\FlowRepository;
 use Illuminate\Foundation\Http\FormRequest;
 use Illuminate\Validation\Rule;
 

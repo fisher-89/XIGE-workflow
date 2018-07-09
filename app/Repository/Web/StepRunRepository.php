@@ -6,7 +6,7 @@
  * Time: 10:53
  */
 
-namespace App\Repository;
+namespace App\Repository\Web;
 
 
 use App\Models\StepRun;
@@ -45,10 +45,10 @@ class StepRunRepository
      */
     public function getDetail($stepRun)
     {
-        $flowRepository = new \App\Repository\FlowRepository();
+        $flowRepository = new FlowRepository();
         $currentStepData = $flowRepository->getCurrentStep($stepRun);//当前步骤数据
 
-        $formRepository = new \App\Repository\FormRepository();
+        $formRepository = new FormRepository();
         //表单字段  去除了hidden字段
         $fields = $formRepository->getExceptHiddenFields($currentStepData->hidden_fields, $stepRun->form_id);
 

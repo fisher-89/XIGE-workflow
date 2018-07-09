@@ -6,7 +6,7 @@
  * Time: 17:17
  */
 
-namespace App\Repository;
+namespace App\Repository\Web;
 
 
 use App\Models\Field;
