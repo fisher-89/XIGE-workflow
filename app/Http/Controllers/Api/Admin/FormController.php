@@ -74,9 +74,15 @@ class FormController extends Controller
      */
     public function show($id)
     {
-        $data = Form::with(['fields.validator', 'grids.fields.validator'])->find($id);
+        $data = Form::with([
+            'fields' => function ($query) {
+                $query->whereNull('form_grid_id')->orderBy('sort', 'asc');
+            },
+            'fields.validator',
+            'grids.fields.validator'
+        ])->find($id);
         if (empty($data))
-            abort(404,'该表单不存在');
+            abort(404, '该表单不存在');
         return $this->response->get($data);
     }
 }

@@ -14,7 +14,7 @@ class Form extends Model
 
     public function fields()
     {
-        return $this->hasMany(Field::class)->whereNull('form_grid_id')->orderBy('sort','asc');
+        return $this->hasMany(Field::class)->orderBy('sort','asc');
     }
 
 //    public function grid()
