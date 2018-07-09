@@ -6,7 +6,7 @@
  * Time: 15:29
  */
 
-namespace App\Services;
+namespace App\Services\Web;
 
 
 use App\Models\StepRun;

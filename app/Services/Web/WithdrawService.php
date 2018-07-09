@@ -7,7 +7,7 @@
  * Time: 14:35
  */
 
-namespace App\Services;
+namespace App\Services\Web;
 
 
 use App\Models\FlowRun;

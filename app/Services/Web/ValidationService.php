@@ -6,9 +6,8 @@
  * Time: 21:04
  */
 
-namespace App\Services;
+namespace App\Services\Web;
 
-use App\Models\Step;
 
 class ValidationService
 {

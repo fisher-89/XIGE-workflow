@@ -2,19 +2,18 @@
 
 namespace App\Providers;
 
-use App\Services\ActionService;
+use App\Services\Web\ActionService;
 use App\Services\Admin\FormFieldsService;
 use App\Services\Admin\FormService;
 use App\Services\DefaultValueCalculationService;
 use App\Services\DefaultValueVariateService;
-use App\Services\FormDataService;
-use App\Services\PresetService;
-use App\Services\RejectService;
+use App\Services\Web\FormDataService;
+use App\Services\Web\PresetService;
 use App\Services\ResponseService;
-use App\Services\StartService;
-use App\Services\ThroughService;
-use App\Services\ValidationService;
-use App\Services\WithdrawService;
+use App\Services\Web\StartService;
+use App\Services\Web\ThroughService;
+use App\Services\Web\ValidationService;
+use App\Services\Web\WithdrawService;
 use Illuminate\Support\Facades\Validator;
 use Illuminate\Support\ServiceProvider;
 
@@ -49,6 +48,7 @@ class AppServiceProvider extends ServiceProvider
     public function register()
     {
         $this->app->singleton('apiResponse',ResponseService::class);//response返回
+        //前台
         $this->app->singleton('validation', ValidationService::class);
         $this->app->singleton('formData',FormDataService::class);
         $this->app->singleton('action',ActionService::class);
@@ -58,7 +58,6 @@ class AppServiceProvider extends ServiceProvider
         $this->app->singleton('start',StartService::class);//发起服务
         $this->app->singleton('withdraw',WithdrawService::class);//撤回
         $this->app->singleton('through',ThroughService::class);//通过
-        $this->app->singleton('reject',RejectService::class);//驳回
 
         //后台
         $this->app->bind('formService',FormService::class);//表单

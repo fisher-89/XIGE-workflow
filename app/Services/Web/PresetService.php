@@ -7,7 +7,7 @@
  * Time: 13:57
  */
 
-namespace App\Services;
+namespace App\Services\Web;
 
 
 use App\Models\Step;

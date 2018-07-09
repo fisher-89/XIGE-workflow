@@ -6,7 +6,7 @@
  * Time: 9:36
  */
 
-namespace App\Services;
+namespace App\Services\Web;
 
 
 class CallbackService
