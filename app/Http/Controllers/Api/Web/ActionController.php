@@ -3,12 +3,12 @@
 namespace App\Http\Controllers\Api\Web;
 
 use App\Http\Controllers\Controller;
-use App\Http\Requests\DeliverRequest;
-use App\Http\Requests\PresetRequest;
-use App\Http\Requests\RejectRequest;
-use App\Http\Requests\StartRequest;
-use App\Http\Requests\ThroughRequest;
-use App\Http\Requests\WithdrawRequest;
+use App\Http\Requests\Web\DeliverRequest;
+use App\Http\Requests\Web\PresetRequest;
+use App\Http\Requests\Web\RejectRequest;
+use App\Http\Requests\Web\StartRequest;
+use App\Http\Requests\Web\ThroughRequest;
+use App\Http\Requests\Web\WithdrawRequest;
 use App\Models\Flow;
 use App\Services\CallbackService;
 use App\Services\DeliverService;

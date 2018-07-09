@@ -1,14 +1,13 @@
 <?php
 
-namespace App\Http\Requests;
+namespace App\Http\Requests\Web;
 
-
-use App\Repository\Web\Auth\FlowAuth;
 use Illuminate\Foundation\Http\FormRequest;
+use Illuminate\Support\Facades\Auth;
+use Illuminate\Validation\Rule;
 
-class StartRequest extends FormRequest
+class ThroughRequest extends FormRequest
 {
-
     /**
      * Determine if the user is authorized to make this request.
      *
@@ -16,9 +15,7 @@ class StartRequest extends FormRequest
      */
     public function authorize()
     {
-        if ($this->flow->id && intval($this->flow->id))
-            return FlowAuth::checkFlowAuthorize($this->flow->id);
-        return false;
+        return true;
     }
 
     /**
@@ -29,23 +26,28 @@ class StartRequest extends FormRequest
     public function rules()
     {
         return [
-//            'step_run_id' => [
-//                'nullable',
-//                'numeric',
-//                'integer',
-//                Rule::exists('step_run')->where('flow_id', $this->flow->id)->whereNull('deleted_at')
-//            ],
+            'step_run_id' => [
+                'nullable',
+                'numeric',
+                'integer',
+                Rule::exists('step_run','id')
+                    ->where('approver_sn', Auth::user()->staff_sn)
+                    ->where('action_type',0)
+                    ->whereNull('deleted_at')
+            ],
             'timestamp' => [
                 'numeric',
                 'integer',
                 'required'
             ],
             'next_step' => [
-                'required',
                 'array'
+            ],
+            'remark' => [
+                'string',
+                'max:200'
             ]
         ];
-
     }
 
     public function attributes()
@@ -53,7 +55,8 @@ class StartRequest extends FormRequest
         return [
             'step_run_id' => '步骤运行ID',
             'timestamp' => '预提交时间戳',
-            'next_step' => '下一步骤审批'
+            'next_step' => '下一步骤审批',
+            'remark'=>'备注',
         ];
     }
 }
