@@ -34,7 +34,8 @@ class FlowAuth
                 return $item->department_id == $user->department['id'];
             })->count() > 0;
         $matchRole = $availableRoles->filter(function ($item) use ($user) {
-                return $item->role_id == $user->position['id'];
+                $rolesId = (array) array_pluck($user->roles,'id');
+                return in_array($item->role_id,$rolesId);
             })->count() > 0;
         $matchStaff = $availableStaff->filter(function ($item) use ($user) {
                 return $item->staff_sn == $user->staff_sn;
@@ -49,10 +50,10 @@ class FlowAuth
     {
         $user = Auth::user();
         $staffSn = $user->staff_sn;//员工编号
-        $roleId = $user->position['id'];//角色id
+        $rolesId = (array) array_pluck($user->roles,'id');//角色id
         $departmentId = $user->department['id'];//部门ID
         $staffFlowIds = FlowHasStaff::whereStaffSn($staffSn)->pluck('flow_id')->all();
-        $roleFlowIds = FlowHasRole::whereRoleId($roleId)->pluck('flow_id')->all();
+        $roleFlowIds = FlowHasRole::whereIn('role_id',$rolesId)->pluck('flow_id')->all();
         $departmentFlowIds = FlowHasDepartment::whereDepartmentId($departmentId)->pluck('flow_id')->all();
         $flowId = array_unique(array_collapse([$staffFlowIds,$roleFlowIds,$departmentFlowIds]));
 
