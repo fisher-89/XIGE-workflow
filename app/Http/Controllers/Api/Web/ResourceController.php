@@ -6,6 +6,7 @@ namespace App\Http\Controllers\Api\Web;
 use App\Http\Controllers\Controller;
 use App\Http\Resources\StepResource;
 use App\Models\Flow;
+use App\Models\FlowType;
 use App\Models\StepRun;
 use App\Repository\Web\FlowRunRepository;
 use App\Repository\Web\FormRepository;
@@ -33,8 +34,23 @@ class ResourceController extends Controller
     public function getFlowList()
     {
         $flowId = FlowAuth::getCurrentUserFlowAuthorize();//获取当前用户有权限的流程
-        $flow = Flow::whereIsActive(1)->select('id', 'name', 'description')->orderBy('sort', 'asc')->find($flowId);
-        return $this->response->get($flow);
+        $flow = FlowType::with(['flow' => function ($query) use ($flowId) {
+            $query->whereIn('id',$flowId)
+                ->where('is_active',1)
+                ->select('id','name','description','flow_type_id')
+                ->orderBy('sort','asc');
+        }])
+            ->select('id','name')
+            ->orderBy('sort','asc')
+            ->get();
+
+        //过滤分类下无流程的
+        $data = $flow->filter(function($value,$key){
+            return count($value->flow)>0;
+        })->pluck([]);
+
+//        $flow = Flow::whereIsActive(1)->select('id', 'name', 'description')->orderBy('sort', 'asc')->find($flowId);
+        return $this->response->get($data);
     }
 
     /**
