@@ -48,7 +48,6 @@ class ResourceController extends Controller
         $data = $flow->filter(function($value,$key){
             return count($value->flow)>0;
         })->pluck([]);
-
 //        $flow = Flow::whereIsActive(1)->select('id', 'name', 'description')->orderBy('sort', 'asc')->find($flowId);
         return $this->response->get($data);
     }
