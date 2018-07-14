@@ -40,7 +40,7 @@ return [
     'distinct'             => 'The :attribute 字段具有重复的值.',
     'email'                => ':attribute 必须是电子邮件格式。',
     'exists'               => ':attribute 记录不存在。',
-    'file'                 => 'The :attribute must be a file.',
+    'file'                 => ':attribute 必须的文件.',
     'filled'               => 'The :attribute field must have a value.',
     'image'                => 'The :attribute must be an image.',
     'in'                   => ':attribute 不存在。',
@@ -85,7 +85,7 @@ return [
     'string'               => 'The :attribute 必须是一个字符串.',
     'timezone'             => 'The :attribute must be a valid zone.',
     'unique'               => ':attribute 已经存在。',
-    'uploaded'             => 'The :attribute failed to upload.',
+    'uploaded'             => ':attribute 上传失败.',
     'url'                  => 'The :attribute 格式是无效的.',
 
     /*
