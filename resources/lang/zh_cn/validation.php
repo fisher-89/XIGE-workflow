@@ -42,7 +42,7 @@ return [
     'exists'               => ':attribute 记录不存在。',
     'file'                 => ':attribute 必须的文件.',
     'filled'               => 'The :attribute field must have a value.',
-    'image'                => 'The :attribute must be an image.',
+    'image'                => ':attribute 必须是一个图片.',
     'in'                   => ':attribute 不存在。',
     'in_array'             => ':attribute 必须包含在 :other 中。',
     'integer'              => ':attribute 必须是整数。',
