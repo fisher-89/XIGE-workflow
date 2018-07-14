@@ -30,7 +30,8 @@ class FileController extends Controller
         $path = '/storage/' . $newFilePath . $newFileName;
         return [
             'path' => $path,
-            'url' => env('APP_URL') . $path
+            'url' => env('APP_URL') . $path,
+            'thumb_url' => env('APP_URL') . '/storage/' . $newFilePath . $newThumbFileName
         ];
     }
 
