@@ -73,6 +73,10 @@ class ActionController extends Controller
         $cacheFormData = app('preset')->getPresetData($request->input('timestamp'))['form_data'];
         $stepRunData = app('through', ['stepRunId' => $request->input('step_run_id')])->through($request);
         $this->callback->approveCallback($stepRunData, $cacheFormData);//触发通过回调
+        if($stepRunData->flowRun->status = 1){
+            //结束流程
+            $this->callback->endFlow($stepRunData,$cacheFormData);//触发结束流程回调
+        }
         return $this->response->patch($stepRunData);
     }
 

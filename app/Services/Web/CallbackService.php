@@ -37,10 +37,31 @@ class CallbackService
     }
 
     /**
-     * 开始回调
+     * 流程开始回调
+     * @param $stepRunData
+     * @param array $formData
+     */
+    public function startCallback($stepRunData,array $formData)
+    {
+        $uri = $stepRunData->steps->flow->start_callback_uri;
+        $sendData = [
+            'flow_run_id' => $stepRunData->flow_run_id,
+            'flow_run_name' => $stepRunData->flowRun->name,
+            'operator_sn' => $stepRunData->flowRun->creator_sn,
+            'operator_name' => $stepRunData->flowRun->creator_name,
+            'operator_status' => $stepRunData->flowRun->status,
+            'operator_at' => $stepRunData->flowRun->created_at,
+            'form_data' => $formData,
+        ];
+        if (!empty($uri))
+            app('curl')->sendMessageByPost($uri, $sendData);
+    }
+
+    /**
+     * 步骤开始回调
      * @param $flowRunData
      */
-    public function startCallback($stepRunData, Array $formData)
+    public function startStepCallback($stepRunData, Array $formData)
     {
         $uri = $stepRunData->steps->start_callback_uri;
         $sendData = [
@@ -75,6 +96,25 @@ class CallbackService
             'operator_type' => $stepRunData->action_type,
             'operator_checked_at' => $stepRunData->checked_at,
             'operator_at' => $stepRunData->acted_at,
+            'form_data' => $formData,
+        ];
+        if (!empty($uri))
+            app('curl')->sendMessageByPost($uri, $sendData);
+    }
+
+    public function endFlow($stepRunData,array $formData)
+    {
+        $uri = $stepRunData->steps->flow->end_callback_uri;
+        $sendData = [
+            'flow_run_id' => $stepRunData->flow_run_id,
+            'flow_run_name' => $stepRunData->flowRun->name,
+            'operator_sn' => $stepRunData->flowRun->creator_sn,
+            'operator_name' => $stepRunData->flowRun->creator_name,
+            'operator_status' => $stepRunData->flowRun->status,
+            'operator_at' => $stepRunData->flowRun->created_at,
+            'end_at' => $stepRunData->flowRun->end_at,
+            'approver_sn'=>$stepRunData->approver_sn,
+            'approver_name'=>$stepRunData->approver_name,
             'form_data' => $formData,
         ];
         if (!empty($uri))
