@@ -33,6 +33,7 @@ Route::middleware('auth:api')->namespace('Api\Web')->group(function () {
     Route::patch('through','ActionController@through');//通过处理
     Route::patch('reject','ActionController@reject');//驳回
     Route::post('deliver','ActionController@deliver');//转交
+    Route::get('flow-chart/{step_run_id}','ChartController@index');//流程图
 
     Route::post('files','FileController@index')->middleware('crossDomain');//临时存储文件
     Route::delete('clear-temp-file','FileController@clearTempFile');//清楚临时文件

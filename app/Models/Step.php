@@ -28,6 +28,10 @@ class Step extends Model
         return $this->belongsTo(Flow::class, 'flow_id');
     }
 
+    public function stepRun(){
+        return $this->hasMany(StepRun::class);
+    }
+
     public function setHiddenFieldsAttribute($value)
     {
         $this->attributes['hidden_fields'] = json_encode(array_unique($value));
