@@ -18,7 +18,7 @@ class FileController extends Controller
         $originalExtension = $file->getClientOriginalExtension(); // 扩展名
         $name = time() . Auth::id();
         $newFileName = $name . '.' . $originalExtension;//新的文件名
-        $newFilePath = 'uploads/temporary/';//新的文件路径
+        $newFilePath = 'uploads/temporary/' . date('Y') . '/' . date('m') . '/' . date('d') . '/';//新的文件路径
         $file->storeAs($newFilePath, $newFileName, 'public');//图片存储
 
         //缩略图处理
@@ -30,8 +30,8 @@ class FileController extends Controller
         $path = '/storage/' . $newFilePath . $newFileName;
         return [
             'path' => $path,
-            'url' => env('APP_URL') . $path,
-            'thumb_url' => env('APP_URL') . '/storage/' . $newFilePath . $newThumbFileName
+            'url' => config('app.url') . $path,
+            'thumb_url' => config('app.url') . '/storage/' . $newFilePath . $newThumbFileName
         ];
     }
 
