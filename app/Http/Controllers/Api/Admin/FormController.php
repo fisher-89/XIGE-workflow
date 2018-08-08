@@ -63,7 +63,7 @@ class FormController extends Controller
             abort(404, '该表单不存在');
         $flowData = Flow::where('form_id', $id)->count();
         if ($flowData > 0)
-            abort(403, '改表单已被流程使用了');
+            abort(403, '该表单已被流程使用了');
         $data->delete();
         return $this->response->delete();
     }
