@@ -7,6 +7,7 @@ use App\Models\FlowType;
 use App\Services\ResponseService;
 use Illuminate\Http\Request;
 use App\Http\Controllers\Controller;
+use Illuminate\Support\Facades\Cache;
 
 class FlowTypeController extends Controller
 {
@@ -56,10 +57,8 @@ class FlowTypeController extends Controller
      */
     public function index()
     {
-        $response = cache()->get('flow_types', function () {
-            $data = FlowType::orderBy('sort', 'asc')->get()->toArray();
-            cache()->forever('flow_types', $data);
-            return $data;
+        $response = Cache::rememberForever('flow_types',function(){
+            return FlowType::orderBy('sort','desc')->get()->toArray();
         });
         return $this->response->get($response);
     }
