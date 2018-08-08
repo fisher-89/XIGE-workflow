@@ -48,7 +48,7 @@ class FormTypeController extends Controller
     public function destroy(FormType $formType)
     {
         if (count($formType->form) > 0)
-            abort(403, '该分类已经有表单在使用了,不能进行删除');
+            abort(400, '该分类已经有表单在使用了,不能进行删除');
         $formType->delete();
         return $this->response->delete();
     }

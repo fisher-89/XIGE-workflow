@@ -45,7 +45,7 @@ class FlowTypeController extends Controller
     public function destroy(FlowType $flowType)
     {
         if (count($flowType->flow) > 0)
-            abort(403, '该分类已经有流程在使用了,不能进行删除');
+            abort(400, '该分类已经有流程在使用了,不能进行删除');
         $flowType->delete();
         return $this->response->delete();
     }

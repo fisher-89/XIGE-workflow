@@ -46,7 +46,7 @@ class ValidatorController extends Controller
     public function destroy(Validator $validator)
     {
         if ($validator->fields->count() > 0)
-            abort(403, '该验证规则已经被使用了,不能进行删除');
+            abort(400, '该验证规则已经被使用了,不能进行删除');
         $validator->delete();
         return $this->response->delete();
     }
