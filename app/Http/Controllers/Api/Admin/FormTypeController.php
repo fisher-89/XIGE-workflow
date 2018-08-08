@@ -9,6 +9,7 @@ use App\Models\FormType;
 use App\Services\ResponseService;
 use Illuminate\Http\Request;
 use App\Http\Controllers\Controller;
+use Illuminate\Support\Facades\Cache;
 
 class FormTypeController extends Controller
 {
@@ -59,10 +60,8 @@ class FormTypeController extends Controller
      */
     public function index()
     {
-        $response = cache()->get('form_types', function () {
-            $data = FormType::orderBy('sort', 'asc')->get()->toArray();
-            cache()->forever('form_types', $data);
-            return $data;
+        $response = Cache::rememberForever('form_types',function(){
+           return FormType::orderBy('sort','asc')->get()->toArray();
         });
         return $this->response->get($response);
     }
