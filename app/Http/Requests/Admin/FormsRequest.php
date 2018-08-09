@@ -2,6 +2,7 @@
 
 namespace App\Http\Requests\Admin;
 
+use App\Rules\Admin\Form\FormFields;
 use App\Rules\Admin\Form\GridFields;
 use Illuminate\Foundation\Http\FormRequest;
 use Illuminate\Validation\Rule;
@@ -49,7 +50,8 @@ class FormsRequest extends FormRequest
             ],
             'fields' => [
                 'required',
-                'array'
+                'array',
+                new FormFields()
             ],
             'fields.*.id' => [
                 Rule::exists('fields', 'id')->where('form_id', $this->route('id'))->whereNull('deleted_at')
