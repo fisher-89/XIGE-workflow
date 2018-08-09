@@ -49,8 +49,9 @@ class FormFieldsService
     /**
      * 获取表单data数据条数
      */
-    public function getFormDataCount(){
-        if(!Schema::hasTable($this->tableName))
+    public function getFormDataCount()
+    {
+        if (!Schema::hasTable($this->tableName))
             $this->createFormDataTable();
         $formDataCount = DB::table($this->tableName)->limit(1)->count();
         return $formDataCount;
@@ -68,9 +69,6 @@ class FormFieldsService
                         case 'int':
                             $table->unsignedInteger($v['key'])->nullable()->comment($v['description']);
                             break;
-                        case 'tinyint':
-                            $table->unsignedTinyInteger($v['key'])->nullable()->comment($v['description']);
-                            break;
                         case 'decimal':
                             $table->decimal($v['key'], $v['max'], $v['scale'])->nullable()->comment($v['description']);
                             break;
@@ -79,9 +77,6 @@ class FormFieldsService
                             break;
                         case 'text':
                             $table->text($v['key'])->nullable()->comment($v['description']);
-                            break;
-                        case 'varchar':
-                            $table->string($v['key'], $v['max'])->nullable()->comment($v['description']);
                             break;
                         case 'date':
                             $table->date($v['key'])->nullable()->comment($v['description']);
@@ -153,23 +148,20 @@ class FormFieldsService
 
     private function int($v)
     {
-        if ($v['scale'] == 0) {
-            if (strlen($v['max']) > 3) {
-                $v['type'] = 'int';
-            } else {
-                $v['type'] = 'tinyint';
-            }
+        if ($v['scale'] == 0 || $v['scale'] == null || $v['scale'] == '') {
+            //无小数位数
+            $v['type'] = 'int';
         } else {
+            //含有小数
             $v['max'] = strlen($v['max']);
             $v['type'] = 'decimal';
         }
-
         return $v;
     }
 
     private function text($v)
     {
-        if ($v['max'] < 255) {
+        if ($v['max'] && $v['max'] < 255) {
             $v['type'] = 'char';
         } else {
             $v['type'] = 'text';
