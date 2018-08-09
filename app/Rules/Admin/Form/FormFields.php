@@ -34,6 +34,7 @@ class FormFields implements Rule
                 }
             }
         }
+        return true;
     }
 
     /**
