@@ -97,7 +97,7 @@ class FlowRequest extends FormRequest
                 'min:2',
                 new StepGroup,
                 new StepApprover,
-                new MergeType()//验证合并步骤
+                new MergeType//验证合并步骤
             ],
             'steps.*.name' => [
                 'required',
