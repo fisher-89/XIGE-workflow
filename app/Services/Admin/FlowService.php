@@ -74,7 +74,7 @@ class FlowService
             $flow->staff()->delete();
             $flow->roles()->delete();
             $flow->departments()->delete();
-            $flow->steps()->forceDelete();
+            $flow->steps()->delete();
             $flow->subSteps()->delete();//删除子步骤
 
             //创建步骤与流程发起数据
