@@ -4,7 +4,7 @@ namespace App\Http\Requests\Admin;
 
 use App\Rules\Admin\DepartmentExists;
 use App\Rules\Admin\Flow\FormFields;
-use App\Rules\Admin\FLow\MergeType;
+use App\Rules\Admin\Flow\MergeType;
 use App\Rules\Admin\RoleExists;
 use App\Rules\Admin\StaffExists;
 use App\Rules\Admin\Flow\StepApprover;
@@ -97,7 +97,7 @@ class FlowRequest extends FormRequest
                 'min:2',
                 new StepGroup,
                 new StepApprover,
-                new MergeType,  //验证合并步骤
+                new MergeType(),  //验证合并步骤
             ],
             'steps.*.name' => [
                 'required',
