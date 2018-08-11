@@ -180,7 +180,7 @@ class CreateWorkflowTable extends Migration
             $table->string('withdraw_callback_uri')->comment('撤回回调地址')->default('');
             $table->timestamps();
             $table->softDeletes();
-            $table->unique(['flow_id', 'step_key']);
+            $table->unique(['flow_id', 'step_key','deleted_at']);
             $table->foreign('flow_id')->references('id')->on('flows');
         });
 
