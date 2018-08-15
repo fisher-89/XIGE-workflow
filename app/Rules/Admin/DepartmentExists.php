@@ -29,9 +29,10 @@ class DepartmentExists implements Rule
      */
     public function passes($attribute, $value)
     {
+        $oaApiService = new OaApiService();
         if ($value) {
             $filters = 'filters=id=[' . implode(',', $value) . ']';
-            $result = OaApiService::getDepartments($filters);
+            $result = $oaApiService->getDepartments($filters);
             $departmentId = array_pluck($result, 'id');
             $exceptDepartmentId = array_diff($value, $departmentId);
             if (!empty($exceptDepartmentId)) {

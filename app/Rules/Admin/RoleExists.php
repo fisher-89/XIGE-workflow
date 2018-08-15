@@ -29,9 +29,10 @@ class RoleExists implements Rule
      */
     public function passes($attribute, $value)
     {
+        $oaApiService = new OaApiService();
         if ($value) {
             $filters = 'filters=id=[' . implode(',', $value) . ']';
-            $result = OaApiService::getRoles($filters);
+            $result = $oaApiService->getRoles($filters);
             $rolesId = array_pluck($result, 'id');
             $exceptRolesId = array_diff($value, $rolesId);
             if (!empty($exceptRolesId)) {

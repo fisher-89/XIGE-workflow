@@ -12,4 +12,7 @@ return [
     'get_staff' => $host . '/api/staff',//获取员工信息
     'get_roles' => $host . '/api/roles',//获取角色
     'get_departments' => $host . '/api/departments',//获取部门
+    'dingtalk'=>[
+      'message'=>$host . '/dingtalk/message',//发送钉钉通知
+    ],
 ];

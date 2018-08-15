@@ -29,9 +29,10 @@ class StaffExists implements Rule
      */
     public function passes($attribute, $value)
     {
+        $oaApiService = new OaApiService();
         if ($value) {
             $filters = 'filters=staff_sn=[' . implode(',', $value) . '];status_id>=0';
-            $result = OaApiService::getStaff($filters);
+            $result = $oaApiService->getStaff($filters);
             $users = array_pluck($result, 'staff_sn');
             $exceptUser = array_diff($value, $users);
             if (!empty($exceptUser)) {

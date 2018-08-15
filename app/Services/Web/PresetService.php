@@ -88,9 +88,10 @@ class PresetService
      */
     protected function getOaUser(array $data, $field)
     {
+        $oaApiService = new OaApiService();
         $dataStr = implode(',', $data);
         $filters = 'filters=' . $field . '=[' . $dataStr . '];status_id>=0';
-        $response = OaApiService::getStaff($filters);
+        $response = $oaApiService->getStaff($filters);
         return $response;
     }
 
