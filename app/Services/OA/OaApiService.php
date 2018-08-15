@@ -16,7 +16,7 @@ class OaApiService
      * @return mixed
      * @throws \Illuminate\Container\EntryNotFoundException
      */
-    public static function getStaff($filters = '')
+    public function getStaff($filters = '')
     {
         $path = config('oa.get_staff');
         $url = $path . '?' . $filters;
@@ -29,7 +29,7 @@ class OaApiService
      * @return mixed
      * @throws \Illuminate\Container\EntryNotFoundException
      */
-    public static function getRoles($filters = '')
+    public function getRoles($filters = '')
     {
         $path = config('oa.get_roles');
         $url = $path . '?' . $filters;
@@ -37,12 +37,12 @@ class OaApiService
     }
 
     /**
-     * 获取AO部门
+     * 获取OA部门
      * @param $filters
      * @return mixed
      * @throws \Illuminate\Container\EntryNotFoundException
      */
-    public static function getDepartments($filters)
+    public function getDepartments($filters)
     {
         $path = config('oa.get_departments');
         $url = $path . '?' . $filters;
