@@ -2,12 +2,14 @@
 
 namespace App\Models;
 
+use App\Models\Traits\ListScopes;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\SoftDeletes;
 
 class FlowRun extends Model
 {
     use SoftDeletes;
+    use ListScopes;
 
     protected $table = 'flow_run';
     protected $hidden = ['updated_at', 'deleted_at'];
