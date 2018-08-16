@@ -25,7 +25,7 @@ Route::middleware('auth:api')->namespace('Api\Web')->group(function () {
     Route::get('start/{flow}', 'ResourceController@start');//获取发起数据
     Route::post('preset/{flow}', 'ActionController@preset');//预提交处理
     Route::post('start/{flow}', 'ActionController@start');//发起处理
-    Route::post('approval','ResourceController@getApproval');//获取审批列表
+    Route::get('approval','ResourceController@getApproval');//获取审批列表
     Route::get('approval/{stepRun}','ResourceController@getApprovalDetail');//获取审批详情
     Route::get('sponsor','ResourceController@getSponsor');//获取发起列表
     Route::get('sponsor/{flow_run_id}','ResourceController@getSponsorDetail');//获取发起详情

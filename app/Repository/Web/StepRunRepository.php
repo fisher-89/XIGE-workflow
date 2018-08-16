@@ -34,8 +34,9 @@ class StepRunRepository
             ->when(($request->has('flow_id') && intval($request->flow_id)),function($query)use($request){
                 return $query->where('flow_id',$request->flow_id);
             })
-            ->orderBy('created_at','desc')
-            ->paginate(15);
+            ->filterByQueryString()
+            ->sortByQueryString()
+            ->withPagination();
         return $data;
     }
     /**
