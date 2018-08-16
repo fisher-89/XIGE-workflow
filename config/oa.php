@@ -8,6 +8,8 @@
 
 $host = env('OA_HOST', 'http://192.168.20.18:8001');
 return [
+    'client_id' => env('OA_CLIENT_ID',''),
+    'client_secret' => env('OA_CLIENT_SECRET',''),
     'host' => $host,
     'get_staff' => $host . '/api/staff',//获取员工信息
     'get_roles' => $host . '/api/roles',//获取角色
