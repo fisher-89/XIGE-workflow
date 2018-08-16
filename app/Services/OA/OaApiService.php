@@ -48,4 +48,14 @@ class OaApiService
         $url = $path . '?' . $filters;
         return app('curl')->get($url);
     }
+
+    /**
+     * 通过OA发送钉钉工作通知消息
+     * @param $data
+     * @return mixed
+     */
+    public function sendDingtalkJobNotificationMessage($data){
+        $url = config('oa.dingtalk.message');
+        return app('curl')->sendMessageByPost($url,$data);
+    }
 }

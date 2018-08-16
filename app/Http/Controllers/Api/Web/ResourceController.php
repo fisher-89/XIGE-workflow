@@ -13,6 +13,7 @@ use App\Repository\Web\FormRepository;
 use App\Repository\Web\StepRunRepository;
 use App\Repository\Web\Auth\FlowAuth;
 use App\Repository\Web\FlowRepository;
+use App\Services\OA\OaApiService;
 use App\Services\Web\CallbackService;
 use App\Services\ResponseService;
 use Illuminate\Http\Request;
@@ -35,18 +36,18 @@ class ResourceController extends Controller
     {
         $flowId = FlowAuth::getCurrentUserFlowAuthorize();//获取当前用户有权限的流程
         $flow = FlowType::with(['flow' => function ($query) use ($flowId) {
-            $query->whereIn('id',$flowId)
-                ->where('is_active',1)
-                ->select('id','name','description','flow_type_id')
-                ->orderBy('sort','asc');
+            $query->whereIn('id', $flowId)
+                ->where('is_active', 1)
+                ->select('id', 'name', 'description', 'flow_type_id')
+                ->orderBy('sort', 'asc');
         }])
-            ->select('id','name')
-            ->orderBy('sort','asc')
+            ->select('id', 'name')
+            ->orderBy('sort', 'asc')
             ->get();
 
         //过滤分类下无流程的
-        $data = $flow->filter(function($value,$key){
-            return count($value->flow)>0;
+        $data = $flow->filter(function ($value, $key) {
+            return count($value->flow) > 0;
         })->pluck([]);
 //        $flow = Flow::whereIsActive(1)->select('id', 'name', 'description')->orderBy('sort', 'asc')->find($flowId);
         return $this->response->get($data);
