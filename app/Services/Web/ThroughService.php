@@ -37,8 +37,8 @@ class ThroughService
         $cacheFormData = app('preset')->getPresetData($request->input('timestamp'));
         if (!$cacheFormData)
             abort(404, '预提交数据已失效，请重新提交数据');
-        app('action')->checkStartRequest($request,$cacheFormData);//检测审批人数据与step_run_id是否正确、缓存是否失效
-       // $this->checkStartRequest($request, $cacheFormData);//检测审批人数据与step_run_id是否正确、缓存是否失效
+        app('action')->checkStartRequest($request, $cacheFormData);//检测审批人数据与step_run_id是否正确、缓存是否失效
+        // $this->checkStartRequest($request, $cacheFormData);//检测审批人数据与step_run_id是否正确、缓存是否失效
         $this->formData = $cacheFormData['form_data'];
         $this->saveThrough($request, $cacheFormData['step_end']);
         app('preset')->forgetPresetData($request->input('timestamp'));//清楚预提交缓存数据
@@ -112,14 +112,17 @@ class ThroughService
     {
         $formFields = Field::where('form_id', $this->stepRun->form_id)->whereNull('form_grid_id')->pluck('key')->all();
         $formData = array_only($this->formData, $formFields);
-        $formData = array_map(function($item){
-            if(is_array($item))
+        $formData = array_map(function ($item) {
+            if (is_array($item))
                 $item = json_encode($item);
             return $item;
-        },$formData);
-        DB::table($this->tablePrefix . $this->stepRun->form_id)
-            ->where('id', $this->stepRun->data_id)
-            ->update($formData);
+        }, $formData);
+        if (count($formData) > 0) {
+            DB::table($this->tablePrefix . $this->stepRun->form_id)
+                ->where('id', $this->stepRun->data_id)
+                ->update($formData);
+        }
+
     }
 
     /**
