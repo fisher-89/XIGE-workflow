@@ -46,9 +46,9 @@ class ActionController extends Controller
      */
     public function start(StartRequest $request, Flow $flow)
     {
-        $cacheFormData = app('preset')->getPresetData($request->input('timestamp'))['form_data'];
+//        $cacheFormData = app('preset')->getPresetData($request->input('timestamp'))['form_data'];
         $stepRunData = app('action')->start($request, $flow);
-        $this->callback->startCallback($stepRunData, $cacheFormData);//触发开始回调
+//        $this->callback->startCallback($stepRunData, $cacheFormData);//触发开始回调
         return $this->response->post($stepRunData);
     }
 

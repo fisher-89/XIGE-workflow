@@ -40,13 +40,16 @@ class StartService
     public function startSave($request, $flow)
     {
         $this->flowId = $flow->id;
-        DB::transaction(function () use ($request, $flow,&$stepRunData) {
+        DB::transaction(function () use ($request, $flow, &$currentStepRunData,&$nextStepRunData) {
             $flowRunData = $this->createFlowRun($flow->id);//创建流程运行数据
             $dataId = $this->createFormData($request, $flowRunData);//创建表单data数据（表单与控件）
-            $stepRunData = $this->createStartStepRunData($flow, $flowRunData, $dataId);//创建开始步骤运行数据
-            $this->createNextStepRunData($flow, $flowRunData, $dataId, $request->input('next_step'));
+            $currentStepRunData = $this->createStartStepRunData($flow, $flowRunData, $dataId);//创建开始步骤运行数据
+            $nextStepRunData = $this->createNextStepRunData($flow, $flowRunData, $dataId, $request->input('next_step'));
         });
-        return $stepRunData;
+        return [
+            'current_step_run_data'=>$currentStepRunData,//创建开始步骤数据
+            'next_step_run_data'=>$nextStepRunData//下一步骤运行数据
+        ];
     }
 
     /**
@@ -54,7 +57,7 @@ class StartService
      */
     protected function createFlowRun($flowId)
     {
-        $flowData = Flow::select('id','id as flow_id', 'name', 'form_id','flow_type_id')->find($flowId);
+        $flowData = Flow::select('id', 'id as flow_id', 'name', 'form_id', 'flow_type_id')->find($flowId);
         $flowData->creator_sn = $this->user->staff_sn;
         $flowData->creator_name = $this->user->realname;
         $data = FlowRun::create($flowData->toArray());
@@ -84,7 +87,7 @@ class StartService
     {
         $formRepository = new FormRepository();
         $fileFields = $formRepository->getFileFields($formId);;//获取文件字段
-        return $this->fileFieldsReplace($formData,$fileFields);
+        return $this->fileFieldsReplace($formData, $fileFields);
     }
 
 
@@ -93,17 +96,18 @@ class StartService
      * @param $formData
      * @param $fileFields
      */
-    protected function fileFieldsReplace($formData,$fileFields){
-        foreach($formData as $k=>$v){
-            if(in_array($k,$fileFields['form']) && !empty($v)){
+    protected function fileFieldsReplace($formData, $fileFields)
+    {
+        foreach ($formData as $k => $v) {
+            if (in_array($k, $fileFields['form']) && !empty($v)) {
                 //表单文件字段
                 $formData[$k] = $this->moveFile($v);
             }
-            if(is_array($v)&& $v && array_has($fileFields['grid'],$k)){
+            if (is_array($v) && $v && array_has($fileFields['grid'], $k)) {
                 //控件文件字段处理
-                foreach($v as $gridKey=>$gridValue){
-                    foreach($gridValue as $field=>$value){
-                        if(in_array($field,$fileFields['grid'][$k]) && !empty($value)){
+                foreach ($v as $gridKey => $gridValue) {
+                    foreach ($gridValue as $field => $value) {
+                        if (in_array($field, $fileFields['grid'][$k]) && !empty($value)) {
                             $formData[$k][$gridKey][$field] = $this->moveFile($value);
                         }
                     }
@@ -113,45 +117,47 @@ class StartService
         return $formData;
     }
 
-    protected function moveFile(array $filePath){
+    protected function moveFile(array $filePath)
+    {
         $data = [];
-        foreach ($filePath as $v){
+        foreach ($filePath as $v) {
             $data[] = $this->copyFile($v);
         }
         return json_encode($data);
     }
 
-    protected function copyFile($filePath){
-        $fileTemp = str_replace('/storage/','',$filePath);
-        $sub = explode('.',$fileTemp);
-        $thumbFileTemp =$sub[0].'_thumb.'.$sub[1];//缩略临时路径
+    protected function copyFile($filePath)
+    {
+        $fileTemp = str_replace('/storage/', '', $filePath);
+        $sub = explode('.', $fileTemp);
+        $thumbFileTemp = $sub[0] . '_thumb.' . $sub[1];//缩略临时路径
 
-        $checkFileTemp =Storage::disk('public')->exists($fileTemp);
-        $checkThumbFileTemp =Storage::disk('public')->exists($thumbFileTemp);
+        $checkFileTemp = Storage::disk('public')->exists($fileTemp);
+        $checkThumbFileTemp = Storage::disk('public')->exists($thumbFileTemp);
 
-        if(!$checkFileTemp){
-            abort(404,$fileTemp.'该文件不存在');
+        if (!$checkFileTemp) {
+            abort(404, $fileTemp . '该文件不存在');
         }
-        if(!$checkThumbFileTemp){
-            abort(404,$thumbFileTemp.'该缩略图不存在');
+        if (!$checkThumbFileTemp) {
+            abort(404, $thumbFileTemp . '该缩略图不存在');
         }
 
-        $newPath = 'uploads/perpetual/'.$this->flowId.'/'.date('Y').'/'.date('m').'/'.date('d').'/';
+        $newPath = 'uploads/perpetual/' . $this->flowId . '/' . date('Y') . '/' . date('m') . '/' . date('d') . '/';
 
-        if(!Storage::disk('public')->exists($newPath)){
+        if (!Storage::disk('public')->exists($newPath)) {
             //无路径
             Storage::disk('public')->makeDirectory($newPath);
         }
-        $filePermanent = str_replace('uploads/temporary/',$newPath,$fileTemp);
-        if(!Storage::disk('public')->exists($filePermanent)){
+        $filePermanent = str_replace('uploads/temporary/', $newPath, $fileTemp);
+        if (!Storage::disk('public')->exists($filePermanent)) {
             Storage::disk('public')->copy($fileTemp, $filePermanent);
         }
 
-        $thumbFilePermanent = str_replace('uploads/temporary/',$newPath,$thumbFileTemp);
-        if(!Storage::disk('public')->exists($thumbFilePermanent)){
+        $thumbFilePermanent = str_replace('uploads/temporary/', $newPath, $thumbFileTemp);
+        if (!Storage::disk('public')->exists($thumbFilePermanent)) {
             Storage::disk('public')->copy($thumbFileTemp, $thumbFilePermanent);
         }
-        return '/storage/'.$filePermanent;
+        return '/storage/' . $filePermanent;
     }
 
     /**
@@ -214,7 +220,7 @@ class StartService
     }
 
     /**
-     * 创建下一步骤数据
+     * 创建下一步骤运行数据
      * @param $flow
      * @param $flowRun
      * @param $dataId
@@ -222,6 +228,7 @@ class StartService
      */
     protected function createNextStepRunData($flow, $flowRun, $dataId, $nextStep)
     {
+        $nextStepRunData = [];//下一步骤运行数据
         foreach ($nextStep as $v) {
             $step = Step::find($v['step_id']);
             $column['step_id'] = $step->id;
@@ -236,7 +243,9 @@ class StartService
             $column['approver_sn'] = $v['approver_sn'];
             $column['approver_name'] = $v['approver_name'];
             $column['action_type'] = 0;
-            StepRun::create($column);
+            $stepRunData = StepRun::create($column);
+            $nextStepRunData[] = $stepRunData;
         }
+        return collect($nextStepRunData);
     }
 }
