@@ -58,4 +58,15 @@ class OaApiService
         $url = config('oa.dingtalk.message');
         return app('curl')->sendMessageByPost($url,$data);
     }
+
+    /**
+     * 获取钉钉accessToken
+     * @return mixed
+     */
+    public function getDingtalkAccessToken()
+    {
+        $url = config('oa.get_dingtalk_access_token');
+        $result = app('curl')->get($url);
+        return $result['message'];
+    }
 }
