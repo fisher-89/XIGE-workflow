@@ -32,10 +32,10 @@ class DeliverService
                 $data['action_type'] = 0;
                 $data = array_collapse([$data, $staff]);
                 $deliverStepRunData = StepRun::create($data);
-                $deliverData[] = $deliverStepRunData->toArray();
+                $deliverData[] = $deliverStepRunData;
             }
         });
-        return $deliverData;
+        return collect($deliverData);
         //一条sql处理新增
 //        $data = array_map(function($staff) use($stepRunData){
 //            $stepRunData['action_type'] = 3;

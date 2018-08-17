@@ -151,21 +151,23 @@ class CallbackService
      */
     public function transferCallback($stepRunData)
     {
-        $uri = $stepRunData->steps->transfer_callback_uri;
-        $sendData = [
-            'step_id' => $stepRunData->step_id,
-            'step_name' => $stepRunData->step_name,
-            'step_key' => $stepRunData->step_key,
-            'flow_run_id' => $stepRunData->flow_run_id,
-            'flow_run_name' => $stepRunData->flowRun->name,
-            'operator_sn' => $stepRunData->approver_sn,
-            'operator_name' => $stepRunData->approver_name,
-            'operator_type' => $stepRunData->action_type,
-            'operator_checked_at' => $stepRunData->checked_at,
-            'operator_at' => $stepRunData->acted_at,
-            'remark' => $stepRunData->remark,
-        ];
-        if (!empty($uri))
-            app('curl')->sendMessageByPost($uri, $sendData);
+        $stepRunData->each(function($stepRun){
+            $uri = $stepRun->steps->transfer_callback_uri;
+            $sendData = [
+                'step_id' => $stepRun->step_id,
+                'step_name' => $stepRun->step_name,
+                'step_key' => $stepRun->step_key,
+                'flow_run_id' => $stepRun->flow_run_id,
+                'flow_run_name' => $stepRun->flowRun->name,
+                'operator_sn' => $stepRun->approver_sn,
+                'operator_name' => $stepRun->approver_name,
+                'operator_type' => $stepRun->action_type,
+                'operator_checked_at' => $stepRun->checked_at,
+                'operator_at' => $stepRun->acted_at,
+                'remark' => $stepRun->remark,
+            ];
+            if (!empty($uri))
+                app('curl')->sendMessageByPost($uri, $sendData);
+        });
     }
 }
