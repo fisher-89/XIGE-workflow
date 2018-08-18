@@ -172,12 +172,12 @@ class StartService
         $formData = array_only($formData, $formFields);
         $formData['run_id'] = $flowRun->id;
         //类型为数组的值转为json
-        $formData = array_map(function($v){
-            if(is_array($v)){
-                $v = json_encode($v);
-            }
-            return $v;
-        },$formData);
+//        $formData = array_map(function($v){
+//            if(is_array($v)){
+//                $v = json_encode($v);
+//            }
+//            return $v;
+//        },$formData);
         $formDataId = DB::table($this->tablePrefix . $flowRun->form_id)->insertGetId($formData);
         return $formDataId;
     }
