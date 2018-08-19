@@ -20,4 +20,8 @@ class StepRun extends Model
     public function flowRun(){
         return $this->belongsTo('App\Models\FlowRun','flow_run_id');
     }
+
+    public function flow(){
+        return $this->belongsTo(Flow::class);
+    }
 }
