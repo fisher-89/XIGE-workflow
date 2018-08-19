@@ -38,3 +38,6 @@ Route::middleware('auth:api')->namespace('Api\Web')->group(function () {
     Route::post('files','FileController@index')->middleware('crossDomain');//临时存储文件
     Route::delete('clear-temp-file','FileController@clearTempFile');//清楚临时文件
 });
+
+//待办事项通知回调
+Route::post('/callback/todo','Api\Web\CallbackController@todo')->name('todo');

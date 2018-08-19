@@ -12,18 +12,18 @@ namespace App\Services\Web;
 use App\Models\StepRun;
 use App\Repository\Web\FlowRepository;
 use App\Repository\Web\FormRepository;
-use App\Services\OA\OaApiService;
+use App\Services\Notification\MessageNotification;
 
 class ActionService
 {
 
     protected $formRepository;
-    protected $sendMessage;//发送钉钉消息
+    protected $message;//发送钉钉消息
 
-    public function __construct(OaApiService $oaApiService)
+    public function __construct(MessageNotification $messageNotification)
     {
         $this->formRepository = new FormRepository();
-        $this->sendMessage = $oaApiService;
+        $this->message = $messageNotification;
     }
 
     /**
@@ -223,8 +223,8 @@ class ActionService
 
         $stepRunData = app('start')->startSave($request, $flow);//发起保存
         app('preset')->forgetPresetData($request->input('timestamp'));//清楚预提交缓存数据
-        //发送钉钉审批消息
-        $this->sendMessage($stepRunData);
+        //发送钉钉待办消息
+        $this->message->sendDingtalkTodoMessage($stepRunData['current_step_run_data'],$stepRunData['next_step_run_data']);
 
         return $stepRunData;
     }
@@ -252,28 +252,5 @@ class ActionService
                 }
             }
         }
-    }
-
-    /**
-     * 发送钉钉消息
-     * @param $stepRunData
-     */
-    protected function sendMessage($stepRunData){
-        $stepRunData['next_step_run_data']->each(function($stepRun)use($stepRunData){
-            $message = [
-                'oa_client_id'=>config('oa.client_id'),
-                'userid_list'=>[$stepRun->approver_sn],
-                'msg'=>[
-                    'msgtype'=>'link',
-                    'link'=>[
-                        'title'=>$stepRunData['current_step_run_data']->approver_name.'的'.$stepRunData['current_step_run_data']->flow_name.'需要你审批',
-                        'text'=>$stepRun->created_at.' — '.$stepRun->flow_name,
-                        'messageUrl'=>'http://'.request()->header('host'),
-                        'picUrl'=>'http://'.request()->header('host')
-                    ]
-                ]
-            ];
-            $this->sendMessage->sendDingtalkJobNotificationMessage($message);
-        });
     }
 }

@@ -13,6 +13,7 @@ use App\Models\Field;
 use App\Models\FormGrid;
 use App\Models\Step;
 use App\Models\StepRun;
+use App\Services\Notification\MessageNotification;
 use Illuminate\Support\Facades\DB;
 
 class ThroughService
@@ -20,10 +21,12 @@ class ThroughService
     protected $stepRun;
     protected $formData;
     protected $tablePrefix = 'form_data_';//表名前缀
+    protected $message;
 
     public function __construct($stepRunId)
     {
         $this->stepRun = StepRun::find($stepRunId);
+        $this->message = new MessageNotification();
     }
 
     /**
@@ -38,10 +41,21 @@ class ThroughService
         if (!$cacheFormData)
             abort(404, '预提交数据已失效，请重新提交数据');
         app('action')->checkStartRequest($request, $cacheFormData);//检测审批人数据与step_run_id是否正确、缓存是否失效
-        // $this->checkStartRequest($request, $cacheFormData);//检测审批人数据与step_run_id是否正确、缓存是否失效
         $this->formData = $cacheFormData['form_data'];
-        $this->saveThrough($request, $cacheFormData['step_end']);
+        $nextStepRunData = $this->saveThrough($request, $cacheFormData['step_end']);
         app('preset')->forgetPresetData($request->input('timestamp'));//清楚预提交缓存数据
+        if(empty($nextStepRunData) && $cacheFormData['step_end'] == 1){
+            //流程结束
+
+        }else{
+            //流程未结束
+
+            //发送消息给流程发起人
+
+            //发送消息给下一步审批人
+//            $this->message->sendPendingApprovalMessage($this->stepRun,$nextStepRunData);
+
+        }
         return $this->stepRun;
     }
 
@@ -52,7 +66,8 @@ class ThroughService
      */
     protected function saveThrough($request, $isStepEnd)
     {
-        DB::transaction(function () use ($request, $isStepEnd) {
+        $nextStepRunData = [];//下一步骤运行数据
+        DB::transaction(function () use ($request, $isStepEnd,&$nextStepRunData) {
             //当前步骤运行数据状态操作
             $this->saveCurrentStep($request->input('remark'));
             //合并类型未操作的数据为取消状态
@@ -64,11 +79,12 @@ class ThroughService
                 //结束步骤(流程结束处理)
                 $this->endFlow();
             } else {
-                $nextId = $this->createNextStepRunData($request->input('next_step'));
-                $this->stepRun->next_id = json_encode($nextId);
+                $nextStepRunData = $this->createNextStepRunData($request->input('next_step'));
+                $this->stepRun->next_id = json_encode($nextStepRunData->pluck('id')->all());
                 $this->stepRun->save();
             }
         });
+        return $nextStepRunData;
     }
 
     /**
@@ -169,7 +185,7 @@ class ThroughService
      */
     protected function createNextStepRunData(array $nextSteps)
     {
-        $nextId = [];
+        $nextData = [];
         foreach ($nextSteps as $v) {
             $stepData = Step::find($v['step_id']);
             $v['step_key'] = $stepData->step_key;
@@ -182,34 +198,8 @@ class ThroughService
             $v['data_id'] = $this->stepRun->data_id;
             $v['action_type'] = 0;
             $stepRunData = StepRun::create($v);
-            $nextId[] = $stepRunData->id;
+            $nextData[] = $stepRunData;
         }
-        return $nextId;
+        return collect($nextData);
     }
-
-    /**
-     * 检测发起数据
-     * @param $request
-     */
-//    protected function checkStartRequest($request, $cacheData)
-//    {
-//        if ($cacheData['step_run_id'] != $request->input('step_run_id')) {
-//            abort(400, '步骤运行ID与提交数据不一致');
-//        }
-//        if (!empty($cacheData['available_steps'])) {
-//            $availableStepStaffSn = [];//下一步审批人编号
-//            foreach ($cacheData['available_steps'] as $v) {
-//                foreach ($v['approvers'] as $step) {
-//                    $availableStepStaffSn[] = $step['staff_sn'];
-//                }
-//            }
-//            //检测提交的下一步审批人是否在审批人中
-//            foreach ($request->input('next_step') as $v) {
-//                if (!in_array($v['approver_sn'], $availableStepStaffSn)) {
-//                    abort(400, $v['approver_name'] . '不在下一步审批人中');
-//                }
-//            }
-//        }
-//    }
-
 }
