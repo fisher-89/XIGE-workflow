@@ -69,4 +69,12 @@ class OaApiService
         $result = app('curl')->get($url);
         return $result['message'];
     }
+    /*
+     * 发起待办信息（钉钉）
+     */
+    public function sendAddTodoMessage($data){
+        $url = config('oa.dingtalk.todo.add');
+        $result = app('curl')->sendMessageByPost($url,$data);
+        return $result;
+    }
 }
