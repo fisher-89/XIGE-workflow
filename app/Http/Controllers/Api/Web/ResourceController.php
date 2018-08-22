@@ -5,6 +5,7 @@ namespace App\Http\Controllers\Api\Web;
 
 use App\Http\Controllers\Controller;
 use App\Http\Resources\StepResource;
+use App\Jobs\SendCallback;
 use App\Models\Flow;
 use App\Models\FlowType;
 use App\Models\StepRun;
@@ -102,11 +103,12 @@ class ResourceController extends Controller
      * @param StepRun $stepRun
      * @return array
      */
-    public function getApprovalDetail(StepRun $stepRun, CallbackService $callbackService)
+    public function getApprovalDetail(StepRun $stepRun)
     {
         $stepRunRepository = new StepRunRepository();
         $data = $stepRunRepository->getDetail($stepRun);
-        $callbackService->checkCallback($data);//触发查看回调
+        //步骤查看回调
+        SendCallback::dispatch($data['step_run']->id, 'step_check');
         return $this->response->get($data);
     }
 

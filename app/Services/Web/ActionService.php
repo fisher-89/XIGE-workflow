@@ -9,6 +9,7 @@
 namespace App\Services\Web;
 
 
+use App\Jobs\SendCallback;
 use App\Models\StepRun;
 use App\Repository\Web\FlowRepository;
 use App\Repository\Web\FormRepository;
@@ -19,11 +20,13 @@ class ActionService
 
     protected $formRepository;
     protected $message;//发送钉钉消息
+    protected $callback;//回调
 
-    public function __construct(MessageNotification $messageNotification)
+    public function __construct(MessageNotification $messageNotification, CallbackService $callbackService)
     {
         $this->formRepository = new FormRepository();
         $this->message = $messageNotification;
+        $this->callback = $callbackService;
     }
 
     /**
@@ -225,7 +228,12 @@ class ActionService
         app('preset')->forgetPresetData($request->input('timestamp'));//清楚预提交缓存数据
         //发送钉钉待办消息
         $this->message->sendDingtalkTodoMessage($stepRunData['current_step_run_data'],$stepRunData['next_step_run_data']);
-
+        //流程开始回调
+        SendCallback::dispatch($stepRunData['current_step_run_data']->id,'start');
+        //步骤开始回调
+        $stepRunData['next_step_run_data']->each(function($stepRun){
+            SendCallback::dispatch($stepRun->id,'step_start');
+        });
         return $stepRunData;
     }
 

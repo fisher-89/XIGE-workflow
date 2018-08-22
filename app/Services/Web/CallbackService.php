@@ -9,165 +9,234 @@
 namespace App\Services\Web;
 
 
+use App\Models\FormGrid;
+use App\Models\StepRun;
+use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\DB;
+
 class CallbackService
 {
-
     /**
-     * 查看回调
-     * @param $data
+     * 发送回调
+     * @param int $stepRunId
+     * @param string $type
      */
-    public function checkCallback($data)
+    public function sendCallback(int $stepRunId, string $type)
     {
-        $uri = $data['step']['check_callback_uri'];
-        $sendData = [
-            'step_id' => $data['step_run']['step_id'],
-            'step_name' => $data['step_run']['step_name'],
-            'step_key' => $data['step_run']['step_key'],
-            'flow_run_id' => $data['step_run']['flow_run_id'],
-            'flow_run_name' => $data['flow_run']['name'],
-            'operator_sn' => $data['step_run']['approver_sn'],
-            'operator_name' => $data['step_run']['approver_name'],
-            'operator_type' => $data['step_run']['action_type'],
-            'operator_checked_at' => $data['step_run']['checked_at'],
-            'operator_at' => $data['step_run']['acted_at'],
-            'form_data' => $data['form_data'],
-        ];
-        if (!empty($uri))
-            app('curl')->sendMessageByPost($uri, $sendData);
+        $stepRunData = StepRun::find($stepRunId);
+        switch ($type) {
+            case 'start':
+                //流程开始回调
+                $this->flowStartCallback($stepRunData);
+                break;
+            case 'finish':
+                //流程结束回调
+                $this->flowFinishCallback($stepRunData);
+                break;
+            case 'step_start':
+                //步骤开始回调
+                $this->stepStartCallback($stepRunData);
+                break;
+            case 'step_check':
+                //步骤查看回调
+                $this->stepCheckCallback($stepRunData);
+                break;
+            case 'step_agree':
+                //步骤通过回调
+                $this->stepAgreeCallback($stepRunData);
+                break;
+            case 'step_reject':
+                //步骤驳回回调
+                $this->stepRejectCallback($stepRunData);
+                break;
+            case 'step_deliver':
+                //步骤转交回调
+                $this->stepDeliverCallback($stepRunData);
+                break;
+            case 'step_finish':
+                //步骤结束回调
+                $this->stepFinishCallback($stepRunData);
+                break;
+            case 'step_withdraw':
+                //步骤撤回回调
+                $this->stepWithDrawCallback($stepRunData);
+                break;
+        }
+
     }
 
     /**
      * 流程开始回调
-     * @param $stepRunData
-     * @param array $formData
+     * @param int $stepRunId 步骤运行ID
      */
-    public function startCallback($stepRunData,array $formData)
+    protected function flowStartCallback($stepRunData)
     {
-        $uri = $stepRunData->steps->flow->start_callback_uri;
-        $sendData = [
-            'flow_run_id' => $stepRunData->flow_run_id,
-            'flow_run_name' => $stepRunData->flowRun->name,
-            'operator_sn' => $stepRunData->flowRun->creator_sn,
-            'operator_name' => $stepRunData->flowRun->creator_name,
-            'operator_status' => $stepRunData->flowRun->status,
-            'operator_at' => $stepRunData->flowRun->created_at,
-            'form_data' => $formData,
-        ];
-        if (!empty($uri))
-            app('curl')->sendMessageByPost($uri, $sendData);
+        $url = $stepRunData->flow->start_callback_uri;
+        if ($url && is_string($url)) {
+            $data = $this->getCallbackData($stepRunData);
+            $data['type'] = 'start';//回调类型
+            $data['time'] = strtotime($stepRunData->flowRun->created_at);
+            app('curl')->sendMessageByPost($url, $data);
+        }
+    }
+
+    /**
+     * 流程结束回调
+     * @param $stepRunData
+     */
+    protected function flowFinishCallback($stepRunData)
+    {
+        $url = $stepRunData->flow->end_callback_uri;
+        if ($url) {
+            $data = $this->getCallbackData($stepRunData);
+            $data['type'] = 'finish';
+            $data['time'] = strtotime($stepRunData->flowRun->end_at);
+            $data['result'] = $stepRunData->flowRun->status == 1 ? 'agree' : 'refuse';
+            app('curl')->sendMessageByPost($url,$data);
+        }
     }
 
     /**
      * 步骤开始回调
-     * @param $flowRunData
+     * @param $stepRunData
      */
-    public function startStepCallback($stepRunData, Array $formData)
+    protected function stepStartCallback($stepRunData)
     {
-        $uri = $stepRunData->steps->start_callback_uri;
-        $sendData = [
-            'flow_run_id' => $stepRunData->flow_run_id,
-            'flow_run_name' => $stepRunData->flowRun->name,
-            'operator_sn' => $stepRunData->flowRun->creator_sn,
-            'operator_name' => $stepRunData->flowRun->creator_name,
-            'operator_status' => $stepRunData->flowRun->status,
-            'operator_at' => $stepRunData->flowRun->created_at,
-            'form_data' => $formData,
-        ];
-        if (!empty($uri))
-            app('curl')->sendMessageByPost($uri, $sendData);
+        $url = $stepRunData->steps->start_callback_uri;
+        if($url){
+            $data = $this->getCallbackData($stepRunData);
+            $data['type'] = 'step_start';
+            $data['time'] = strtotime($stepRunData->created_at);
+            app('curl')->sendMessageByPost($url,$data);
+        }
     }
 
     /**
-     * 通过回调
+     * 步骤查看回调
      * @param $stepRunData
-     * @param $formData
      */
-    public function approveCallback($stepRunData, $formData)
-    {
-        $uri = $stepRunData->steps->approve_callback_uri;
-        $sendData = [
-            'step_id' => $stepRunData->step_id,
-            'step_name' => $stepRunData->step_name,
-            'step_key' => $stepRunData->step_key,
-            'flow_run_id' => $stepRunData->flow_run_id,
-            'flow_run_name' => $stepRunData->flowRun->name,
-            'operator_sn' => $stepRunData->approver_sn,
-            'operator_name' => $stepRunData->approver_name,
-            'operator_type' => $stepRunData->action_type,
-            'operator_checked_at' => $stepRunData->checked_at,
-            'operator_at' => $stepRunData->acted_at,
-            'form_data' => $formData,
-        ];
-        if (!empty($uri))
-            app('curl')->sendMessageByPost($uri, $sendData);
-    }
-
-    public function endFlow($stepRunData,array $formData)
-    {
-        $uri = $stepRunData->steps->flow->end_callback_uri;
-        $sendData = [
-            'flow_run_id' => $stepRunData->flow_run_id,
-            'flow_run_name' => $stepRunData->flowRun->name,
-            'operator_sn' => $stepRunData->flowRun->creator_sn,
-            'operator_name' => $stepRunData->flowRun->creator_name,
-            'operator_status' => $stepRunData->flowRun->status,
-            'operator_at' => $stepRunData->flowRun->created_at,
-            'end_at' => $stepRunData->flowRun->end_at,
-            'approver_sn'=>$stepRunData->approver_sn,
-            'approver_name'=>$stepRunData->approver_name,
-            'form_data' => $formData,
-        ];
-        if (!empty($uri))
-            app('curl')->sendMessageByPost($uri, $sendData);
+    protected function stepCheckCallback($stepRunData){
+        $url = $stepRunData->steps->check_callback_uri;
+        if($url){
+            $data = $this->getCallbackData($stepRunData);
+            $data['type'] = 'step_check';
+            $data['time'] = strtotime($stepRunData->checked_at);
+            app('curl')->sendMessageByPost($url,$data);
+        }
     }
 
     /**
-     * 驳回回调
+     * 步骤通过回调
      * @param $stepRunData
      */
-    public function rejectCallback($stepRunData)
+    protected function stepAgreeCallback($stepRunData)
     {
-        $uri = $stepRunData->steps->reject_callback_uri;
-        $sendData = [
-            'step_id' => $stepRunData->step_id,
-            'step_name' => $stepRunData->step_name,
-            'step_key' => $stepRunData->step_key,
-            'flow_run_id' => $stepRunData->flow_run_id,
-            'flow_run_name' => $stepRunData->flowRun->name,
-            'operator_sn' => $stepRunData->approver_sn,
-            'operator_name' => $stepRunData->approver_name,
-            'operator_type' => $stepRunData->action_type,
-            'operator_checked_at' => $stepRunData->checked_at,
-            'operator_at' => $stepRunData->acted_at,
-            'remark' => $stepRunData->remark,
-        ];
-        if (!empty($uri))
-            app('curl')->sendMessageByPost($uri, $sendData);
+        $url = $stepRunData->steps->approve_callback_uri;
+        if($url){
+            $data = $this->getCallbackData($stepRunData);
+            $data['type'] = 'step_agree';
+            $data['time'] = strtotime($stepRunData->acted_at);
+            app('curl')->sendMessageByPost($url,$data);
+        }
     }
 
     /**
-     * 转交回调
+     * 步骤驳回回调
      * @param $stepRunData
      */
-    public function transferCallback($stepRunData)
+    protected function stepRejectCallback($stepRunData)
     {
-        $stepRunData->each(function($stepRun){
-            $uri = $stepRun->steps->transfer_callback_uri;
-            $sendData = [
-                'step_id' => $stepRun->step_id,
-                'step_name' => $stepRun->step_name,
-                'step_key' => $stepRun->step_key,
-                'flow_run_id' => $stepRun->flow_run_id,
-                'flow_run_name' => $stepRun->flowRun->name,
-                'operator_sn' => $stepRun->approver_sn,
-                'operator_name' => $stepRun->approver_name,
-                'operator_type' => $stepRun->action_type,
-                'operator_checked_at' => $stepRun->checked_at,
-                'operator_at' => $stepRun->acted_at,
-                'remark' => $stepRun->remark,
-            ];
-            if (!empty($uri))
-                app('curl')->sendMessageByPost($uri, $sendData);
-        });
+        $url = $stepRunData->steps->reject_callback_uri;
+        if($url){
+            $data = $this->getCallbackData($stepRunData);
+            $data['type'] = 'step_reject';
+            $data['time'] = strtotime($stepRunData->acted_at);
+            app('curl')->sendMessageByPost($url,$data);
+        }
+    }
+
+    /**
+     * 步骤转交回调
+     * @param $stepRunData
+     */
+    protected function stepDeliverCallback($stepRunData)
+    {
+        $url = $stepRunData->steps->transfer_callback_uri;
+        if($url){
+            $data = $this->getCallbackData($stepRunData);
+            $data['type'] = 'step_deliver';
+            $data['time'] = strtotime($stepRunData->acted_at);
+            app('curl')->sendMessageByPost($url,$data);
+        }
+    }
+
+    /**
+     * 步骤结束回调
+     * @param $stepRunData
+     */
+    protected function stepFinishCallback($stepRunData)
+    {
+        $url = $stepRunData->steps->end_callback_uri;
+        if($url){
+            $data = $this->getCallbackData($stepRunData);
+            $data['type'] = 'step_finish';
+            $data['time'] = strtotime($stepRunData->acted_at);
+            app('curl')->sendMessageByPost($url,$data);
+        }
+    }
+
+    /**
+     * 步骤撤回回调
+     * @param $stepRunData
+     */
+    protected function stepWithDrawCallback($stepRunData)
+    {
+        $url = $stepRunData->steps->withdraw_callback_uri;
+        if($url){
+            $data = $this->getCallbackData($stepRunData);
+            $data['type'] = 'step_withdraw';
+            $data['time'] = strtotime($stepRunData->acted_at);
+            app('curl')->sendMessageByPost($url,$data);
+        }
+    }
+    /**
+     * 回调返回的数据
+     * @param int $stepRunData
+     * @return array
+     */
+    protected function getCallbackData($stepRunData)
+    {
+        $data['approver_sn'] = Auth::id();
+        $data['approver_name'] = Auth::user()->realname;
+        $data['step_run_id'] = $stepRunData->id;
+        $data['flow_id'] = $stepRunData->flow_id;
+        $data['flow_name'] = $stepRunData->flow_name;
+        $data['remark'] = $stepRunData->remark;
+        $data['flow_run_id'] = $stepRunData->flow_run_id;
+        $formData = $this->getFormData($stepRunData->form_id, $stepRunData->data_id);
+        $data['data'] = $formData;
+        return $data;
+    }
+
+    /**
+     * 获取表单数据
+     * @param $formId
+     * @param $dataId
+     * @return array
+     */
+    protected function getFormData($formId, $dataId)
+    {
+        $formGridKey = FormGrid::where('form_id', $formId)->pluck('key')->all();
+        //表单数据
+        $formData = DB::table('form_data_' . $formId)->find($dataId);
+        $formData = collect($formData)->all();
+        if (!empty($formGridKey)) {
+            //表单控件数据
+            array_map(function ($key) use (&$formData, $formId) {
+                $gridData = DB::table('form_data_' . $formId . '_' . $key)->where('data_id', $formData['id'])->get();
+                $formData[$key] = json_decode(json_encode($gridData), true);
+            }, $formGridKey);
+        }
+        return $formData;
     }
 }

@@ -9,6 +9,7 @@
 namespace App\Services\Web;
 
 
+use App\Jobs\SendCallback;
 use App\Models\Field;
 use App\Models\FormGrid;
 use App\Models\Step;
@@ -44,10 +45,16 @@ class ThroughService
         $this->formData = $cacheFormData['form_data'];
         $nextStepRunData = $this->saveThrough($request, $cacheFormData['step_end']);
         app('preset')->forgetPresetData($request->input('timestamp'));//清楚预提交缓存数据
-        if(empty($nextStepRunData) && $cacheFormData['step_end'] == 1){
-            //流程结束
 
-        }else{
+        //步骤通过回调
+        SendCallback::dispatch($this->stepRun->id, 'step_agree');
+        //步骤结束回调
+        SendCallback::dispatch($this->stepRun->id, 'step_finish');
+        if (empty($nextStepRunData) && $cacheFormData['step_end'] == 1) {
+            //流程结束
+            //流程结束回调
+            SendCallback::dispatch($this->stepRun->id, 'finish');
+        } else {
             //流程未结束
 
             //发送消息给流程发起人
@@ -67,7 +74,7 @@ class ThroughService
     protected function saveThrough($request, $isStepEnd)
     {
         $nextStepRunData = [];//下一步骤运行数据
-        DB::transaction(function () use ($request, $isStepEnd,&$nextStepRunData) {
+        DB::transaction(function () use ($request, $isStepEnd, &$nextStepRunData) {
             //当前步骤运行数据状态操作
             $this->saveCurrentStep($request->input('remark'));
             //合并类型未操作的数据为取消状态

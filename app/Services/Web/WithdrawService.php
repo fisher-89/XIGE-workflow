@@ -10,6 +10,7 @@
 namespace App\Services\Web;
 
 
+use App\Jobs\SendCallback;
 use App\Models\FlowRun;
 use Illuminate\Support\Facades\DB;
 
@@ -42,6 +43,10 @@ class WithdrawService
                 $stepRun->save();
                 return $stepRun;
             });
+        });
+        //撤回回调
+        $flowRunData->stepRun->each(function($stepRun){
+            SendCallback::dispatch($stepRun->id,'step_withdraw');
         });
         return $flowRunData;
     }

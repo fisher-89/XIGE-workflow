@@ -9,8 +9,8 @@ use App\Http\Requests\Web\RejectRequest;
 use App\Http\Requests\Web\StartRequest;
 use App\Http\Requests\Web\ThroughRequest;
 use App\Http\Requests\Web\WithdrawRequest;
+use App\Jobs\SendCallback;
 use App\Models\Flow;
-use App\Services\Web\CallbackService;
 use App\Services\Web\DeliverService;
 use App\Services\Web\RejectService;
 use App\Services\ResponseService;
@@ -20,12 +20,10 @@ class ActionController extends Controller
 {
 
     protected $response;//返回
-    protected $callback;//回调
 
-    public function __construct(ResponseService $responseService, CallbackService $callbackService)
+    public function __construct(ResponseService $responseService )
     {
         $this->response = $responseService;
-        $this->callback = $callbackService;
     }
 
     /**
@@ -46,9 +44,7 @@ class ActionController extends Controller
      */
     public function start(StartRequest $request, Flow $flow)
     {
-//        $cacheFormData = app('preset')->getPresetData($request->input('timestamp'))['form_data'];
         $stepRunData = app('action')->start($request, $flow);
-//        $this->callback->startCallback($stepRunData, $cacheFormData);//触发开始回调
         return $this->response->post($stepRunData);
     }
 
@@ -70,13 +66,7 @@ class ActionController extends Controller
      */
     public function through(ThroughRequest $request)
     {
-        $cacheFormData = app('preset')->getPresetData($request->input('timestamp'))['form_data'];
         $stepRunData = app('through', ['stepRunId' => $request->input('step_run_id')])->through($request);
-        $this->callback->approveCallback($stepRunData, $cacheFormData);//触发通过回调
-        if($stepRunData->flowRun->status = 1){
-            //结束流程
-            $this->callback->endFlow($stepRunData,$cacheFormData);//触发结束流程回调
-        }
         return $this->response->patch($stepRunData);
     }
 
@@ -87,7 +77,8 @@ class ActionController extends Controller
     public function reject(RejectRequest $request, RejectService $rejectService)
     {
         $stepRunData = $rejectService->reject($request);
-        $this->callback->rejectCallback($stepRunData);
+        //步骤驳回回调
+        SendCallback::dispatch($stepRunData->id, 'step_reject');
         return $this->response->patch($stepRunData);
     }
 
@@ -97,10 +88,11 @@ class ActionController extends Controller
      * @param DeliverService $deliverService
      * @return mixed
      */
-    public function deliver(DeliverRequest $request, DeliverService $deliverService, CallbackService $callbackService)
+    public function deliver(DeliverRequest $request, DeliverService $deliverService )
     {
         $stepRunData = $deliverService->deliver($request);
-        $callbackService->transferCallback($stepRunData);//触发转交回调
+        //触发转交回调
+        SendCallback::dispatch($stepRunData->id,'step_deliver');
         return $this->response->post($stepRunData);
     }
 }
