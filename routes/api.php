@@ -16,6 +16,7 @@ use Illuminate\Http\Request;
 Route::middleware('auth:api')->get('/user', function (Request $request) {
     return $request->user();
 });
+//文件上传跨域
 Route::options('{a?}/{b?}/{c?}', function () {
     return response('', 204);
 })->middleware('crossDomain');
