@@ -57,7 +57,7 @@ class CreateWorkflowTable extends Migration
             $table->char('name', 20)->comment('字段名称');
             $table->char('description', 200)->comment('字段描述')->default('');
             $table->char('type', 20)
-                ->comment("字段类型 'int'数字, 'text'文本, 'date'日期, 'datetime'日期时间, 'time'时间, 'array'数组, 'file'文件");
+                ->comment("字段类型 'int'数字, 'text'文本, 'date'日期, 'datetime'日期时间, 'time'时间, 'array'数组, 'file'文件,'department'部门控件，'staff'员工控件，'shop'店铺控件");
             $table->char('min', 20)->comment('最小值 可填数字、日期、today等')->default('');
             $table->char('max', 20)->comment('最大值')->default('');
             $table->unsignedTinyInteger('scale')->comment('小数位数')->default(0);
@@ -253,6 +253,7 @@ class CreateWorkflowTable extends Migration
         Schema::dropIfExists('flows');
         Schema::dropIfExists('flow_types');
         Schema::dropIfExists('fields_has_validators');
+        Schema::dropIfExists('field_user_widgets');
         Schema::dropIfExists('fields');
         Schema::dropIfExists('validators');
         Schema::dropIfExists('form_grids');

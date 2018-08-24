@@ -87,6 +87,8 @@ class FormFieldsService
                         case 'time':
                             $table->time($v['key'])->nullable()->comment($v['description']);
                             break;
+                        case 'string':
+                            $table->string($v['key'])->nullable()->comment($v['description']);
                     }
                 }
                 $table->nullableTimestamps();
@@ -141,6 +143,15 @@ class FormFieldsService
                 break;
             case 'array':
                 $v = $this->array($v);
+                break;
+            case'department':
+                $v = $this->department($v);
+                break;
+            case'staff':
+                $v = $this->staff($v);
+                break;
+            case'shop':
+                $v = $this->shop($v);
                 break;
         }
         return $v;
@@ -199,6 +210,24 @@ class FormFieldsService
     public function file($v)
     {
         $v['type'] = 'text';
+        return $v;
+    }
+
+    public function department($v)
+    {
+        $v['type'] = 'string';
+        return $v;
+    }
+
+    public function staff($v)
+    {
+        $v['type'] = 'string';
+        return $v;
+    }
+
+    public function shop($v)
+    {
+        $v['type'] = 'string';
         return $v;
     }
 }

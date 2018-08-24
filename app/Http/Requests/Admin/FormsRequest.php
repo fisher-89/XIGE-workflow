@@ -26,7 +26,8 @@ class FormsRequest extends FormRequest
      */
     public function rules()
     {
-        $fieldsType = ['int', 'text', 'date', 'datetime', 'time', 'file', 'array'];//字段type类型
+        $widget = ['department', 'staff', 'shop'];
+        $fieldsType = ['int', 'text', 'date', 'datetime', 'time', 'file', 'array', 'department', 'staff', 'shop'];//字段type类型
         $notInFields = ['id', 'run_id', 'created_at', 'updated_at', 'deleted_at'];//过滤字段
         return [
             'name' => [
@@ -78,6 +79,10 @@ class FormsRequest extends FormRequest
                 'max:20',
                 'string',
                 Rule::in($fieldsType)
+            ],
+            'fields.*.oa_id' => [
+                'array',
+                'required_if:fields.*.type,' . implode(',', $widget)
             ],
             'fields.*.min' => [
                 'string',
@@ -153,6 +158,10 @@ class FormsRequest extends FormRequest
                 'string',
                 Rule::in($fieldsType)
             ],
+            'grids.*.fields.*.oa_id' => [
+                'array',
+                'required_if:grids.*.fields.*.type,' . implode(',', $widget)
+            ],
             'grids.*.fields.*.min' => [
                 'string',
                 'max:20',
@@ -198,6 +207,7 @@ class FormsRequest extends FormRequest
             'fields.*.name' => '名称',
             'fields.*.description' => '描述',
             'fields.*.type' => '字段类型',
+            'fields.*.oa_id' => '控件数据',
             'fields.*.max' => '最大值',
             'fields.*.min' => '最小值',
             'fields.*.scale' => '小数位数',
@@ -215,6 +225,7 @@ class FormsRequest extends FormRequest
             'grids.*.fields.*.name' => '名称',
             'grids.*.fields.*.description' => '描述',
             'grids.*.fields.*.type' => '字段类型',
+            'grids.*.fields.*.oa_id' => '控件数据',
             'grids.*.fields.*.max' => '最大值',
             'grids.*.fields.*.min' => '最小值',
             'grids.*.fields.*.scale' => '小数位数',

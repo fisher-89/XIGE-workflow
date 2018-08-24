@@ -125,6 +125,15 @@ class FormService
         if (isset($fieldsItem['validator_id']) && !empty($fieldsItem['validator_id'])) {
             $fieldData->validator()->sync($fieldsItem['validator_id']);//字段验证数据保存
         }
+        //员工、部门、店铺ID数据控件保存
+        if (array_has($fieldsItem, 'oa_id') && is_array($fieldsItem['oa_id']) && $fieldsItem) {
+            $fieldData->widgets()->createMany(array_map(function ($v) use ($fieldData) {
+                return [
+                    'field_id' => $fieldData->id,
+                    'oa_id' => $v
+                ];
+            }, $fieldsItem['oa_id']));
+        }
     }
     /*-----------------------------------------------新增end----------------------------------------*/
 
@@ -203,11 +212,23 @@ class FormService
                 $field = Field::find($v['id']);
                 $field->update($v);
                 $field->validator()->sync(array_get($v, 'validator_id'));
+
             } else {
                 $v['form_id'] = $request->id;
                 $field = Field::create($v);
                 $field->validator()->sync(array_get($v, 'validator_id'));
             }
+
+            //部门、员工、店铺控件
+            if (count($field->widgets) > 0) {
+                $this->deleteWidgets($field);
+            }
+            $field->widgets()->createMany(array_map(function ($v) use ($field) {
+                return [
+                    'field_id' => $field->id,
+                    'oa_id' => $v
+                ];
+            }, $v['oa_id']));
         }
 
         $deleteId = array_diff($fieldId, $editIdArray);
@@ -340,6 +361,29 @@ class FormService
         $data = Field::find($fieldsItem['id']);
         $data->update($fieldsItem);
         $data->validator()->sync($fieldsItem['validator_id']);
+        //部门、员工、店铺控件
+        if (count($data->widgets) > 0) {
+            $this->deleteWidgets($data);
+        }
+        if (array_has($fieldsItem, 'oa_id') && is_array($fieldsItem['oa_id']) && $fieldsItem) {
+            $data->widgets()->createMany(array_map(function ($v) use ($data) {
+                return [
+                    'field_id' => $data->id,
+                    'oa_id' => $v
+                ];
+            }, $fieldsItem['oa_id']));
+        }
+    }
+
+    /**
+     * 删除部门、员工、店铺控件
+     * @param $field
+     */
+    protected function deleteWidgets($field)
+    {
+        $field->widgets->each(function ($widget) {
+            $widget->delete();
+        });
     }
 
     /**
