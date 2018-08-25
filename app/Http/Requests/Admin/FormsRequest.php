@@ -26,8 +26,7 @@ class FormsRequest extends FormRequest
      */
     public function rules()
     {
-        $widget = ['department', 'staff', 'shop'];
-        $fieldsType = ['int', 'text', 'date', 'datetime', 'time', 'file', 'array', 'department', 'staff', 'shop'];//字段type类型
+        $fieldsType = ['int', 'text', 'date', 'datetime', 'time', 'file', 'array', 'department', 'staff', 'shop', 'region'];//字段type类型
         $notInFields = ['id', 'run_id', 'created_at', 'updated_at', 'deleted_at'];//过滤字段
         return [
             'name' => [
@@ -80,9 +79,21 @@ class FormsRequest extends FormRequest
                 'string',
                 Rule::in($fieldsType)
             ],
+            'fields.*.is_checkbox' => [
+                'required',
+                Rule::in([0, 1])
+            ],
+            'fields.*.condition' => [
+                'nullable',
+                'string'
+            ],
+            'fields.*.region_level' => [
+                'nullable',
+                'required_if:fields.*.type,region',
+                Rule::in([1, 2, 3])
+            ],
             'fields.*.oa_id' => [
-                'array',
-                'required_if:fields.*.type,' . implode(',', $widget)
+                'array'
             ],
             'fields.*.min' => [
                 'string',
@@ -158,9 +169,20 @@ class FormsRequest extends FormRequest
                 'string',
                 Rule::in($fieldsType)
             ],
+            'grids.*.fields.*is_checkbox' => [
+                'required',
+                Rule::in([0, 1])
+            ],
+            'grids.*.fields.*.condition' => [
+                'nullable',
+                'string'
+            ],
+            'grids.*.fields.*.region_level' => [
+                'required_if:fields.*.type,region',
+                Rule::in([1, 2, 3])
+            ],
             'grids.*.fields.*.oa_id' => [
                 'array',
-                'required_if:grids.*.fields.*.type,' . implode(',', $widget)
             ],
             'grids.*.fields.*.min' => [
                 'string',
@@ -207,7 +229,10 @@ class FormsRequest extends FormRequest
             'fields.*.name' => '名称',
             'fields.*.description' => '描述',
             'fields.*.type' => '字段类型',
+            'fields.*.is_checkbox' => '是否多选',
+            'fields.*.condition' => '控件条件',
             'fields.*.oa_id' => '控件数据',
+            'fields.*.region_level'=>'地区级数',
             'fields.*.max' => '最大值',
             'fields.*.min' => '最小值',
             'fields.*.scale' => '小数位数',
@@ -225,6 +250,9 @@ class FormsRequest extends FormRequest
             'grids.*.fields.*.name' => '名称',
             'grids.*.fields.*.description' => '描述',
             'grids.*.fields.*.type' => '字段类型',
+            'grids.*.fields.*.is_checkbox' => '是否多选',
+            'grids.*.fields.*.condition' => '控件条件',
+            'grids.fields.*.region_level'=>'地区级数',
             'grids.*.fields.*.oa_id' => '控件数据',
             'grids.*.fields.*.max' => '最大值',
             'grids.*.fields.*.min' => '最小值',

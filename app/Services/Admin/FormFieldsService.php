@@ -153,6 +153,9 @@ class FormFieldsService
             case'shop':
                 $v = $this->shop($v);
                 break;
+            case'region'://地区
+                $v = $this->region($v);
+                break;
         }
         return $v;
     }
@@ -226,6 +229,12 @@ class FormFieldsService
     }
 
     public function shop($v)
+    {
+        $v['type'] = 'string';
+        return $v;
+    }
+
+    public function region($v)
     {
         $v['type'] = 'string';
         return $v;

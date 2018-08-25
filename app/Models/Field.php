@@ -9,13 +9,13 @@ class Field extends Model
 {
     use SoftDeletes;
 
-    protected $fillable = ['key', 'name', 'description', 'type', 'max', 'min', 'scale', 'default_value','options', 'form_id', 'form_grid_id', 'sort'];
-    protected $appends = ['validator_id','oa_id'];
+    protected $fillable = ['key', 'name', 'description', 'type', 'is_checkbox', 'condition', 'region_level', 'max', 'min', 'scale', 'default_value', 'options', 'form_id', 'form_grid_id', 'sort'];
+    protected $appends = ['validator_id', 'oa_id'];
 
-    protected $hidden = ['created_at','updated_at','deleted_at'];
+    protected $hidden = ['created_at', 'updated_at', 'deleted_at'];
 
     protected $casts = [
-      'options'=>'array',
+        'options' => 'array',
     ];
 
 
@@ -24,15 +24,17 @@ class Field extends Model
         return $this->belongsToMany(Validator::class, 'fields_has_validators', 'field_id', 'validator_id');
     }
 
-    public function grid(){
-        return $this->belongsTo(FormGrid::class,'form_grid_id','id');
+    public function grid()
+    {
+        return $this->belongsTo(FormGrid::class, 'form_grid_id', 'id');
     }
 
     /**
      * 员工、部门、店铺控件ID
      * @return \Illuminate\Database\Eloquent\Relations\HasMany
      */
-    public function widgets(){
+    public function widgets()
+    {
         return $this->hasMany(FieldUserWidget::class);
     }
 
@@ -41,7 +43,8 @@ class Field extends Model
         return $this->validator->pluck('id')->toArray();
     }
 
-    public function setOptionsAttribute($value){
+    public function setOptionsAttribute($value)
+    {
         $this->attributes['options'] = json_encode($value);
     }
 
