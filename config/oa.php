@@ -14,6 +14,11 @@ return [
     'get_staff' => $host . '/api/staff',//获取员工信息
     'get_roles' => $host . '/api/roles',//获取角色
     'get_departments' => $host . '/api/departments',//获取部门,
+    //获取部门员工数据
+    'get_department_user' => [
+        'departments' => $host . '/api/departments/',
+        'children_and_staff' => '/children-and-staff',//
+    ],
     //通过OA获取钉钉accessToken
     'get_dingtalk_access_token' => $host . '/api/get_dingtalk_access_token',
     'dingtalk' => [

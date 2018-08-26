@@ -5,6 +5,7 @@
  * Date: 2018/7/2/002
  * Time: 10:45
  */
+
 namespace App\Services\OA;
 
 
@@ -20,6 +21,17 @@ class OaApiService
     {
         $path = config('oa.get_staff');
         $url = $path . '?' . $filters;
+        return app('curl')->get($url);
+    }
+
+    /**
+     * 获取部门员工
+     * @param $departmentId
+     * @return mixed
+     */
+    public function getDepartmentUser($departmentId)
+    {
+        $url = config('oa.get_department_user.departments') . $departmentId . config('oa.get_department_user.children_and_staff');
         return app('curl')->get($url);
     }
 
@@ -42,7 +54,7 @@ class OaApiService
      * @return mixed
      * @throws \Illuminate\Container\EntryNotFoundException
      */
-    public function getDepartments($filters)
+    public function getDepartments($filters = '')
     {
         $path = config('oa.get_departments');
         $url = $path . '?' . $filters;
@@ -54,9 +66,10 @@ class OaApiService
      * @param $data
      * @return mixed
      */
-    public function sendDingtalkJobNotificationMessage($data){
+    public function sendDingtalkJobNotificationMessage($data)
+    {
         $url = config('oa.dingtalk.message');
-        return app('curl')->sendMessageByPost($url,$data);
+        return app('curl')->sendMessageByPost($url, $data);
     }
 
     /**
@@ -69,12 +82,14 @@ class OaApiService
         $result = app('curl')->get($url);
         return $result['message'];
     }
+
     /*
      * 发起待办信息（钉钉）
      */
-    public function sendAddTodoMessage($data){
+    public function sendAddTodoMessage($data)
+    {
         $url = config('oa.dingtalk.todo.add');
-        $result = app('curl')->sendMessageByPost($url,$data);
+        $result = app('curl')->sendMessageByPost($url, $data);
         return $result;
     }
 }
