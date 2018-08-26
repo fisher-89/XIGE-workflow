@@ -31,6 +31,7 @@ class WidgetRepository
      */
     public function getStaff($request)
     {
+        $type = 'department';//返回类型为部门结构
         if ($request->has('field_id') && $request->field_id) {
             //表单字段选人控件
 
@@ -49,17 +50,21 @@ class WidgetRepository
                 if (!empty($query)) {
                     $filters .= '&' . http_build_query($query);
                 }
+                $type = 'staff';//返回类型为部门结构
                 $data = $this->oaApiSerivce->getStaff($filters);
-
             } else {
                 //全部员工
+
                 $data = $this->getDepartmentUser($request);
             }
         } else {
             //全部员工
             $data = $this->getDepartmentUser($request);
         }
-        return $data;
+        return [
+            'type' => $type,
+            'data' => $data,
+        ];
     }
 
     /**
@@ -72,10 +77,10 @@ class WidgetRepository
     {
         if ($request->has('filters') && $request->filters) {
             //搜索
-            $filters = 'filters='.$request->filters;
+            $filters = 'filters=' . $request->filters;
             $query = $request->except(['field_id', 'filters']);
             if (!empty($query)) {
-                $filters .= '&' .http_build_query($query);
+                $filters .= '&' . http_build_query($query);
             }
             $data = $this->oaApiSerivce->getStaff($filters);
         } else {
@@ -85,7 +90,9 @@ class WidgetRepository
             } else {
                 //父级部门
                 $filters = 'filters=parent_id=0';
-                $data = $this->oaApiSerivce->getDepartments($filters);
+                $children = $this->oaApiSerivce->getDepartments($filters);
+                $data['children'] = $children;
+                $data['staff'] = [];
             }
         }
         return $data;
@@ -94,10 +101,11 @@ class WidgetRepository
     public function getDepartment($request)
     {
         if ($request->has('field_id') && $request->field_id) {
+            //表单字段选择
             $fieldData = Field::find($request->field_id);
-            dd($fieldData->toArray());
+//            dd($fieldData->toArray());
         } else {
-
+            //全部部门
         }
     }
 }
