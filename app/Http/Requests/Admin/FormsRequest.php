@@ -169,7 +169,7 @@ class FormsRequest extends FormRequest
                 'string',
                 Rule::in($fieldsType)
             ],
-            'grids.*.fields.*is_checkbox' => [
+            'grids.*.fields.*.is_checkbox' => [
                 'required',
                 Rule::in([0, 1])
             ],
@@ -178,7 +178,8 @@ class FormsRequest extends FormRequest
                 'string'
             ],
             'grids.*.fields.*.region_level' => [
-                'required_if:fields.*.type,region',
+                'nullable',
+                'required_if:grids.*.fields.*.type,region',
                 Rule::in([1, 2, 3])
             ],
             'grids.*.fields.*.oa_id' => [
