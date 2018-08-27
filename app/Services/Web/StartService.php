@@ -40,15 +40,15 @@ class StartService
     public function startSave($request, $flow)
     {
         $this->flowId = $flow->id;
-        DB::transaction(function () use ($request, $flow, &$currentStepRunData,&$nextStepRunData) {
+        DB::transaction(function () use ($request, $flow, &$currentStepRunData, &$nextStepRunData) {
             $flowRunData = $this->createFlowRun($flow->id);//创建流程运行数据
             $dataId = $this->createFormData($request, $flowRunData);//创建表单data数据（表单与控件）
             $currentStepRunData = $this->createStartStepRunData($flow, $flowRunData, $dataId);//创建开始步骤运行数据
             $nextStepRunData = $this->createNextStepRunData($flow, $flowRunData, $dataId, $request->input('next_step'));
         });
         return [
-            'current_step_run_data'=>$currentStepRunData,//创建开始步骤数据
-            'next_step_run_data'=>$nextStepRunData//下一步骤运行数据
+            'current_step_run_data' => $currentStepRunData,//创建开始步骤数据
+            'next_step_run_data' => $nextStepRunData//下一步骤运行数据
         ];
     }
 
@@ -57,7 +57,7 @@ class StartService
      */
     protected function createFlowRun($flowId)
     {
-        $flowData = Flow::select('id', 'id as flow_id', 'name', 'form_id', 'flow_type_id')->find($flowId);
+        $flowData = Flow::select('id', 'id as flow_id', 'name', 'form_id', 'flow_type_id', 'process_instance_id')->find($flowId);
         $flowData->creator_sn = $this->user->staff_sn;
         $flowData->creator_name = $this->user->realname;
         $data = FlowRun::create($flowData->toArray());
