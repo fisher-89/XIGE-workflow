@@ -12,6 +12,7 @@ namespace App\Services\Admin;
 use App\Models\Flow;
 use App\Models\FlowRun;
 use App\Models\SubStep;
+use App\Repository\Admin\Flow\FlowRepository;
 use Illuminate\Support\Facades\DB;
 
 class FlowService
@@ -51,6 +52,17 @@ class FlowService
     {
         //创建流程数据
         $flow = Flow::create($request->input());//保存流程数据
+        $flowRepository = new FlowRepository();
+        if ($request->has('id')) {
+            //编辑时新增
+            $delFlow = Flow::withTrashed()->find($request->id);
+            $flow->process_instance_id = $delFlow->process_instance_id;
+        } else {
+            //新增
+            //获取流程实例ID
+            $flow->process_instance_id = $flowRepository->getProcessInstanceId($flow->id);
+        }
+        $flow->save();
         //创建步骤与流程发起数据
         $this->createData($flow, $request);
         return $flow->withDetail();
