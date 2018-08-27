@@ -92,7 +92,7 @@ class CallbackService
             $data['type'] = 'finish';
             $data['time'] = strtotime($stepRunData->flowRun->end_at);
             $data['result'] = $stepRunData->flowRun->status == 1 ? 'agree' : 'refuse';
-            app('curl')->sendMessageByPost($url,$data);
+            app('curl')->sendMessageByPost($url, $data);
         }
     }
 
@@ -103,11 +103,11 @@ class CallbackService
     protected function stepStartCallback($stepRunData)
     {
         $url = $stepRunData->steps->start_callback_uri;
-        if($url){
+        if ($url) {
             $data = $this->getCallbackData($stepRunData);
             $data['type'] = 'step_start';
             $data['time'] = strtotime($stepRunData->created_at);
-            app('curl')->sendMessageByPost($url,$data);
+            app('curl')->sendMessageByPost($url, $data);
         }
     }
 
@@ -115,13 +115,14 @@ class CallbackService
      * 步骤查看回调
      * @param $stepRunData
      */
-    protected function stepCheckCallback($stepRunData){
+    protected function stepCheckCallback($stepRunData)
+    {
         $url = $stepRunData->steps->check_callback_uri;
-        if($url){
+        if ($url) {
             $data = $this->getCallbackData($stepRunData);
             $data['type'] = 'step_check';
             $data['time'] = strtotime($stepRunData->checked_at);
-            app('curl')->sendMessageByPost($url,$data);
+            app('curl')->sendMessageByPost($url, $data);
         }
     }
 
@@ -132,11 +133,11 @@ class CallbackService
     protected function stepAgreeCallback($stepRunData)
     {
         $url = $stepRunData->steps->approve_callback_uri;
-        if($url){
+        if ($url) {
             $data = $this->getCallbackData($stepRunData);
             $data['type'] = 'step_agree';
             $data['time'] = strtotime($stepRunData->acted_at);
-            app('curl')->sendMessageByPost($url,$data);
+            app('curl')->sendMessageByPost($url, $data);
         }
     }
 
@@ -147,11 +148,11 @@ class CallbackService
     protected function stepRejectCallback($stepRunData)
     {
         $url = $stepRunData->steps->reject_callback_uri;
-        if($url){
+        if ($url) {
             $data = $this->getCallbackData($stepRunData);
             $data['type'] = 'step_reject';
             $data['time'] = strtotime($stepRunData->acted_at);
-            app('curl')->sendMessageByPost($url,$data);
+            app('curl')->sendMessageByPost($url, $data);
         }
     }
 
@@ -162,11 +163,11 @@ class CallbackService
     protected function stepDeliverCallback($stepRunData)
     {
         $url = $stepRunData->steps->transfer_callback_uri;
-        if($url){
+        if ($url) {
             $data = $this->getCallbackData($stepRunData);
             $data['type'] = 'step_deliver';
             $data['time'] = strtotime($stepRunData->acted_at);
-            app('curl')->sendMessageByPost($url,$data);
+            app('curl')->sendMessageByPost($url, $data);
         }
     }
 
@@ -177,11 +178,11 @@ class CallbackService
     protected function stepFinishCallback($stepRunData)
     {
         $url = $stepRunData->steps->end_callback_uri;
-        if($url){
+        if ($url) {
             $data = $this->getCallbackData($stepRunData);
             $data['type'] = 'step_finish';
             $data['time'] = strtotime($stepRunData->acted_at);
-            app('curl')->sendMessageByPost($url,$data);
+            app('curl')->sendMessageByPost($url, $data);
         }
     }
 
@@ -192,13 +193,14 @@ class CallbackService
     protected function stepWithDrawCallback($stepRunData)
     {
         $url = $stepRunData->steps->withdraw_callback_uri;
-        if($url){
+        if ($url) {
             $data = $this->getCallbackData($stepRunData);
             $data['type'] = 'step_withdraw';
             $data['time'] = strtotime($stepRunData->acted_at);
-            app('curl')->sendMessageByPost($url,$data);
+            app('curl')->sendMessageByPost($url, $data);
         }
     }
+
     /**
      * 回调返回的数据
      * @param int $stepRunData
@@ -215,6 +217,7 @@ class CallbackService
         $data['flow_name'] = $stepRunData->flow_name;
         $data['remark'] = $stepRunData->remark;
         $data['flow_run_id'] = $stepRunData->flow_run_id;
+        $data['process_instance_id'] = $stepRunData->flowRun->process_instance_id;//审批实例ID
         $formData = $this->getFormData($stepRunData->form_id, $stepRunData->data_id);
         $data['data'] = $formData;
         return $data;
