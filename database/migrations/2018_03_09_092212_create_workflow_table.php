@@ -199,6 +199,7 @@ class CreateWorkflowTable extends Migration
             $table->char('creator_name', 10)->comment('发起人姓名');
             $table->tinyInteger('status')->comment('流程状态 0:运行中 1:结束 -2:撤回 -1:驳回')->default(0);
             $table->dateTime('end_at')->comment('结束时间')->nullable();
+            $table->char('process_instance_id',50)->nullable()->comment('审批实例id')->index();
             $table->timestamps();
             $table->softDeletes();
             $table->index('flow_type_id');
