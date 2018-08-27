@@ -206,6 +206,8 @@ class CallbackService
      */
     protected function getCallbackData($stepRunData)
     {
+        $data['create_sn'] = $stepRunData->flowRun->creator_sn;
+        $data['create_name'] = $stepRunData->flowRun->creator_name;
         $data['approver_sn'] = Auth::id();
         $data['approver_name'] = Auth::user()->realname;
         $data['step_run_id'] = $stepRunData->id;
