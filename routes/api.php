@@ -42,7 +42,7 @@ Route::middleware('auth:api')->namespace('Api\Web')->group(function () {
     //获取员工数据
     Route::get('/staff','WidgetController@getStaff');
     //获取部门
-//    Route::get('/department','WidgetController@getDepartment');
+    Route::get('/department','WidgetController@getDepartment');
 });
 
 //待办事项通知回调

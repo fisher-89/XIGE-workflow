@@ -98,14 +98,34 @@ class WidgetRepository
         return $data;
     }
 
+    /**
+     * 获取部门
+     * @param $request
+     * @return array
+     * @throws \Illuminate\Container\EntryNotFoundException
+     */
     public function getDepartment($request)
     {
+        $isConfig = false;
         if ($request->has('field_id') && $request->field_id) {
             //表单字段选择
             $fieldData = Field::find($request->field_id);
-//            dd($fieldData->toArray());
+            if (count($fieldData->widgets) > 0) {
+                //部门配置有权限，查询部门列表数据
+                $filters = 'filters=id=[' . implode(',', $fieldData->widgets->pluck('oa_id')->all()) . ']';
+                $data = $this->oaApiSerivce->getDepartments($filters);
+                $isConfig = true;
+            } else {
+                //全部部门
+                $data = $this->oaApiSerivce->getDepartments();
+            }
         } else {
             //全部部门
+            $data = $this->oaApiSerivce->getDepartments();
         }
+        return [
+            'is_config' => $isConfig,
+            'data' => $data
+        ];
     }
 }
