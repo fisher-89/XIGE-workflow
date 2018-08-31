@@ -95,6 +95,10 @@ class FormsRequest extends FormRequest
             'fields.*.oa_id' => [
                 'array'
             ],
+            'fields.*.oa_id.*'=>[
+              'max:20',
+              'string'
+            ],
             'fields.*.min' => [
                 'string',
                 'max:20',
@@ -185,6 +189,10 @@ class FormsRequest extends FormRequest
             'grids.*.fields.*.oa_id' => [
                 'array',
             ],
+            'grids.*.fields.*.oa_id.*' => [
+                'max:20',
+                'string'
+            ],
             'grids.*.fields.*.min' => [
                 'string',
                 'max:20',
@@ -232,7 +240,8 @@ class FormsRequest extends FormRequest
             'fields.*.type' => '字段类型',
             'fields.*.is_checkbox' => '是否多选',
             'fields.*.condition' => '控件条件',
-            'fields.*.oa_id' => '控件数据',
+            'fields.*.oa_id' => '控件值',
+            'fields.*.oa_id.*' => '控件值',
             'fields.*.region_level'=>'地区级数',
             'fields.*.max' => '最大值',
             'fields.*.min' => '最小值',
@@ -254,7 +263,8 @@ class FormsRequest extends FormRequest
             'grids.*.fields.*.is_checkbox' => '是否多选',
             'grids.*.fields.*.condition' => '控件条件',
             'grids.fields.*.region_level'=>'地区级数',
-            'grids.*.fields.*.oa_id' => '控件数据',
+            'grids.*.fields.*.oa_id' => '控件值',
+            'grids.*.fields.*.oa_id.*' => '控件值',
             'grids.*.fields.*.max' => '最大值',
             'grids.*.fields.*.min' => '最小值',
             'grids.*.fields.*.scale' => '小数位数',
