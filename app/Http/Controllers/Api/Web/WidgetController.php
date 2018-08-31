@@ -39,4 +39,13 @@ class WidgetController extends Controller
         $data = $this->widget->getDepartment($request);
         return $this->response->get($data);
     }
+
+    /**
+     * 获取店铺
+     * @param Request $request
+     */
+    public function getShops(Request $request){
+        $data = $this->widget->getShop($request);
+        return $this->response->get($data);
+    }
 }

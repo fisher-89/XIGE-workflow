@@ -54,7 +54,6 @@ class WidgetRepository
                 $data = $this->oaApiSerivce->getStaff($filters);
             } else {
                 //全部员工
-
                 $data = $this->getDepartmentUser($request);
             }
         } else {
@@ -127,5 +126,56 @@ class WidgetRepository
             'is_config' => $isConfig,
             'data' => $data
         ];
+    }
+
+    /**
+     * 获取店铺
+     * @param $request
+     */
+    public function getShop($request)
+    {
+        $isConfig = false;
+        if($request->has('field_id') && $request->field_id){
+            //表单控件选择店铺
+            $fieldData = Field::find($request->field_id);
+            if (count($fieldData->widgets) > 0) {
+                //含有权限店铺
+                $oaId = $fieldData->widgets->pluck('oa_id')->all();
+                $filters = 'filters=shop_sn=['.implode(',',$oaId).']';
+                //请求筛选
+                if ($request->has('filters')) {
+                    $filters .= ';' . $request->query('filters');
+                }
+                $query = $request->except(['field_id', 'filters']);
+                if (!empty($query)) {
+                    $filters .= '&' . http_build_query($query);
+                }
+                $data = $this->oaApiSerivce->getShops($filters);
+                $isConfig = true;
+            }else{
+                //全部店铺
+                $data = $this->getAllShops($request);
+            }
+        }else{
+            //全部店铺
+            $data = $this->getAllShops($request);
+        }
+        return [
+            'is_config' => $isConfig,
+            'data' => $data
+        ];
+    }
+
+    private function getAllShops($request){
+        $filters = '';
+        if($request->has('filters')){
+            $filters .= 'filters='.$request->filters;
+        }
+        $query = $request->except(['filters']);
+        if(!empty($query)){
+            $filters .= '&'.http_build_query($query);
+        }
+        $data = $this->oaApiSerivce->getShops($filters);
+        return $data;
     }
 }

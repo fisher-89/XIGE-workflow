@@ -43,6 +43,8 @@ Route::middleware('auth:api')->namespace('Api\Web')->group(function () {
     Route::get('/staff','WidgetController@getStaff');
     //获取部门
     Route::get('/department','WidgetController@getDepartment');
+    //获取店铺
+    Route::get('/shop','WidgetController@getShops');
 });
 
 //待办事项通知回调

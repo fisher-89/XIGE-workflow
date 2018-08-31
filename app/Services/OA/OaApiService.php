@@ -62,6 +62,17 @@ class OaApiService
     }
 
     /**
+     * 获取店铺
+     * @param $filters
+     */
+    public function getShops($filters)
+    {
+        $path = config('oa.get_shops');
+        $url = $path . '?' . $filters;
+        return app('curl')->get($url);
+    }
+
+    /**
      * 通过OA发送钉钉工作通知消息
      * @param $data
      * @return mixed
