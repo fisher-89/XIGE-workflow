@@ -5,18 +5,22 @@ namespace App\Http\Controllers\Api\Admin;
 use App\Http\Requests\Admin\FormsRequest;
 use App\Models\Flow;
 use App\Models\Form;
+use App\Services\Admin\Form\FormService;
 use App\Services\ResponseService;
 use Illuminate\Http\Request;
 use App\Http\Controllers\Controller;
 
 class FormController extends Controller
 {
-
+    //返回
     protected $response;
+    //表单处理服务
+    protected $formService;
 
-    public function __construct(ResponseService $responseService)
+    public function __construct(ResponseService $responseService,FormService $formService)
     {
         $this->response = $responseService;
+        $this->formService = $formService;
     }
 
     /**
@@ -26,7 +30,7 @@ class FormController extends Controller
      */
     public function store(FormsRequest $request)
     {
-        $data = app('formService')->create($request);
+        $data = $this->formService->store($request);
         return $this->response->post($data);
     }
 
@@ -37,7 +41,7 @@ class FormController extends Controller
      */
     public function update(FormsRequest $request)
     {
-        $data = app('formService')->update($request);
+        $data = $this->formService->update($request);
         return $this->response->put($data);
     }
 

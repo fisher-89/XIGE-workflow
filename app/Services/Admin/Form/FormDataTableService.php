@@ -2,24 +2,24 @@
 /**
  * Created by PhpStorm.
  * User: Administrator
- * Date: 2018/3/1/001
- * Time: 9:55
+ * Date: 2018/8/31/031
+ * Time: 16:37
  */
 
-namespace App\Services\Admin;
+namespace App\Services\Admin\Form;
 
 
 use App\Models\Field;
-use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Schema;
+use Illuminate\Database\Schema\Blueprint;
 
-class FormFieldsService
+class FormDataTableService
 {
-    use FormGrids;
-
-    public $formId;
-    public $tableName;
+    //表单ID
+    private $formId;
+    //表单data的表名
+    private $tableName;
 
     public function __construct($formId)
     {
@@ -27,23 +27,25 @@ class FormFieldsService
         $this->tableName = 'form_data_' . $formId;
     }
 
-
     /**
-     * 获取表单的字段
-     */
-    public function getFormFields()
-    {
-        return Field::where('form_id', $this->formId)->whereNull('form_grid_id')->get();
-    }
-
-    /**
-     * 创建表单数据表
+     * 创建表单data表
      */
     public function createFormDataTable()
     {
         $fields = $this->getFormFields();
         $formFields = $this->analyticalFields($fields);
         $this->createTable($formFields);
+    }
+    /**
+     * 创建表单data控件表
+     * @param $data
+     */
+    public function createFormGridTable($data)
+    {
+        $this->tableName = $this->tableName.'_'.$data['key'];
+        $gridFields = $this->analyticalFields($data['fields']);//解析字段
+        $gridFields[] = ['type'=>'int','key'=>'data_id','description'=>'表单dataId'];
+        $this->createTable($gridFields);
     }
 
     /**
@@ -57,7 +59,35 @@ class FormFieldsService
         return $formDataCount;
     }
 
-    public function createTable($formFields)
+    /**
+     * 删除表单data控件表
+     * @param $formGridKey
+     */
+    public function destroyFormGridTable($formGridKey)
+    {
+        $this->tableName = $this->tableName . '_' .$formGridKey;
+        Schema::dropIfExists($this->tableName);
+    }
+
+    /**
+     * 修改表单data表
+     */
+    public function updateFormDataTable()
+    {
+        Schema::dropIfExists($this->tableName);
+        $fields = $this->getFormFields();
+        $this->createTable($this->analyticalFields($fields));
+    }
+
+    /**
+     * 获取表单的字段
+     */
+    public function getFormFields()
+    {
+        return Field::where('form_id', $this->formId)->whereNull('form_grid_id')->get();
+    }
+
+    protected function createTable($formFields)
     {
         if (!Schema::hasTable($this->tableName)) {
             Schema::create($this->tableName, function (Blueprint $table) use ($formFields) {
@@ -96,21 +126,10 @@ class FormFieldsService
             });
         }
     }
-
-    /**
-     * 修改表单数据表字段
-     */
-    public function updateFormDataTable()
-    {
-        Schema::dropIfExists($this->tableName);
-        $fields = $this->getFormFields();
-        $this->createTable($this->analyticalFields($fields));
-    }
-
     /**
      * 解析字段
      */
-    public function analyticalFields($fields)
+    protected function analyticalFields($fields)
     {
         $data = [];
         foreach ($fields as $k => $v) {
@@ -119,8 +138,7 @@ class FormFieldsService
         return $data;
     }
 
-
-    private function field($v)
+    protected function field($v)
     {
         switch ($v['type']) {
             case 'int':
@@ -192,49 +210,49 @@ class FormFieldsService
     /**
      * @return mixed
      */
-    public function date($v)
+    private function date($v)
     {
         $v['type'] = 'date';
         return $v;
     }
 
-    public function datetime($v)
+    private function datetime($v)
     {
         $v['type'] = 'datetime';
         return $v;
     }
 
-    public function time($v)
+    private function time($v)
     {
         $v['type'] = 'time';
         return $v;
     }
 
-    public function file($v)
+    private function file($v)
     {
         $v['type'] = 'text';
         return $v;
     }
 
-    public function department($v)
+    private function department($v)
     {
         $v['type'] = 'string';
         return $v;
     }
 
-    public function staff($v)
+    private function staff($v)
     {
         $v['type'] = 'string';
         return $v;
     }
 
-    public function shop($v)
+    private function shop($v)
     {
         $v['type'] = 'string';
         return $v;
     }
 
-    public function region($v)
+    private function region($v)
     {
         $v['type'] = 'string';
         return $v;
