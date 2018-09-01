@@ -100,11 +100,9 @@ class FormsRequest extends FormRequest
               'string'
             ],
             'fields.*.min' => [
-                'string',
                 'max:20',
             ],
             'fields.*.max' => [
-                'string',
                 'max:20',
             ],
             'fields.*.scale' => [
@@ -194,11 +192,9 @@ class FormsRequest extends FormRequest
                 'string'
             ],
             'grids.*.fields.*.min' => [
-                'string',
                 'max:20',
             ],
             'grids.*.fields.*.max' => [
-                'string',
                 'max:20',
             ],
             'grids.*.fields.*.scale' => [
