@@ -24,7 +24,7 @@ Route::options('{a?}/{b?}/{c?}', function () {
 Route::middleware('auth:api')->namespace('Api\Web')->group(function () {
     Route::get('list', 'ResourceController@getFlowList');//获取可发起的流程
     Route::get('start/{flow}', 'ResourceController@start');//获取发起数据
-    Route::post('preset/{flow}', 'ActionController@preset');//预提交处理
+    Route::post('preset/{flowId}', 'ActionController@preset');//预提交处理
     Route::post('start/{flow}', 'ActionController@start');//发起处理
     Route::get('approval','ResourceController@getApproval');//获取审批列表
     Route::get('approval/{stepRun}','ResourceController@getApprovalDetail');//获取审批详情

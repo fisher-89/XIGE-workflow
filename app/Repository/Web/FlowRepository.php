@@ -50,7 +50,9 @@ class FlowRepository
     public function getStep($step)
     {
         if (is_numeric($step)) {
-            $step = Step::find($step);
+            $step = Step::with(['flow' => function ($query) {
+                $query->withTrashed();
+            }])->find($step);
         }
         return $step;
     }

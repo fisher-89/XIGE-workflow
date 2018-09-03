@@ -33,12 +33,12 @@ class PresetRequest extends FormRequest
             $this->step = $flowRepository->getCurrentStep($this->step_run_id);
         } else {
             //发起 预提交
-            $this->step = $flowRepository->getFlowFirstStep($this->flow);
+            $this->step = $flowRepository->getFlowFirstStep($this->flowId);
         }
 
         $basicRules = [
             'step_run_id' => [
-                Rule::exists('step_run', 'id')->where('flow_id', $this->flow->id)
+                Rule::exists('step_run', 'id')->where('flow_id', $this->flowId)
             ],
             'form_data' => [
                 'present',

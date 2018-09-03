@@ -30,9 +30,9 @@ class ActionController extends Controller
      * 流程预提交处理
      * @param Request $request
      */
-    public function preset(PresetRequest $request, Flow $flow)
+    public function preset(PresetRequest $request, $flowId)
     {
-        $responseData = app('action')->preset($request, $flow);
+        $responseData = app('action')->preset($request, $flowId);
         return $this->response->post($responseData);
     }
 

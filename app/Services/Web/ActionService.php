@@ -10,6 +10,7 @@ namespace App\Services\Web;
 
 
 use App\Jobs\SendCallback;
+use App\Models\Flow;
 use App\Models\StepRun;
 use App\Repository\Web\FlowRepository;
 use App\Repository\Web\FormRepository;
@@ -32,10 +33,11 @@ class ActionService
     /**
      * 预提交处理
      * @param $request
-     * @param $flow
+     * @param $flowId
      */
-    public function preset($request, $flow)
+    public function preset($request, $flowId)
     {
+        $flow = Flow::withTrashed()->find($flowId);
         $requestFormData = $request->input('form_data');
         $step = $this->getStep($request, $flow);//步骤数据
         $filterRequestFormData = $this->filterRequestFormData($requestFormData, $step);//过滤request表单data
