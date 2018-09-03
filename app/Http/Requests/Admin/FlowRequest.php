@@ -155,14 +155,17 @@ class FlowRequest extends FormRequest
             ],
             'steps.*.approvers.staff' => [
                 'array',
+                'required_without_all:steps.*.approvers.roles,steps.*.approvers.departments',
                 new StaffExists('审批人'),
             ],
             'steps.*.approvers.roles' => [
                 'array',
+                'required_without_all:steps.*.approvers.staff,steps.*.approvers.departments',
                 new RoleExists('角色'),
             ],
             'steps.*.approvers.departments' => [
                 'array',
+                'required_without_all:steps.*.approvers.staff,steps.*.approvers.roles',
                 new DepartmentExists('部门'),
             ],
             'steps.*.allow_condition' => [
@@ -249,14 +252,14 @@ class FlowRequest extends FormRequest
             'flows_has_roles' => '发起角色',
             'flows_has_departments' => '发起部门',
             //步骤
-            'steps'=>'步骤',
+            'steps' => '步骤',
             'steps.*.name' => '步骤名称',
             'steps.*.description' => '步骤描述',
             'steps.*.step_key' => '步骤标识',
-            'steps.*.prev_step_key'=>'上一步标识',
-            'steps.*.prev_step_key.*'=>'上一步标识key',
-            'steps.*.next_step_key'=>'下一步标识',
-            'steps.*.next_step_key.*'=>'下一步标识key',
+            'steps.*.prev_step_key' => '上一步标识',
+            'steps.*.prev_step_key.*' => '上一步标识key',
+            'steps.*.next_step_key' => '下一步标识',
+            'steps.*.next_step_key.*' => '下一步标识key',
             'steps.*.hidden_fields' => '隐藏字段',
             'steps.*.hidden_fields.*' => '隐藏字段key',
             'steps.*.editable_fields' => '可编辑字段',
