@@ -105,6 +105,10 @@ trait Update
         foreach ($formGridData as $v) {
             $formDataTable = new FormDataTableService($v['form_id']);
             $formDataTable->destroyFormGridTable($v['key']);
+            foreach($v->fields as $field){
+                //删除表单字段控件表
+                $formDataTable->destroyFormDataFieldTypeTable($field->key);
+            }
         }
     }
 
@@ -253,8 +257,16 @@ trait Update
      */
     protected function formFieldsUpdate($request)
     {
+        $formDataTable = new FormDataTableService($request->id);
         $editIdArray = [];
-        $fieldId = Field::where('form_id', $request->id)->whereNull('form_grid_id')->pluck('id')->all();
+        $fieldData = Field::where('form_id', $request->id)->whereNull('form_grid_id')->get();
+        $fieldId = $fieldData->pluck('id')->all();
+
+        //删除表单字段控件表
+        foreach ($fieldData as $field) {
+            $formDataTable->destroyFormDataFieldTypeTable($field->key);
+        }
+
         foreach ($request->input('fields') as $k => $v) {
             $v['sort'] = $k;
             if (isset($v['id']) && intval($v['id'])) {
@@ -283,7 +295,7 @@ trait Update
 
         $deleteId = array_diff($fieldId, $editIdArray);
         Field::whereIn('id', $deleteId)->delete();
-        $formDataTable = new FormDataTableService($request->id);
+
         $formDataTable->updateFormDataTable();//修改表单数据表字段
     }
 

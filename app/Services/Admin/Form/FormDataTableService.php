@@ -16,6 +16,8 @@ use Illuminate\Database\Schema\Blueprint;
 
 class FormDataTableService
 {
+    use FormDataFieldTypeTable;//表单data字段类型控件表
+
     //表单ID
     private $formId;
     //表单data的表名
@@ -32,20 +34,25 @@ class FormDataTableService
      */
     public function createFormDataTable()
     {
-        $fields = $this->getFormFields();
+        $fields = $this->getFormFields()->toArray();
         $formFields = $this->analyticalFields($fields);
         $this->createTable($formFields);
+        //创建表单data字段控件表
+        $this->createFormDataFieldTypeTable($fields);
     }
+
     /**
      * 创建表单data控件表
      * @param $data
      */
     public function createFormGridTable($data)
     {
-        $this->tableName = $this->tableName.'_'.$data['key'];
+        $this->tableName = $this->tableName . '_' . $data['key'];
         $gridFields = $this->analyticalFields($data['fields']);//解析字段
-        $gridFields[] = ['type'=>'int','key'=>'data_id','description'=>'表单dataId'];
+        $gridFields[] = ['type' => 'int', 'key' => 'data_id', 'description' => '表单dataId'];
         $this->createTable($gridFields);
+        //创建表单data字段控件表
+        $this->createFormDataFieldTypeTable($data['fields']);
     }
 
     /**
@@ -65,7 +72,7 @@ class FormDataTableService
      */
     public function destroyFormGridTable($formGridKey)
     {
-        $this->tableName = $this->tableName . '_' .$formGridKey;
+        $this->tableName = $this->tableName . '_' . $formGridKey;
         Schema::dropIfExists($this->tableName);
     }
 
@@ -74,9 +81,13 @@ class FormDataTableService
      */
     public function updateFormDataTable()
     {
+        $fields = $this->getFormFields()->toArray();
+        //删除表单data表
         Schema::dropIfExists($this->tableName);
-        $fields = $this->getFormFields();
+        //创建表单Ddata表
         $this->createTable($this->analyticalFields($fields));
+        //创建表单字段控件表
+        $this->createFormDataFieldTypeTable($fields);
     }
 
     /**
@@ -126,14 +137,16 @@ class FormDataTableService
             });
         }
     }
+
     /**
      * 解析字段
      */
-    protected function analyticalFields($fields)
+    protected function analyticalFields(array $fields)
     {
         $data = [];
         foreach ($fields as $k => $v) {
-            $data[$k] = $this->field($v);
+            $item = $v;
+            $data[$k] = $this->field($item);
         }
         return $data;
     }
