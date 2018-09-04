@@ -64,8 +64,8 @@ trait FormDataFieldTypeTable
                 $table->increments('id');
                 $table->unsignedInteger('run_id')->index()->comment('运行id');
                 $table->string($field['key'] . '_id')->index()->comment('表单字段控件ID');
-                $table->string('key')->index()->comment('控件键 key');
-                $table->string('value')->comment('控件值 value');
+                $table->string('value')->index()->comment('控件键');
+                $table->string('text')->comment('控件值');
             });
         }
     }
