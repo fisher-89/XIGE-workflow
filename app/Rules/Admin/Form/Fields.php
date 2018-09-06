@@ -62,7 +62,7 @@ trait Fields
             $unixTime = strtotime($field['default_value']);
             //判断日期格式 与 当前日期格式（date当前时间）
             if (date('Y-m-d', $unixTime) != $field['default_value'] && $field['default_value'] != 'date') {
-                $this->msg = '默认值：' . $field['default_value'] . '格式不是日期类型';
+                $this->msg = $field['name'].'的 默认值：' . $field['default_value'] . '格式不是日期类型';
                 return false;
             }
         }
@@ -75,7 +75,7 @@ trait Fields
             $unixTime = strtotime($field['default_value']);
             //判断日期时间格式 与 当前日期时间格式（date当前时间）
             if (date('Y-m-d H:i', $unixTime) != $field['default_value'] && $field['default_value'] != 'datetime') {
-                $this->msg = '默认值：' . $field['default_value'] . '格式不是日期时间类型';
+                $this->msg = $field['name'].'的 默认值：' . $field['default_value'] . '格式不是日期时间类型';
                 return false;
             }
         }
@@ -87,7 +87,7 @@ trait Fields
         if ($field['default_value']) {
             $unixTime = strtotime($field['default_value']);
             if (date('H:i', $unixTime) != $field['default_value'] && $field['default_value'] != 'time') {
-                $this->msg = '默认值：' . $field['default_value'] . '格式不是时间类型';
+                $this->msg = $field['name'].'的 默认值：' . $field['default_value'] . '格式不是时间类型';
                 return false;
             }
         }
@@ -105,7 +105,7 @@ trait Fields
             return $v->type == 'mimes';
         })->count();
         if ($validator->count() != $count) {
-            $this->msg = '验证规则有误，' . $message;
+            $this->msg = $field['name'].'的 验证规则有误，' . $message;
             return false;
         }
         return true;
@@ -114,18 +114,18 @@ trait Fields
     protected function checkArray($field)
     {
         if (!is_array($field['default_value'])) {
-            $this->msg = '默认值不是数组';
+            $this->msg = $field['name'].'的 默认值不是数组';
             return false;
         }
         if ($field['min']) {
             if ($field['default_value'] && count($field['default_value']) < $field['min']) {
-                $this->msg = '默认值最小数量必须是' . $field['min'];
+                $this->msg = $field['name'].'的 默认值最小数量必须是' . $field['min'];
                 return false;
             }
         }
         if ($field['max']) {
             if ($field['default_value'] && count($field['default_value']) > $field['max']) {
-                $this->msg = '默认值最大数量必须是' . $field['max'];
+                $this->msg = $field['name'].'的 默认值最大数量必须是' . $field['max'];
                 return false;
             }
         }
@@ -135,37 +135,37 @@ trait Fields
     protected function select($field)
     {
         if (!is_array($field['default_value'])) {
-            $this->msg = '默认值不是数组';
+            $this->msg = $field['name'].'的 默认值不是数组';
             return false;
         }
         if ($field['max']) {
             if (count($field['options']) > $field['max']) {
-                $this->msg = '可选值的数量不能大于' . $field['max'];
+                $this->msg = $field['name'].'的 可选值的数量不能大于' . $field['max'];
                 return false;
             }
         }
         if ($field['min']) {
             if (count($field['options']) < $field['min']) {
-                $this->msg = '可选值的数量不能小于' . $field['min'];
+                $this->msg = $field['name'].'的 可选值的数量不能小于' . $field['min'];
                 return false;
             }
         }
         if ($field['is_checkbox'] == 1) {
             //多选
             if (count($field['options']) < 2) {
-                $this->msg = '可选值的数量不能小于2';
+                $this->msg = $field['name'].'的 可选值的数量不能小于2';
                 return false;
             }
         } else {
             //单选
             if ($field['default_value'] && count($field['default_value']) > 1) {
-                $this->msg = '默认值的数量不能大于1';
+                $this->msg = $field['name'].'的 默认值的数量不能大于1';
                 return false;
             }
         }
         foreach ($field['default_value'] as $value) {
             if (!in_array($value, $field['options'])) {
-                $this->msg = '默认值:' . $value . '不在可选值里';
+                $this->msg = $field['name'].'的 默认值:' . $value . '不在可选值里';
                 return false;
             }
         }
@@ -182,20 +182,20 @@ trait Fields
         if ($field['available_options'] && $field['is_checkbox'] == 0) {
             //单选
             if (count($field['default_value']) != count($field['default_value'], 1)) {
-                $this->msg = '默认值必须是对象';
+                $this->msg = $field['name'].'的 默认值必须是对象';
                 return false;
             }
             //检查默认值是否在可选值里
             $value = $field['default_value']['value'];
             $availableOptionsValues = array_pluck($field['available_options'], 'value');
             if (!in_array($value, $availableOptionsValues)) {
-                $this->msg = '默认值不在可选值里';
+                $this->msg = $field['name'].'的 默认值不在可选值里';
                 return false;
             }
         } elseif ($field['available_options'] && $field['is_checkbox'] == 1) {
             //多选
-            if (count($field['default_value']) == count($field['default_value'], 1)) {
-                $this->msg = '默认值必须是一个数组';
+            if ($field['default_value'] && count($field['default_value']) == count($field['default_value'], 1)) {
+                $this->msg = $field['name'].'的 默认值必须是一个数组';
                 return false;
             }
             //检查默认值是否在可选值里
@@ -203,7 +203,7 @@ trait Fields
             $availableOptionsValues = array_pluck($field['available_options'], 'value');
             foreach ($value as $v) {
                 if (!in_array($v, $availableOptionsValues)) {
-                    $this->msg = '默认值不在可选值里';
+                    $this->msg = $field['name'].'的 默认值不在可选值里';
                     return false;
                 }
             }
