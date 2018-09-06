@@ -58,32 +58,38 @@ trait Fields
 
     protected function date($field)
     {
-        $unixTime = strtotime($field['default_value']);
-        //判断日期格式 与 当前日期格式（date当前时间）
-        if (date('Y-m-d', $unixTime) != $field['default_value'] && $field['default_value'] != 'date') {
-            $this->msg = '默认值：' . $field['default_value'] . '格式不是日期类型';
-            return false;
+        if ($field['default_value']) {
+            $unixTime = strtotime($field['default_value']);
+            //判断日期格式 与 当前日期格式（date当前时间）
+            if (date('Y-m-d', $unixTime) != $field['default_value'] && $field['default_value'] != 'date') {
+                $this->msg = '默认值：' . $field['default_value'] . '格式不是日期类型';
+                return false;
+            }
         }
         return true;
     }
 
     protected function datetime($field)
     {
-        $unixTime = strtotime($field['default_value']);
-        //判断日期时间格式 与 当前日期时间格式（date当前时间）
-        if (date('Y-m-d H:i', $unixTime) != $field['default_value'] && $field['default_value'] != 'datetime') {
-            $this->msg = '默认值：' . $field['default_value'] . '格式不是日期时间类型';
-            return false;
+        if ($field['default_value']) {
+            $unixTime = strtotime($field['default_value']);
+            //判断日期时间格式 与 当前日期时间格式（date当前时间）
+            if (date('Y-m-d H:i', $unixTime) != $field['default_value'] && $field['default_value'] != 'datetime') {
+                $this->msg = '默认值：' . $field['default_value'] . '格式不是日期时间类型';
+                return false;
+            }
         }
         return true;
     }
 
     protected function time($field)
     {
-        $unixTime = strtotime($field['default_value']);
-        if (date('H:i', $unixTime) != $field['default_value'] && $field['default_value'] != 'time') {
-            $this->msg = '默认值：' . $field['default_value'] . '格式不是时间类型';
-            return false;
+        if ($field['default_value']) {
+            $unixTime = strtotime($field['default_value']);
+            if (date('H:i', $unixTime) != $field['default_value'] && $field['default_value'] != 'time') {
+                $this->msg = '默认值：' . $field['default_value'] . '格式不是时间类型';
+                return false;
+            }
         }
         return true;
     }
@@ -112,13 +118,13 @@ trait Fields
             return false;
         }
         if ($field['min']) {
-            if (count($field['default_value']) < $field['min']) {
+            if ($field['default_value'] && count($field['default_value']) < $field['min']) {
                 $this->msg = '默认值最小数量必须是' . $field['min'];
                 return false;
             }
         }
         if ($field['max']) {
-            if (count($field['default_value']) > $field['max']) {
+            if ($field['default_value'] && count($field['default_value']) > $field['max']) {
                 $this->msg = '默认值最大数量必须是' . $field['max'];
                 return false;
             }
@@ -152,7 +158,7 @@ trait Fields
             }
         } else {
             //单选
-            if (count($field['default_value']) > 1) {
+            if ($field['default_value'] && count($field['default_value']) > 1) {
                 $this->msg = '默认值的数量不能大于1';
                 return false;
             }
