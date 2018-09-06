@@ -9,6 +9,7 @@
 namespace App\Rules\Admin\Form;
 
 
+use App\Models\Validator;
 use App\Repository\RegionRepository;
 
 trait Fields
@@ -28,6 +29,9 @@ trait Fields
                 break;
             case 'time':
                 return $this->time($field);
+                break;
+            case 'file':
+                return $this->file($field);
                 break;
             case 'array':
                 return $this->checkArray($field);
@@ -79,6 +83,23 @@ trait Fields
         $unixTime = strtotime($field['default_value']);
         if (date('H:i', $unixTime) != $field['default_value'] && $field['default_value'] != 'time') {
             $this->msg = '默认值：' . $field['default_value'] . '格式不是时间类型';
+            return false;
+        }
+        return true;
+    }
+
+    protected function file($field)
+    {
+        $validator = Validator::find($field['validator_id']);
+        $message = '';
+        $count = $validator->filter(function ($v) use (&$message) {
+            if ($v->type != 'mimes') {
+                $message .= $v->name . ',';
+            }
+            return $v->type == 'mimes';
+        })->count();
+        if ($validator->count() != $count) {
+            $this->msg = '验证规则有误，' . $message;
             return false;
         }
         return true;
@@ -240,17 +261,18 @@ trait Fields
             $this->msg = "市地区不存在";
             return false;
         }
-        $cityData = array_where($region['city'],function($v) use($defaultValue){
+        $cityData = array_where($region['city'], function ($v) use ($defaultValue) {
             return $v['id'] == $defaultValue['city_id'];
         });
         $cityData = array_collapse($cityData);
-        if($cityData['parent_id'] != $defaultValue['province_id']){
+        if ($cityData['parent_id'] != $defaultValue['province_id']) {
             $this->msg = "市地区不在该省地区里";
             return false;
         }
         return true;
     }
-    protected function county($defaultValue,$region)
+
+    protected function county($defaultValue, $region)
     {
         if (empty($defaultValue['city_id']) || empty($defaultValue['county_id']) || !empty($defaultValue['address']) || empty($defaultValue['province_id'])) {
             $this->msg = "默认值与地区级数不匹配";
@@ -268,25 +290,26 @@ trait Fields
             $this->msg = "区、县地区不存在";
             return false;
         }
-        $cityData = array_where($region['city'],function($v) use($defaultValue){
+        $cityData = array_where($region['city'], function ($v) use ($defaultValue) {
             return $v['id'] == $defaultValue['city_id'];
         });
         $cityData = array_collapse($cityData);
-        if($cityData['parent_id'] != $defaultValue['province_id']){
+        if ($cityData['parent_id'] != $defaultValue['province_id']) {
             $this->msg = "市地区不在该省地区里";
             return false;
         }
-        $countyData = array_where($region['county'],function($v)use($defaultValue){
+        $countyData = array_where($region['county'], function ($v) use ($defaultValue) {
             return $v['id'] == $defaultValue['county_id'];
         });
         $countyData = array_collapse($countyData);
-        if($countyData['parent_id'] != $defaultValue['city_id']){
+        if ($countyData['parent_id'] != $defaultValue['city_id']) {
             $this->msg = "区、县地区不在该市地区里";
             return false;
         }
         return true;
     }
-    protected function address($defaultValue,$region)
+
+    protected function address($defaultValue, $region)
     {
         if (empty($defaultValue['city_id']) || empty($defaultValue['county_id']) || empty($defaultValue['province_id'])) {
             $this->msg = "默认值与地区级数不匹配";
@@ -304,19 +327,19 @@ trait Fields
             $this->msg = "区、县地区不存在";
             return false;
         }
-        $cityData = array_where($region['city'],function($v) use($defaultValue){
+        $cityData = array_where($region['city'], function ($v) use ($defaultValue) {
             return $v['id'] == $defaultValue['city_id'];
         });
         $cityData = array_collapse($cityData);
-        if($cityData['parent_id'] != $defaultValue['province_id']){
+        if ($cityData['parent_id'] != $defaultValue['province_id']) {
             $this->msg = "市地区不在该省地区里";
             return false;
         }
-        $countyData = array_where($region['county'],function($v)use($defaultValue){
+        $countyData = array_where($region['county'], function ($v) use ($defaultValue) {
             return $v['id'] == $defaultValue['county_id'];
         });
         $countyData = array_collapse($countyData);
-        if($countyData['parent_id'] != $defaultValue['city_id']){
+        if ($countyData['parent_id'] != $defaultValue['city_id']) {
             $this->msg = "区、县地区不在该市地区里";
             return false;
         }
