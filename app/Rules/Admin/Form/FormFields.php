@@ -2,11 +2,14 @@
 
 namespace App\Rules\Admin\Form;
 
+use App\Repository\RegionRepository;
 use Illuminate\Contracts\Validation\Rule;
 
 class FormFields implements Rule
 {
+    use Fields;
     protected $msg = '';
+
     /**
      * Create a new rule instance.
      *
@@ -20,19 +23,22 @@ class FormFields implements Rule
     /**
      * Determine if the validation rule passes.
      *
-     * @param  string  $attribute
-     * @param  mixed  $value
+     * @param  string $attribute
+     * @param  mixed $value
      * @return bool
      */
     public function passes($attribute, $value)
     {
-        foreach($value as $field){
-            if($field['scale'] && $field['scale'] !=0){
-                if(empty($field['max']) || $field['max'] == 0){
+        foreach ($value as $field) {
+            //小数位数不为空验证最大值不能为空
+            if ($field['scale'] && $field['scale'] != 0) {
+                if (empty($field['max']) || $field['max'] == 0) {
                     $this->msg = '最大值不能为空';
                     return false;
                 }
             }
+            //验证默认值
+            return $this->checkDefaultValue($field);
         }
         return true;
     }
@@ -46,4 +52,5 @@ class FormFields implements Rule
     {
         return $this->msg;
     }
+
 }

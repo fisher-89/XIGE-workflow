@@ -2,6 +2,7 @@
 
 namespace App\Http\Requests\Admin;
 
+use App\Rules\Admin\Form\FieldDefaultValue;
 use App\Rules\Admin\Form\FormFields;
 use App\Rules\Admin\Form\GridFields;
 use Illuminate\Foundation\Http\FormRequest;
@@ -26,7 +27,7 @@ class FormsRequest extends FormRequest
      */
     public function rules()
     {
-        $fieldsType = ['int', 'text', 'date', 'datetime', 'time', 'file', 'array', 'department', 'staff', 'shop', 'region'];//字段type类型
+        $fieldsType = ['int', 'text', 'date', 'datetime', 'time', 'file', 'array', 'select', 'department', 'staff', 'shop', 'region'];//字段type类型
         $notInFields = ['id', 'run_id', 'created_at', 'updated_at', 'deleted_at'];//过滤字段
         return [
             'name' => [
@@ -51,7 +52,7 @@ class FormsRequest extends FormRequest
             'fields' => [
                 'required',
                 'array',
-                new FormFields()
+                new FormFields()//小数位数不为空验证最大值不能为空
             ],
             'fields.*.id' => [
                 Rule::exists('fields', 'id')->where('form_id', $this->route('id'))->whereNull('deleted_at')
@@ -90,14 +91,16 @@ class FormsRequest extends FormRequest
             'fields.*.region_level' => [
                 'nullable',
                 'required_if:fields.*.type,region',
-                Rule::in([1, 2, 3])
+                Rule::in([1, 2, 3, 4])
             ],
-            'fields.*.oa_id' => [
+            'fields.*.available_options' => [
                 'array'
             ],
-            'fields.*.oa_id.*'=>[
-              'max:20',
-              'string'
+            'fields.*.available_options.value' => [
+                'max:20',
+            ],
+            'fields.*.available_options.text' => [
+                'max:100',
             ],
             'fields.*.min' => [
                 'max:20',
@@ -112,11 +115,10 @@ class FormsRequest extends FormRequest
             ],
             'fields.*.default_value' => [
                 'nullable',
-                'string',
-                'max:500'
             ],
             'fields.*.options' => [
                 'array',
+                'required_if:fields.*.type,select'
             ],
             'fields.*.validator_id' => [
                 'nullable',
@@ -182,14 +184,16 @@ class FormsRequest extends FormRequest
             'grids.*.fields.*.region_level' => [
                 'nullable',
                 'required_if:grids.*.fields.*.type,region',
-                Rule::in([1, 2, 3])
+                Rule::in([1, 2, 3,4])
             ],
-            'grids.*.fields.*.oa_id' => [
-                'array',
+            'grids.*.fields.*.available_options' => [
+                'array'
             ],
-            'grids.*.fields.*.oa_id.*' => [
+            'grids.*.fields.*.available_options.value' => [
                 'max:20',
-                'string'
+            ],
+            'grids.*.fields.*.available_options.text' => [
+                'max:100',
             ],
             'grids.*.fields.*.min' => [
                 'max:20',
@@ -204,11 +208,10 @@ class FormsRequest extends FormRequest
             ],
             'grids.*.fields.*.default_value' => [
                 'nullable',
-                'string',
-                'max:500',
             ],
             'grids.*.fields.*.options' => [
                 'array',
+                'required_if:grids.*.fields.*.type,select'
             ],
             'grids.*.fields.*.validator_id' => [
                 'nullable',
@@ -236,9 +239,10 @@ class FormsRequest extends FormRequest
             'fields.*.type' => '字段类型',
             'fields.*.is_checkbox' => '是否多选',
             'fields.*.condition' => '控件条件',
-            'fields.*.oa_id' => '控件值',
-            'fields.*.oa_id.*' => '控件值',
-            'fields.*.region_level'=>'地区级数',
+            'fields.*.available_options' => '选择控件',
+            'fields.*.available_options.value' => '选择控件value',
+            'fields.*.available_options.text' => '选择控件text',
+            'fields.*.region_level' => '地区级数',
             'fields.*.max' => '最大值',
             'fields.*.min' => '最小值',
             'fields.*.scale' => '小数位数',
@@ -258,9 +262,10 @@ class FormsRequest extends FormRequest
             'grids.*.fields.*.type' => '字段类型',
             'grids.*.fields.*.is_checkbox' => '是否多选',
             'grids.*.fields.*.condition' => '控件条件',
-            'grids.fields.*.region_level'=>'地区级数',
-            'grids.*.fields.*.oa_id' => '控件值',
-            'grids.*.fields.*.oa_id.*' => '控件值',
+            'grids.*.fields.*.region_level' => '地区级数',
+            'grids.*.fields.*.available_options' => '选择控件',
+            'grids.*.fields.*.available_options.value' => '选择控件value',
+            'grids.*.fields.*.available_options.text' => '选择控件text',
             'grids.*.fields.*.max' => '最大值',
             'grids.*.fields.*.min' => '最小值',
             'grids.*.fields.*.scale' => '小数位数',
