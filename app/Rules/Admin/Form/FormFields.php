@@ -38,7 +38,10 @@ class FormFields implements Rule
                 }
             }
             //验证默认值
-            return $this->checkDefaultValue($field);
+            $check =  $this->checkDefaultValue($field);
+            if($check == false){
+                return false;
+            }
         }
         return true;
     }
