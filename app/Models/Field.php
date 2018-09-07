@@ -50,8 +50,12 @@ class Field extends Model
 
     public function setDefaultValueAttribute($value)
     {
-        if (is_array($value))
+        if (is_array($value)){
             $this->attributes['default_value'] = json_encode($value);
+        }else{
+            $this->attributes['default_value'] = $value;
+        }
+
     }
 
     public function getDefaultValueAttribute($value)
