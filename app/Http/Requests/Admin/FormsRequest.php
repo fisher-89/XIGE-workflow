@@ -109,7 +109,7 @@ class FormsRequest extends FormRequest
                 'max:20',
             ],
             'fields.*.scale' => [
-                'nullable',
+                'required',
                 'integer',
                 'between:0,10'
             ],
@@ -202,7 +202,7 @@ class FormsRequest extends FormRequest
                 'max:20',
             ],
             'grids.*.fields.*.scale' => [
-                'nullable',
+                'required',
                 'integer',
                 'between:0,10'
             ],
