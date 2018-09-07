@@ -62,14 +62,12 @@ trait Create
             $fieldData->validator()->sync($fieldsItem['validator_id']);//字段验证数据保存
         }
         //员工、部门、店铺ID数据控件保存
-        if (array_has($fieldsItem, 'oa_id') && is_array($fieldsItem['oa_id']) && $fieldsItem) {
-            $fieldData->widgets()->createMany(array_map(function ($v) use ($fieldData) {
-                return [
-                    'field_id' => $fieldData->id,
-                    'oa_id' => $v
-                ];
-            }, $fieldsItem['oa_id']));
+        if (array_has($fieldsItem, 'available_options') && $fieldsItem['available_options']) {
+            data_fill($fieldsItem['available_options'],'*.field_id',$fieldData->id);
+
+            $fieldData->widgets()->createMany($fieldsItem['available_options']);
         }
+        return $fieldData->toArray();
     }
     /*------------------------------------表单字段保存end-----------------------------------------*/
 
@@ -95,9 +93,10 @@ trait Create
     protected function gridItemSave($gridItem)
     {
         $formGridData = FormGrid::create($gridItem);//保存控件数据
-        $this->gridsFieldsSave($gridItem, $formGridData->id);//保存字段数据
+        $fieldData = $this->gridsFieldsSave($gridItem, $formGridData->id);//保存字段数据
         //创建表单data控件表
         $formDataTable = new FormDataTableService($gridItem['form_id']);
+        $gridItem['fields'] = $fieldData;
         $formDataTable->createFormGridTable($gridItem);
     }
 
@@ -107,12 +106,14 @@ trait Create
      */
     protected function gridsFieldsSave($gridItem, $formGridId)
     {
+        $fieldData = [];
         foreach ($gridItem['fields'] as $k => $v) {
             $v['sort'] = $k;
             $v['form_grid_id'] = $formGridId;
             $v['form_id'] = $gridItem['form_id'];
-            $this->fieldsItemSave($v);
+            $fieldData[] = $this->fieldsItemSave($v);
         }
+        return $fieldData;
     }
     /*------------------------------------表单控件字段保存end-----------------------------------------*/
 }

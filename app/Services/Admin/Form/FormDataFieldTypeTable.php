@@ -34,9 +34,6 @@ trait FormDataFieldTypeTable
                 case 'shop'://店铺控件
                     $this->createFieldTable($tableName, $field);
                     break;
-                case 'region'://地区
-                    $this->createFieldTable($tableName, $field);
-                    break;
             }
         }
     }

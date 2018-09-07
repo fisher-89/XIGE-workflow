@@ -35,8 +35,7 @@ class FormDataTableService
     public function createFormDataTable()
     {
         $fields = $this->getFormFields()->toArray();
-        $formFields = $this->analyticalFields($fields);
-        $this->createTable($formFields);
+        $this->createTable($fields);
         //创建表单data字段控件表
         $this->createFormDataFieldTypeTable($fields);
     }
@@ -45,12 +44,10 @@ class FormDataTableService
      * 创建表单data控件表
      * @param $data
      */
-    public function createFormGridTable($data)
+    public function createFormGridTable(array $data)
     {
         $this->tableName = $this->tableName . '_' . $data['key'];
-        $gridFields = $this->analyticalFields($data['fields']);//解析字段
-        $gridFields[] = ['type' => 'int', 'key' => 'data_id', 'description' => '表单dataId'];
-        $this->createTable($gridFields);
+        $this->createTable($data['fields']);
         //创建表单data字段控件表
         $this->createFormDataFieldTypeTable($data['fields']);
     }
@@ -98,26 +95,34 @@ class FormDataTableService
         return Field::where('form_id', $this->formId)->whereNull('form_grid_id')->get();
     }
 
-    protected function createTable($formFields)
+    protected function createTable(array $formFields)
     {
         if (!Schema::hasTable($this->tableName)) {
             Schema::create($this->tableName, function (Blueprint $table) use ($formFields) {
                 $table->engine = 'InnoDB';
                 $table->increments('id');
                 $table->unsignedInteger('run_id')->index()->comment('运行id');
+                $gridIds = array_pluck($formFields,'form_grid_id');
+                if(!empty($gridIds)){
+                    //控件关联表单Data的ID
+                    $table->unsignedInteger('data_id')->nullable()->comment('表单dataId')->index();
+                }
                 foreach ($formFields as $k => $v) {
                     switch ($v['type']) {
                         case 'int':
-                            $table->unsignedInteger($v['key'])->nullable()->comment($v['description']);
-                            break;
-                        case 'decimal':
-                            $table->decimal($v['key'], $v['max'], $v['scale'])->nullable()->comment($v['description']);
-                            break;
-                        case 'char':
-                            $table->char($v['key'], $v['max'])->nullable()->comment($v['description']);
+                            if($v['scale']){
+                                $max = strlen($v['max'])-1;
+                                $table->decimal($v['key'],$max,$v['scale'])->nullable()->comment($v['description']);
+                            }else{
+                                $table->unsignedInteger($v['key'])->nullable()->comment($v['description']);
+                            }
                             break;
                         case 'text':
-                            $table->text($v['key'])->nullable()->comment($v['description']);
+                            if ($v['max'] && $v['max'] < 255) {
+                                $table->char($v['key'], $v['max'])->nullable()->comment($v['description']);
+                            } else {
+                                $table->text($v['key'])->nullable()->comment($v['description']);
+                            }
                             break;
                         case 'date':
                             $table->date($v['key'])->nullable()->comment($v['description']);
@@ -128,146 +133,51 @@ class FormDataTableService
                         case 'time':
                             $table->time($v['key'])->nullable()->comment($v['description']);
                             break;
-                        case 'string':
+                        case 'array':
+                            $table->text($v['key'])->nullable()->comment($v['description']);
+                            break;
+                        case 'select':
+                            $table->text($v['key'])->nullable()->comment($v['description']);
+                            break;
+                        case 'file':
+                            $table->text($v['key'])->nullable()->comment($v['description']);
+                            break;
+                        case 'staff':
                             $table->string($v['key'])->nullable()->comment($v['description']);
+                            break;
+                        case 'department':
+                            $table->string($v['key'])->nullable()->comment($v['description']);
+                            break;
+                        case 'shop':
+                            $table->string($v['key'])->nullable()->comment($v['description']);
+                            break;
+                        case 'region':
+                            switch($v['region_level']){
+                                case 1:
+                                    $table->char('province_id',20)->nullable()->index()->comment('地区 省编码');
+                                    break;
+                                case 2:
+                                    $table->char('province_id',20)->nullable()->index()->comment('地区 省编码');
+                                    $table->char('city_id',20)->nullable()->index()->comment('地区 市编码');
+                                    break;
+                                case 3:
+                                    $table->char('province_id',20)->nullable()->index()->comment('地区 省编码');
+                                    $table->char('city_id',20)->nullable()->index()->comment('地区 市编码');
+                                    $table->char('county_id',20)->nullable()->index()->comment('地区 区、县编码');
+                                    break;
+                                case 4:
+                                    $table->char('province_id',20)->nullable()->index()->comment('地区 省编码');
+                                    $table->char('city_id',20)->nullable()->index()->comment('地区 市编码');
+                                    $table->char('county_id',20)->nullable()->index()->comment('地区 区、县编码');
+                                    $table->text('address')->nullable()->comment('地区 详细地址');
+                                    break;
+                            }
+                            break;
                     }
                 }
                 $table->nullableTimestamps();
                 $table->softDeletes();
             });
         }
-    }
-
-    /**
-     * 解析字段
-     */
-    protected function analyticalFields(array $fields)
-    {
-        $data = [];
-        foreach ($fields as $k => $v) {
-            $item = $v;
-            $data[$k] = $this->field($item);
-        }
-        return $data;
-    }
-
-    protected function field($v)
-    {
-        switch ($v['type']) {
-            case 'int':
-                $v = $this->int($v);
-                break;
-            case 'text':
-                $v = $this->text($v);
-                break;
-            case 'date':
-                $v = $this->date($v);
-                break;
-            case 'datetime':
-                $v = $this->datetime($v);
-                break;
-            case 'time':
-                $v = $this->time($v);
-                break;
-            case 'file':
-                $v = $this->file($v);
-                break;
-            case 'array':
-                $v = $this->array($v);
-                break;
-            case'department':
-                $v = $this->department($v);
-                break;
-            case'staff':
-                $v = $this->staff($v);
-                break;
-            case'shop':
-                $v = $this->shop($v);
-                break;
-            case'region'://地区
-                $v = $this->region($v);
-                break;
-        }
-        return $v;
-    }
-
-    private function int($v)
-    {
-        if ($v['scale'] == 0 || $v['scale'] == null || $v['scale'] == '') {
-            //无小数位数
-            $v['type'] = 'int';
-        } else {
-            //含有小数
-            $v['max'] = strlen($v['max']);
-            $v['type'] = 'decimal';
-        }
-        return $v;
-    }
-
-    private function text($v)
-    {
-        if ($v['max'] && $v['max'] < 255) {
-            $v['type'] = 'char';
-        } else {
-            $v['type'] = 'text';
-        }
-        return $v;
-    }
-
-    private function array($v)
-    {
-        $v['type'] = 'text';
-        return $v;
-    }
-
-    /**
-     * @return mixed
-     */
-    private function date($v)
-    {
-        $v['type'] = 'date';
-        return $v;
-    }
-
-    private function datetime($v)
-    {
-        $v['type'] = 'datetime';
-        return $v;
-    }
-
-    private function time($v)
-    {
-        $v['type'] = 'time';
-        return $v;
-    }
-
-    private function file($v)
-    {
-        $v['type'] = 'text';
-        return $v;
-    }
-
-    private function department($v)
-    {
-        $v['type'] = 'string';
-        return $v;
-    }
-
-    private function staff($v)
-    {
-        $v['type'] = 'string';
-        return $v;
-    }
-
-    private function shop($v)
-    {
-        $v['type'] = 'string';
-        return $v;
-    }
-
-    private function region($v)
-    {
-        $v['type'] = 'string';
-        return $v;
     }
 }

@@ -9,7 +9,8 @@ class FieldUserWidget extends Model
     protected $table = 'field_user_widgets';
     public $timestamps = false;
     protected $fillable = [
-      'field_id',
-      'oa_id',
+        'field_id',
+        'value',
+        'text'
     ];
 }

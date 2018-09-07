@@ -10,7 +10,7 @@ class Field extends Model
     use SoftDeletes;
 
     protected $fillable = ['key', 'name', 'description', 'type', 'is_checkbox', 'condition', 'region_level', 'max', 'min', 'scale', 'default_value', 'options', 'form_id', 'form_grid_id', 'sort'];
-    protected $appends = ['validator_id', 'oa_id'];
+    protected $appends = ['validator_id', 'available_options'];
 
     protected $hidden = ['created_at', 'updated_at', 'deleted_at'];
 
@@ -48,8 +48,27 @@ class Field extends Model
         $this->attributes['options'] = json_encode($value);
     }
 
-    public function getOaIdAttribute()
+    public function setDefaultValueAttribute($value)
     {
-        return $this->widgets->pluck('oa_id')->all();
+        if (is_array($value))
+            $this->attributes['default_value'] = json_encode($value);
+    }
+
+    public function getDefaultValueAttribute($value)
+    {
+        if ($value) {
+            if (in_array($this->type, ['select', 'array', 'region', 'staff', 'department', 'shop'])) {
+                return json_decode($value, true);
+            }
+        }
+        return $value;
+    }
+
+    public function getAvailableOptionsAttribute()
+    {
+        $data = $this->widgets->map(function ($item) {
+            return $item->only(['value', 'text']);
+        });
+        return $data;
     }
 }
