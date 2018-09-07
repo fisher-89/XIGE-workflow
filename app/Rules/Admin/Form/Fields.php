@@ -21,6 +21,9 @@ trait Fields
     protected function checkDefaultValue($field)
     {
         switch ($field['type']) {
+            case 'int':
+                return $this->int($field);
+                break;
             case 'date':
                 return $this->date($field);
                 break;
@@ -54,6 +57,29 @@ trait Fields
             default:
                 return true;
         }
+    }
+
+    protected function int($field)
+    {
+        if ($field['scale'] && $field['scale'] != 0) {
+            if (empty($field['max']) || $field['max'] == 0) {
+                $this->msg = $field['name'].'的 最大值不能为空';
+                return false;
+            }
+            $maxIndex = strpos($field['max'],'.');
+
+            if(!$maxIndex || $maxIndex == 0 || ($maxIndex+1) == strlen($field['max'])){
+                $this->msg = $field['name'].'的 最大值必须是正确的浮点型';
+                return false;
+            }
+            $maxValueArray = explode('.',$field['max']);
+
+            if(strlen($maxValueArray[1]) != $field['scale']){
+                $this->msg = $field['name'].'的 最大值的小数位数不匹配';
+                return false;
+            }
+        }
+        return true;
     }
 
     protected function date($field)

@@ -30,13 +30,6 @@ class FormFields implements Rule
     public function passes($attribute, $value)
     {
         foreach ($value as $field) {
-            //小数位数不为空验证最大值不能为空
-            if ($field['scale'] && $field['scale'] != 0) {
-                if (empty($field['max']) || $field['max'] == 0) {
-                    $this->msg = '最大值不能为空';
-                    return false;
-                }
-            }
             //验证默认值
             $check =  $this->checkDefaultValue($field);
             if($check == false){
