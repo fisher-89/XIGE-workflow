@@ -122,7 +122,7 @@ trait Fields
         if ($field['default_value']) {
             $unixTime = strtotime($field['default_value']);
             //判断日期时间格式 与 当前日期时间格式（date当前时间）
-            if (date('Y-m-d H:i', $unixTime) != $field['default_value'] && $field['default_value'] != 'datetime') {
+            if (date('Y-m-d H:i:s', $unixTime) != $field['default_value'] && $field['default_value'] != 'datetime') {
                 $this->msg = $field['name'] . '的 默认值：' . $field['default_value'] . '格式不是日期时间类型';
                 return false;
             }
@@ -134,7 +134,7 @@ trait Fields
     {
         if ($field['default_value']) {
             $unixTime = strtotime($field['default_value']);
-            if (date('H:i', $unixTime) != $field['default_value'] && $field['default_value'] != 'time') {
+            if (date('H:i:s', $unixTime) != $field['default_value'] && $field['default_value'] != 'time') {
                 $this->msg = $field['name'] . '的 默认值：' . $field['default_value'] . '格式不是时间类型';
                 return false;
             }
