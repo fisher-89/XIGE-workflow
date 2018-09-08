@@ -21,6 +21,9 @@ trait Fields
     protected function checkDefaultValue($field)
     {
         switch ($field['type']) {
+            case 'text':
+                return $this->text($field);
+                break;
             case 'int':
                 return $this->int($field);
                 break;
@@ -59,23 +62,42 @@ trait Fields
         }
     }
 
+    protected function text($field)
+    {
+        if ($field['default_value']) {
+            if ($field['max'] && empty($field['min']) && strlen($field['default_value']) > $field['max']) {
+                $this->msg = $field['name'].'的 默认值长度不能大于最大值';
+                return false;
+            }
+            if (empty($field['max']) && $field['min'] && strlen($field['default_value']) < $field['min']) {
+                $this->msg = $field['name'].'的 默认值长度不能小于最小值';
+                return false;
+            }
+            if ($field['max'] && $field['min'] && (strlen($field['default_value']) < $field['min'] || strlen($field['default_value']) > $field['max'])) {
+                $this->msg = $field['name'].'的 默认值长度必须介于最小值与最小值之间';
+                return false;
+            }
+        }
+        return true;
+    }
+
     protected function int($field)
     {
         if ($field['scale'] && $field['scale'] != 0) {
             if (empty($field['max']) || $field['max'] == 0) {
-                $this->msg = $field['name'].'的 最大值不能为空';
+                $this->msg = $field['name'] . '的 最大值不能为空';
                 return false;
             }
-            $maxIndex = strpos($field['max'],'.');
+            $maxIndex = strpos($field['max'], '.');
 
-            if(!$maxIndex || $maxIndex == 0 || ($maxIndex+1) == strlen($field['max'])){
-                $this->msg = $field['name'].'的 最大值必须是正确的浮点型';
+            if (!$maxIndex || $maxIndex == 0 || ($maxIndex + 1) == strlen($field['max'])) {
+                $this->msg = $field['name'] . '的 最大值必须是正确的浮点型';
                 return false;
             }
-            $maxValueArray = explode('.',$field['max']);
+            $maxValueArray = explode('.', $field['max']);
 
-            if(strlen($maxValueArray[1]) != $field['scale']){
-                $this->msg = $field['name'].'的 最大值的小数位数不匹配';
+            if (strlen($maxValueArray[1]) != $field['scale']) {
+                $this->msg = $field['name'] . '的 最大值的小数位数不匹配';
                 return false;
             }
         }
@@ -215,7 +237,7 @@ trait Fields
             if ($field['default_value']) {
                 $value = $field['default_value']['value'];
                 $availableOptionsValues = array_pluck($field['available_options'], 'value');
-                if (!in_array($value, $availableOptionsValues) && !in_array($value,['staff','department','shop']) ) {
+                if (!in_array($value, $availableOptionsValues) && !in_array($value, ['staff', 'department', 'shop'])) {
                     $this->msg = $field['name'] . '的 默认值不在可选值里';
                     return false;
                 }
@@ -230,7 +252,7 @@ trait Fields
             $value = array_pluck($field['default_value'], 'value');
             $availableOptionsValues = array_pluck($field['available_options'], 'value');
             foreach ($value as $v) {
-                if (!in_array($v, $availableOptionsValues) && !in_array($value,['staff','department','shop'])) {
+                if (!in_array($v, $availableOptionsValues) && !in_array($value, ['staff', 'department', 'shop'])) {
                     $this->msg = $field['name'] . '的 默认值不在可选值里';
                     return false;
                 }
