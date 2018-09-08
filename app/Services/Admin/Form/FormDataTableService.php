@@ -102,18 +102,18 @@ class FormDataTableService
                 $table->engine = 'InnoDB';
                 $table->increments('id');
                 $table->unsignedInteger('run_id')->index()->comment('运行id');
-                $gridIds = array_pluck($formFields,'form_grid_id');
-                if(!empty($gridIds)){
+                $gridIds = array_pluck($formFields, 'form_grid_id');
+                if (!empty($gridIds[0])) {
                     //控件关联表单Data的ID
                     $table->unsignedInteger('data_id')->nullable()->comment('表单dataId')->index();
                 }
                 foreach ($formFields as $k => $v) {
                     switch ($v['type']) {
                         case 'int':
-                            if($v['scale']){
-                                $max = strlen($v['max'])-1;
-                                $table->decimal($v['key'],$max,$v['scale'])->nullable()->comment($v['description']);
-                            }else{
+                            if ($v['scale']) {
+                                $max = strlen($v['max']) - 1;
+                                $table->decimal($v['key'], $max, $v['scale'])->nullable()->comment($v['description']);
+                            } else {
                                 $table->unsignedInteger($v['key'])->nullable()->comment($v['description']);
                             }
                             break;
@@ -152,23 +152,23 @@ class FormDataTableService
                             $table->string($v['key'])->nullable()->comment($v['description']);
                             break;
                         case 'region':
-                            switch($v['region_level']){
+                            switch ($v['region_level']) {
                                 case 1:
-                                    $table->char('province_id',20)->nullable()->index()->comment('地区 省编码');
+                                    $table->char('province_id', 20)->nullable()->index()->comment('地区 省编码');
                                     break;
                                 case 2:
-                                    $table->char('province_id',20)->nullable()->index()->comment('地区 省编码');
-                                    $table->char('city_id',20)->nullable()->index()->comment('地区 市编码');
+                                    $table->char('province_id', 20)->nullable()->index()->comment('地区 省编码');
+                                    $table->char('city_id', 20)->nullable()->index()->comment('地区 市编码');
                                     break;
                                 case 3:
-                                    $table->char('province_id',20)->nullable()->index()->comment('地区 省编码');
-                                    $table->char('city_id',20)->nullable()->index()->comment('地区 市编码');
-                                    $table->char('county_id',20)->nullable()->index()->comment('地区 区、县编码');
+                                    $table->char('province_id', 20)->nullable()->index()->comment('地区 省编码');
+                                    $table->char('city_id', 20)->nullable()->index()->comment('地区 市编码');
+                                    $table->char('county_id', 20)->nullable()->index()->comment('地区 区、县编码');
                                     break;
                                 case 4:
-                                    $table->char('province_id',20)->nullable()->index()->comment('地区 省编码');
-                                    $table->char('city_id',20)->nullable()->index()->comment('地区 市编码');
-                                    $table->char('county_id',20)->nullable()->index()->comment('地区 区、县编码');
+                                    $table->char('province_id', 20)->nullable()->index()->comment('地区 省编码');
+                                    $table->char('city_id', 20)->nullable()->index()->comment('地区 市编码');
+                                    $table->char('county_id', 20)->nullable()->index()->comment('地区 区、县编码');
                                     $table->text('address')->nullable()->comment('地区 详细地址');
                                     break;
                             }
