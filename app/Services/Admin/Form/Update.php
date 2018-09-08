@@ -82,16 +82,19 @@ trait Update
                 //编辑数据
                 $gridId[] = $v['id'];
                 $this->formGridDataUpdate($v);//表单控件数据修改
-                $gridItemFieldUpdateId = $this->formGridsFieldsUpdate($v, $request->id);
+                $gridFieldData = $this->formGridsFieldsUpdate($v, $request->id);
+                $gridItemFieldUpdateId = $gridFieldData['grid_update_field_id'];
                 $formDataTable = new FormDataTableService($request->id);
+                $v['fields'] = $gridFieldData['new_field_data'];
                 $formDataTable->createFormGridTable($v);//创建列表控件表
             } else {
                 //新增数据
                 $v['form_id'] = $request->id;
                 $this->gridItemSave($v);
             }
-            $fieldsId = array_collapse([$fieldsId, $gridItemFieldUpdateId]);
+            $fieldsId[] = $gridItemFieldUpdateId;
         }
+        $fieldsId = array_collapse($fieldsId);
         $this->deleteGridData($data, $gridId, $fieldsId);//删除多余的数据
 
     }
@@ -120,6 +123,7 @@ trait Update
     {
         $formGridData = FormGrid::find($gridItem['id']);
         $formGridData->key = $gridItem['key'];
+        $formGridData->name = $gridItem['name'];
         $formGridData->save();
     }
 
@@ -130,6 +134,7 @@ trait Update
      */
     protected function formGridsFieldsUpdate($gridItem, $formId)
     {
+        $newFieldData = [];
         $gridUpdateFieldsId = [];//编辑的控件id
         foreach ($gridItem['fields'] as $k => $v) {
             $v['sort'] = $k;
@@ -138,32 +143,34 @@ trait Update
             if (isset($v['id']) && intval($v['id'])) {
                 //编辑
                 $gridUpdateFieldsId[] = $v['id'];
-                $this->formGridFieldSave($v);
+                $fieldData = $this->formGridFieldSave($v);
             } else {
                 //新增
-                $this->fieldsItemSave($v);//新增控件字段
+                $fieldData = $this->fieldsItemSave($v);//新增控件字段
             }
+            $newFieldData[] = $fieldData;
         }
-        return $gridUpdateFieldsId;
+        return [
+            'grid_update_field_id'=>$gridUpdateFieldsId,
+            'new_field_data'=>$newFieldData
+        ];
     }
 
     protected function formGridFieldSave($fieldsItem)
     {
-        $data = Field::find($fieldsItem['id']);
-        $data->update($fieldsItem);
-        $data->validator()->sync($fieldsItem['validator_id']);
+        $fieldData = Field::find($fieldsItem['id']);
+        $fieldData->update($fieldsItem);
+        $fieldData->validator()->sync($fieldsItem['validator_id']);
         //部门、员工、店铺控件
-        if (count($data->widgets) > 0) {
-            $this->deleteWidgets($data);
+        if (count($fieldData->widgets) > 0) {
+            $this->deleteWidgets($fieldData);
         }
-        if (array_has($fieldsItem, 'oa_id') && is_array($fieldsItem['oa_id']) && $fieldsItem) {
-            $data->widgets()->createMany(array_map(function ($v) use ($data) {
-                return [
-                    'field_id' => $data->id,
-                    'oa_id' => $v
-                ];
-            }, $fieldsItem['oa_id']));
+        if (array_has($fieldsItem, 'available_options') && $fieldsItem['available_options']) {
+            data_fill($fieldsItem['available_options'],'*.field_id',$fieldData->id);
+
+            $fieldData->widgets()->createMany($fieldsItem['available_options']);
         }
+        return $fieldData->toArray();
     }
 
     /**
@@ -192,6 +199,9 @@ trait Update
                         if ($val['validator']) {
                             $val->validator()->sync([]);
                         }
+                        if($val->widgets){
+                            $this->deleteWidgets($val);
+                        }
                         $val->delete();
                     }
                 }
@@ -202,6 +212,9 @@ trait Update
                         if (!in_array($val['id'], $fieldId)) {
                             if ($val['validator']) {
                                 $val->validator()->sync([]);
+                            }
+                            if($val->widgets){
+                                $this->deleteWidgets($val);
                             }
                             $val->delete();
                         }
@@ -285,16 +298,22 @@ trait Update
             if (count($field->widgets) > 0) {
                 $this->deleteWidgets($field);
             }
-            $field->widgets()->createMany(array_map(function ($v) use ($field) {
-                return [
-                    'field_id' => $field->id,
-                    'oa_id' => $v
-                ];
-            }, $v['oa_id']));
+            //员工、部门、店铺ID数据控件保存
+            if (array_has($v, 'available_options') && $v['available_options']) {
+                data_fill($v['available_options'],'*.field_id',$field->id);
+
+                $field->widgets()->createMany($v['available_options']);
+            }
         }
 
         $deleteId = array_diff($fieldId, $editIdArray);
-        Field::whereIn('id', $deleteId)->delete();
+        $deleteFieldData = Field::whereIn('id', $deleteId)->get();
+        $deleteFieldData->each(function($field){
+            if (count($field->widgets) > 0) {
+                $this->deleteWidgets($field);
+            }
+            $field->delete();
+        });
 
         $formDataTable->updateFormDataTable();//修改表单数据表字段
     }

@@ -82,7 +82,7 @@ class FormDataTableService
         //删除表单data表
         Schema::dropIfExists($this->tableName);
         //创建表单Ddata表
-        $this->createTable($this->analyticalFields($fields));
+        $this->createTable($fields);
         //创建表单字段控件表
         $this->createFormDataFieldTypeTable($fields);
     }
