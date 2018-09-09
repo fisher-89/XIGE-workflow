@@ -38,7 +38,7 @@ class WidgetRepository
             $fieldData = Field::find($request->field_id);
             if (count($fieldData->widgets) > 0) {
                 //含有员工的权限
-                $filters = 'filters=staff_sn=[' . implode(',', $fieldData->widgets->pluck('oa_id')->all()) . ']';
+                $filters = 'filters=staff_sn=[' . implode(',', $fieldData->widgets->pluck('value')->all()) . ']';
                 if (!empty($fieldData->condition))
                     $filters .= ';' . $fieldData->condition;
 
@@ -111,7 +111,7 @@ class WidgetRepository
             $fieldData = Field::find($request->field_id);
             if (count($fieldData->widgets) > 0) {
                 //部门配置有权限，查询部门列表数据
-                $filters = 'filters=id=[' . implode(',', $fieldData->widgets->pluck('oa_id')->all()) . ']';
+                $filters = 'filters=id=[' . implode(',', $fieldData->widgets->pluck('value')->all()) . ']';
                 $data = $this->oaApiSerivce->getDepartments($filters);
                 $isConfig = true;
             } else {
@@ -140,7 +140,7 @@ class WidgetRepository
             $fieldData = Field::find($request->field_id);
             if (count($fieldData->widgets) > 0) {
                 //含有权限店铺
-                $oaId = $fieldData->widgets->pluck('oa_id')->all();
+                $oaId = $fieldData->widgets->pluck('value')->all();
                 $filters = 'filters=shop_sn=['.implode(',',$oaId).']';
                 //请求筛选
                 if ($request->has('filters')) {
