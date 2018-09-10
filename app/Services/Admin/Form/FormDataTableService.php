@@ -152,6 +152,7 @@ class FormDataTableService
                             $table->string($v['key'])->nullable()->comment($v['description']);
                             break;
                         case 'region':
+                            $table->text($v['key'])->nullable()->comment($v['description']);
                             switch ($v['region_level']) {
                                 case 1:
                                     $table->char('province_id', 20)->nullable()->index()->comment('地区 省编码');
