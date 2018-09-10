@@ -36,10 +36,12 @@ class FormFields implements Rule
                 //表单字段 与控件key
 
                 //表单字段的key
-                $formFieldKeys = Field::where('form_id',$this->formId)->whereNull('form_grid_id')->pluck('key');
+                $formFieldKeys = Field::where('form_id',$this->formId)->whereNull('form_grid_id')->pluck('key')->all();
                 //表单控件data的key
-                $gridDataKeys = FormGrid::where('form_id',$this->formId)->pluck('key');
-                if(!in_array($value,$formFieldKeys) || !in_array($value,$gridDataKeys)){
+                $gridDataKeys = FormGrid::where('form_id',$this->formId)->pluck('key')->all();
+                $fieldsKey = array_collapse([$formFieldKeys,$gridDataKeys]);
+
+                if(!in_array($value,$fieldsKey)){
                     $this->msg = $value.' 字段不存在';
                     return false;
                 }
