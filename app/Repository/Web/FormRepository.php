@@ -12,6 +12,7 @@ namespace App\Repository\Web;
 use App\Models\Field;
 use App\Models\FlowRun;
 use App\Models\FormGrid;
+use App\Services\Web\FormDataService;
 use Illuminate\Support\Facades\DB;
 
 class FormRepository
@@ -24,9 +25,45 @@ class FormRepository
     public function getFields($formId)
     {
         $formFields = Field::where('form_id', $formId)->whereNull('form_grid_id')->orderBy('sort', 'asc')->get();
-        $gridFields = $this->getGridData($formId);
-        $allFields = ['form' => $formFields, 'grid' => $gridFields];
+        //控件data与控件字段
+        $gridDataFields = $this->getGridData($formId);
+        //控件字段添加表单data默认值
+        if (!empty($gridDataFields))
+            $gridDataFields = $this->addDefaultValueToGridDataField($gridDataFields);
+        $allFields = ['form' => $formFields, 'grid' => $gridDataFields];
         return collect($allFields);
+    }
+
+    /**
+     * 获取表单控件数据与控件字段
+     * @param $formId
+     */
+    public function getGridData($formId)
+    {
+        $gridData = FormGrid::with(['fields' => function ($query) {
+            $query->orderBy('sort', 'asc');
+        }])->whereFormId($formId)->get();
+        return $gridData;
+    }
+
+    /**
+     * 表单控件字段数据添加表单默认值
+     * @param $gridDataFields
+     * @return mixed
+     */
+    protected function addDefaultValueToGridDataField($gridDataFields)
+    {
+        $formDataService = new FormDataService();
+
+        $newGridDataFields = $gridDataFields->map(function ($gridItem) use ($formDataService) {
+            $gridFieldData = [];
+            $gridItem->fields->map(function ($field) use (&$gridFieldData, $formDataService) {
+                $gridFieldData[$field->key] = $formDataService->getFormDataDefaultValue($field);
+            });
+            $gridItem->field_default_value = $gridFieldData;
+            return $gridItem;
+        });
+        return $newGridDataFields;
     }
 
     /**
@@ -47,6 +84,28 @@ class FormRepository
         return (array)$formData;
     }
 
+    /**
+     * 获取表单data数据
+     * @param $flowRun
+     * @return mixed
+     */
+    protected function getFormFieldsData($flowRun, $gridKeys)
+    {
+        $tableName = 'form_data_' . $flowRun->form_id;
+        $runId = $flowRun->id;
+        $formData = (array)DB::table($tableName)->whereRunId($runId)->first();
+        if (!empty($gridKeys)) {
+            foreach ($gridKeys as $key) {
+                $formData[$key] = DB::table($tableName . '_' . $key)->where('data_id', $formData['id'])
+                    ->get()->map(function ($item) {
+                        return (array)$item;
+                    })->toArray();
+            }
+        }
+        $formData = $this->fileFieldsToArray($formData, $flowRun->form_id);//文件字段json转数组
+        return $formData;
+    }
+/*---------------------------------end------------------------------------------------*/
     /**
      * 获取去除hidden的字段
      * @param $hiddenFields
@@ -111,17 +170,7 @@ class FormRepository
 //        return $gridData;
 //    }
 
-    /**
-     * 获取表单控件数据与控件字段
-     * @param $formId
-     */
-    public function getGridData($formId)
-    {
-        $gridData = FormGrid::with(['fields' => function ($query) {
-            $query->orderBy('sort', 'asc');
-        }])->whereFormId($formId)->get();
-        return $gridData;
-    }
+
 
     /**
      * 获取文件字段
@@ -156,27 +205,7 @@ class FormRepository
         return $fields->toArray();
     }
 
-    /**
-     * 获取表单data数据
-     * @param $flowRun
-     * @return mixed
-     */
-    protected function getFormFieldsData($flowRun, $gridKeys)
-    {
-        $tableName = 'form_data_' . $flowRun->form_id;
-        $runId = $flowRun->id;
-        $formData = (array)DB::table($tableName)->whereRunId($runId)->first();
-        if (!empty($gridKeys)) {
-            foreach ($gridKeys as $key) {
-                $formData[$key] = DB::table($tableName . '_' . $key)->where('data_id', $formData['id'])
-                    ->get()->map(function ($item) {
-                        return (array)$item;
-                    })->toArray();
-            }
-        }
-        $formData = $this->fileFieldsToArray($formData, $flowRun->form_id);//文件字段json转数组
-        return $formData;
-    }
+
 
     /**
      * 表单文件字段转数组

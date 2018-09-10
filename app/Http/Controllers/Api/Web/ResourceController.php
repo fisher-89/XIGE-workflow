@@ -14,19 +14,20 @@ use App\Repository\Web\FormRepository;
 use App\Repository\Web\StepRunRepository;
 use App\Repository\Web\Auth\FlowAuth;
 use App\Repository\Web\FlowRepository;
-use App\Services\OA\OaApiService;
-use App\Services\Web\CallbackService;
 use App\Services\ResponseService;
+use App\Services\Web\FormDataService;
 use Illuminate\Http\Request;
 
 class ResourceController extends Controller
 {
 
     protected $response;
+    protected $formData;
 
-    public function __construct(ResponseService $responseService)
+    public function __construct(ResponseService $responseService,FormDataService $formDataService)
     {
         $this->response = $responseService;
+        $this->formData = $formDataService;
     }
 
     /**
@@ -50,7 +51,6 @@ class ResourceController extends Controller
         $data = $flow->filter(function ($value, $key) {
             return count($value->flow) > 0;
         })->pluck([]);
-//        $flow = Flow::whereIsActive(1)->select('id', 'name', 'description')->orderBy('sort', 'asc')->find($flowId);
         return $this->response->get($data);
     }
 
@@ -66,15 +66,14 @@ class ResourceController extends Controller
         if ($flow->is_active === 0)
             abort(404, '该流程未启动');
         $flowRepository = new FlowRepository();
-        $firstStepData = $flowRepository->getFlowFirstStep($flow);//开始步骤数据
-
+        //开始步骤数据
+        $firstStepData = $flowRepository->getFlowFirstStep($flow);
         $formRepository = new FormRepository();
-        //表单字段  去除了hidden字段
+        //表单所有字段 (表单字段、控件数据、控件字段)
         $fields = $formRepository->getFields($flow->form_id);//全部字段
-//        $fields = $formRepository->getExceptHiddenFields($firstStepData->hidden_fields, $flow->form_id);
-
-        $formData = $formRepository->getFormData();//获取表单data数据
-        $filterFormData = app('formData')->getFilterFormData($formData, $fields);//获取筛选过后的表单数据
+        //获取表单data数据
+        $formData = $formRepository->getFormData();
+        $filterFormData = $this->formData->getFilterFormData($formData, $fields);//获取筛选过后的表单数据
 
         $data = [
             'step' => new StepResource($firstStepData),
