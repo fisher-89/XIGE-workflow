@@ -33,9 +33,13 @@ class FormFields implements Rule
     {
         if ($value) {
             if (strpos($value, '.*.') === false) {
-                //表单字段
-                $fieldCount = Field::where(['form_id'=>$this->formId,'key'=>$value])->whereNull('form_grid_id')->whereNull('deleted_at')->count();
-                if(!$fieldCount){
+                //表单字段 与控件key
+
+                //表单字段的key
+                $formFieldKeys = Field::where('form_id',$this->formId)->whereNull('form_grid_id')->pluck('key');
+                //表单控件data的key
+                $gridDataKeys = FormGrid::where('form_id',$this->formId)->pluck('key');
+                if(!in_array($value,$formFieldKeys) || !in_array($value,$gridDataKeys)){
                     $this->msg = $value.' 字段不存在';
                     return false;
                 }
@@ -45,9 +49,7 @@ class FormFields implements Rule
                 $gridKey = $fields[0];
                 $field = $fields[1];
                 $formGridId = FormGrid::where(['form_id' => $this->formId, 'key' => $gridKey])->whereNull('deleted_at')->value('id');
-                $fieldCount = Field::where(['form_id' => $this->formId, 'form_grid_id' => $formGridId, 'key' => $field])
-                    ->whereNull('deleted_at')
-                    ->count();
+                $fieldCount = Field::where(['form_id' => $this->formId, 'form_grid_id' => $formGridId, 'key' => $field])->count();
                 if(!$fieldCount){
                     $this->msg = $gridKey.' 列表控件的'.$field.'字段不存在';
                     return false;
