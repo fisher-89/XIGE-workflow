@@ -9,6 +9,8 @@
 namespace App\Services\Web;
 
 
+use Illuminate\Support\Facades\Auth;
+
 class FormDataService
 {
 
@@ -59,16 +61,42 @@ class FormDataService
      */
     public function getFormDataDefaultValue($field)
     {
-        switch ($field->type) {
-            case 'int':
-                $defaultValue = $field->default_value ? $this->getTextOrIntDefaultValue($field->default_value) : $field->default_value;
-                break;
-            case 'text':
-                $defaultValue = $field->default_value ? $this->getTextOrIntDefaultValue($field->default_value) : $field->default_value;
-                break;
-            default:
-                $defaultValue = $field->default_value;
+        if (!empty($field->default_value)) {
+            switch ($field->type) {
+                case 'int':
+                    $defaultValue = $this->getTextOrIntDefaultValue($field->default_value);
+                    break;
+                case 'text':
+                    $defaultValue = $this->getTextOrIntDefaultValue($field->default_value);
+                    break;
+                case 'date':
+                    //default_value == data  当前日期
+                    $defaultValue = $field->default_value == 'date' ? date('Y-m-d') : $field->default_value;
+                    break;
+                case 'datetime':
+                    //default_value == data  当前日期时间
+                    $defaultValue = $field->default_value == 'datetime' ? date('Y-m-d H:i:s') : $field->default_value;
+                    break;
+                case 'time':
+                    //default_value == data  当前时间
+                    $defaultValue = $field->default_value == 'time' ? date('H:i:s') : $field->default_value;
+                    break;
+                case 'staff':
+                    $defaultValue = $this->getCurrentStaffDefaultValue($field->default_value);
+                    break;
+                case 'department':
+                    $defaultValue = $this->getCurrentDepartmentDefaultValue($field->default_value);
+                    break;
+                case 'shop':
+                    $defaultValue = $this->getCurrentShopDefaultValue($field->default_value);
+                    break;
+                default:
+                    $defaultValue = $field->default_value;
+            }
+        } else {
+            $defaultValue = $field->default_value;
         }
+
         return $defaultValue;
     }
 
@@ -85,6 +113,56 @@ class FormDataService
         //解析运算符
         $value = $this->calculation($value);
         return $value;
+    }
+
+    /**
+     * 获取当前部门默认值
+     * @param $defaultValue
+     */
+    protected function getCurrentDepartmentDefaultValue($defaultValue)
+    {
+        if (count($defaultValue) == count($defaultValue, 1)) {
+            if ($defaultValue['value'] == 'department') {
+                $defaultValue = [
+                    'value' => Auth::user()->department['id'],
+                    'text' => Auth::user()->department['full_name']
+                ];
+            }
+        }
+        return $defaultValue;
+    }
+
+    /**
+     * 获取当前员工默认值
+     * @param $defaultValue
+     */
+    protected function getCurrentStaffDefaultValue($defaultValue)
+    {
+        if (count($defaultValue) == count($defaultValue, 1)) {
+            if ($defaultValue['value'] == 'staff') {
+                $defaultValue = [
+                    'value' => Auth::id(),
+                    'text' => Auth::user()->realname
+                ];
+            }
+        }
+        return $defaultValue;
+    }
+    /**
+     * 获取当前员工默认值
+     * @param $defaultValue
+     */
+    protected function getCurrentShopDefaultValue($defaultValue)
+    {
+        if (count($defaultValue) == count($defaultValue, 1)) {
+            if ($defaultValue['value'] == 'shop') {
+                $defaultValue = [
+                    'value' => Auth::user()->shop['shop_sn'],
+                    'text' => Auth::user()->shop['name']
+                ];
+            }
+        }
+        return $defaultValue;
     }
 
     /**
@@ -138,6 +216,7 @@ class FormDataService
         }, $defaultValue);
         return $value;
     }
+
     /**
      * 解析默认值运算符号变量
      * @param $defaultValue
@@ -170,7 +249,7 @@ class FormDataService
     {
         return (is_numeric($text) || empty($text)) ? $text : "'$text'";
     }
-/*-----------------------------------------------------------------------------------------------------------------*/
+    /*-----------------------------------------------------------------------------------------------------------------*/
     /**
      * 筛选控件与填充默认值
      * @param $grid
@@ -222,8 +301,6 @@ class FormDataService
     }
 
 
-
-
     /**
      * 解析表单字段变量
      * @param $defaultValue
@@ -243,7 +320,6 @@ class FormDataService
         }
         return $value;
     }
-
 
 
 }
