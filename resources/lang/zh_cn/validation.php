@@ -35,7 +35,7 @@ return [
     'date_format'          => ':attribute 必须是格式为 :format 的日期。',
     'different'            => ':attribute 和 :other 不能相同。',
     'digits'               => 'The :attribute must be :digits digits.',
-    'digits_between'       => 'The :attribute must be between :min and :max digits.',
+    'digits_between'       => ':attribute 之间必须 :min 和 :max 数字.',
     'dimensions'           => 'The :attribute has invalid image dimensions.',
     'distinct'             => 'The :attribute 字段具有重复的值.',
     'email'                => ':attribute 必须是电子邮件格式。',
