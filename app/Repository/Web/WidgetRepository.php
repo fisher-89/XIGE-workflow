@@ -74,7 +74,7 @@ class WidgetRepository
      */
     protected function getDepartmentUser($request)
     {
-        if ($request->has('filters')) {
+        if ($request->has('filters') && $request->filters) {
             //搜索
             $filters = 'filters=' . $request->filters;
             $query = $request->except(['field_id', 'filters']);
