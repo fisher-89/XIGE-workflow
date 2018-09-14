@@ -4,18 +4,19 @@ namespace App\Rules\Admin\Form;
 
 use Illuminate\Contracts\Validation\Rule;
 
-class GridFields implements Rule
+class ArrayField implements Rule
 {
-    use Fields;
+    protected $field;
     protected $msg = '';
+
     /**
      * Create a new rule instance.
      *
      * @return void
      */
-    public function __construct()
+    public function __construct($field)
     {
-        //
+        $this->field = $field;
     }
 
     /**
@@ -27,19 +28,13 @@ class GridFields implements Rule
      */
     public function passes($attribute, $value)
     {
-        $keyArray =  array_pluck($value,'key');
-        //验证控件字段key唯一
-        if (count($keyArray) != count(array_unique($keyArray))) {
-            $this->msg = '列表控件 字段 键名 重复';
+        if ($value && $this->field['min'] && count($value) < $this->field['min']) {
+            $this->msg = '默认值 数量不能小于最小值';
             return false;
         }
-
-        foreach ($value as $field) {
-            //验证默认值
-            $check =  $this->checkDefaultValue($field);
-            if($check == false){
-                return false;
-            }
+        if ($value && $this->field['max'] && count($value) > $this->field['max']) {
+            $this->msg = '默认值 数量不能大于最大值';
+            return false;
         }
         return true;
     }

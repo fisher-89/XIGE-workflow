@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers\Api\Admin;
 
+use App\Http\Requests\Admin\Form\FormValidator;
 use App\Http\Requests\Admin\FormsRequest;
 use App\Models\Flow;
 use App\Models\Form;
@@ -16,11 +17,14 @@ class FormController extends Controller
     protected $response;
     //表单处理服务
     protected $formService;
+    //表单验证
+    protected $formValidator;
 
-    public function __construct(ResponseService $responseService,FormService $formService)
+    public function __construct(ResponseService $responseService,FormService $formService,FormValidator $formValidator)
     {
         $this->response = $responseService;
         $this->formService = $formService;
+        $this->formValidator = $formValidator;
     }
 
     /**
@@ -28,8 +32,12 @@ class FormController extends Controller
      * @param FormsRequest $request
      * @return mixed
      */
-    public function store(FormsRequest $request)
+    public function store(Request $request)
     {
+        //表单验证
+        $rules = $this->formValidator->rules($request);
+        $message = $this->formValidator->message();
+        $this->validate($request,$rules,[],$message);
         $data = $this->formService->store($request);
         return $this->response->post($data);
     }
@@ -39,8 +47,12 @@ class FormController extends Controller
      * @param FormsRequest $request
      * @return mixed
      */
-    public function update(FormsRequest $request)
+    public function update(Request $request)
     {
+        //表单验证
+        $rules = $this->formValidator->rules($request);
+        $message = $this->formValidator->message();
+        $this->validate($request,$rules,[],$message);
         $data = $this->formService->update($request);
         return $this->response->put($data);
     }
