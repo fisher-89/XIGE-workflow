@@ -30,6 +30,7 @@ trait ArrayType
             'fields.' . $key . '.min' => [
                 'nullable',
                 'numeric',
+                'min:'.(($field['is_checkbox']==1 && $field['min']<1) ? 1 : $field['min']),
                 'max:' . ($field['max'] ?: 9999999)
             ],
             'fields.' . $key . '.max' => [
