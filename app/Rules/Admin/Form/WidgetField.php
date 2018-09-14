@@ -42,7 +42,7 @@ class WidgetField implements Rule
                 return false;
             }
         } else {
-            if ($value && $this->field['options'] && !in_array($value['value'], array_pluck($this->field['options'], 'id')) && !in_array($value, ['staff', 'department', 'shop'])) {
+            if ($value && $this->field['options'] && !in_array($value['value'], array_pluck($this->field['options'], 'id')) && !in_array($value['value'], ['staff', 'department', 'shop'])) {
                 $this->msg = '默认值 不在可选项里';
                 return false;
             }
