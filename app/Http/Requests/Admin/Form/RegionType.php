@@ -39,13 +39,13 @@ trait RegionType
                 'array',
             ],
             'fields.' . $key . '.default_value.province_id' => [
-                Rule::exists('region','id')->where('level',1),
+                Rule::exists('region', 'id')->where('level', 1),
             ],
             'fields.' . $key . '.default_value.city_id' => [
-                Rule::exists('region','id')->where('parent_id',$field['default_value']['province_id']),
+                Rule::exists('region', 'id')->where('parent_id', ($field['default_value']['province_id'] ?? 2)),
             ],
             'fields.' . $key . '.default_value.county_id' => [
-                Rule::exists('region','id')->where('parent_id',$field['default_value']['city_id']),
+                Rule::exists('region', 'id')->where('parent_id', ($field['default_value']['city_id'] ?? 3)),
             ],
             'fields.' . $key . '.default_value.address' => [
                 'string',
@@ -56,10 +56,10 @@ trait RegionType
         ];
 
         //控件字段
-        if(!is_null($this->gridIndex)){
+        if (!is_null($this->gridIndex)) {
             $gridRegionRule = [];
-            foreach($regionRule as $k=>$v){
-                $k = 'grids.'.$this->gridIndex.'.'.$k;
+            foreach ($regionRule as $k => $v) {
+                $k = 'grids.' . $this->gridIndex . '.' . $k;
                 $gridRegionRule[$k] = $v;
             }
             $regionRule = $gridRegionRule;
@@ -83,10 +83,10 @@ trait RegionType
             'fields.' . $this->key . '.options' => '可选值',
         ];
         //控件字段
-        if(!is_null($this->gridIndex)){
+        if (!is_null($this->gridIndex)) {
             $gridMessage = [];
-            foreach($message as $k=>$v){
-                $k = 'grids.'.$this->gridIndex.'.'.$k;
+            foreach ($message as $k => $v) {
+                $k = 'grids.' . $this->gridIndex . '.' . $k;
                 $gridMessage[$k] = $v;
             }
             $message = $gridMessage;
