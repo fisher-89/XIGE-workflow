@@ -242,10 +242,12 @@ class FormValidator
         $fieldRule = $this->getFieldsRule($request->fields);
         $rule = array_collapse([$rule,$fieldRule]);
 
-        //列表控件规则
-        foreach($request->grids as $key=>$grid){
-            $fieldRule = $this->getFieldsRule($grid['fields'],$key);
-            $rule = array_collapse([$rule,$fieldRule]);
+        if($request->has('grids') && $request->input('grids')){
+            //列表控件规则
+            foreach($request->grids as $key=>$grid){
+                $fieldRule = $this->getFieldsRule($grid['fields'],$key);
+                $rule = array_collapse([$rule,$fieldRule]);
+            }
         }
         return $rule;
     }
