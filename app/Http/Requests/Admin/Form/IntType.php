@@ -52,7 +52,7 @@ trait IntType
             ],
             'fields.' . $this->key . '.min' => [
                 'numeric',
-                'max:' . ($field['max'] ?: 9999999)
+                'max:' . ($field['max'] ?: 9999999999)
             ],
             'fields.' . $this->key . '.max' => [
                 'numeric',
@@ -65,7 +65,7 @@ trait IntType
             'fields.' . $this->key . '.default_value' => [
                 'nullable',
                 'numeric',
-                'between:' . ($field['min'] ?: 0) . ',' . ($field['max'] ?: 9999999)
+                'between:' . ($field['min'] ?: 0) . ',' . ($field['max'] ?: 9999999999)
             ],
             'fields.' . $this->key . '.options' => [
                 'array',
@@ -75,7 +75,7 @@ trait IntType
 
     protected function scaleRule($field)
     {
-        $scaleRegex = '/^-?\d+\.\d{' . $field['scale'] . '}$/';
+        $scaleRegex = '/^-?\d+(\.\d{' . $field['scale'] . '})?$/';
         return [
             'fields.' . $this->key . '.region_level' => [
                 'nullable',
@@ -85,12 +85,12 @@ trait IntType
             'fields.' . $this->key . '.min' => [
                 'numeric',
                 'regex:' . $scaleRegex,
-                'max:' . ($field['max'] ?: '9999999.99')
+                'max:' . ($field['max'] ?: 9999999999)
             ],
             'fields.' . $this->key . '.max' => [
                 'numeric',
                 'regex:' . $scaleRegex,
-                'min:' . ($field['min'] ?: '0.00')
+                'min:' . ($field['min'] ?: 0)
             ],
             'fields.' . $this->key . '.scale' => [
                 'numeric',
@@ -99,7 +99,8 @@ trait IntType
             'fields.' . $this->key . '.default_value' => [
                 'nullable',
                 'numeric',
-                'between:' . ($field['min'] ?: '0.00') . ',' . ($field['max'] ?: '9999999.99')
+                'regex:'.$scaleRegex,
+                'between:' . ($field['min'] ?: 0) . ',' . ($field['max'] ?: 9999999999)
             ],
             'fields.' . $this->key . '.options' => [
                 'array',
