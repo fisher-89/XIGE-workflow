@@ -28,6 +28,11 @@ trait IntType
         } else {
             $intRule = $this->notScaleRule($field);
         }
+        //去除默认值含有运算符号、系统变量、字段类型的验证
+        $regex = '/(({<(\d+)>})|({{(\w+)}})|({\?(\w+)\?}))/';
+        if($field['default_value'] && preg_match($regex,$field['default_value'])){
+            $intRule['fields.' . $this->key . '.default_value'] = 'string';
+        }
         //控件字段
         if (!is_null($this->gridIndex)) {
             $gridIntRule = [];
