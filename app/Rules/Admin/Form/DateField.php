@@ -77,15 +77,15 @@ class DateField implements Rule
                 }
                 $minDate = $this->field['min'];
                 $maxDate = $this->field['max'];
-                if ($value == 'time') {
-                    //当前日期
-                    $value = date('H:i:s');
-                }
-                if ($minDate && $value < $minDate){
+//                if ($value == 'time') {
+//                    //当前日期
+//                    $value = date('H:i:s');
+//                }
+                if ($minDate && ($value != 'time') && $value < $minDate){
                     $this->msg = '默认值 当前时间不能小于最小值';
                     return false;
                 }
-                if ($maxDate && $value > $maxDate){
+                if ($maxDate && ($value != 'time') && $value > $maxDate){
                     $this->msg = '默认值 当前时间不能大于最大值';
                     return false;
                 }
