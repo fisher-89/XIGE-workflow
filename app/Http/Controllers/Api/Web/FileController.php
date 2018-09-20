@@ -25,7 +25,7 @@ class FileController extends Controller
         $realPath = $file->getRealPath();   //临时文件的绝对路径
         $newThumbFileName = $name . '_thumb' . '.' . $originalExtension;//缩略图文件名
         $thumbImg = Image::make($realPath)->resize(100, 100);
-        $thumbImg->save(public_path('storage/' . $newFilePath . $newThumbFileName));//缩略图保存
+        $thumbImg->save(Storage::disk('public')->copy($newFilePath.$newFileName,$newFilePath.$newThumbFileName));//缩略图保存
 
         $path = '/storage/' . $newFilePath . $newFileName;
         return [
