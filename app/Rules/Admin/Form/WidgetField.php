@@ -29,7 +29,7 @@ class WidgetField implements Rule
     public function passes($attribute, $value)
     {
         if ($this->field['is_checkbox'] == 1) {
-            if ($value && $this->field['available_options'] && !in_array($value['value'], array_pluck($this->field['options'], 'id'))) {
+            if ($value && $this->field['available_options'] && !in_array($value['value'], array_pluck($this->field['available_options'], 'id'))) {
                 $this->msg = '默认值 不在可选项里';
                 return false;
             }
