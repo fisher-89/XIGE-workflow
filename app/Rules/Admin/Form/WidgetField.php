@@ -29,7 +29,7 @@ class WidgetField implements Rule
     public function passes($attribute, $value)
     {
         if ($this->field['is_checkbox'] == 1) {
-            if ($value && $this->field['options'] && !in_array($value['value'], array_pluck($this->field['options'], 'id'))) {
+            if ($value && $this->field['available_options'] && !in_array($value['value'], array_pluck($this->field['options'], 'id'))) {
                 $this->msg = '默认值 不在可选项里';
                 return false;
             }
@@ -42,12 +42,12 @@ class WidgetField implements Rule
                 return false;
             }
             //最小值有时,可选项有时，可选项的个数必须大于等于最小值
-            if ($this->field['min'] && $this->field['options'] && (count($this->field['options']) < $this->field['min'])) {
+            if ($this->field['min'] && $this->field['available_options'] && (count($this->field['available_options']) < $this->field['min'])) {
                 $this->msg = '可选项 个数不能小于最小值';
                 return false;
             }
         } else {
-            if ($value && $this->field['options'] && !in_array($value['value'], array_pluck($this->field['options'], 'id')) && !in_array($value['value'], ['staff', 'department', 'shop'])) {
+            if ($value && $this->field['available_options'] && !in_array($value['value'], array_pluck($this->field['available_options'], 'id')) && !in_array($value['value'], ['staff', 'department', 'shop'])) {
                 $this->msg = '默认值 不在可选项里';
                 return false;
             }
