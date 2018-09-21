@@ -23,7 +23,7 @@ class FormDataService
      */
     public function getFilterFormData(array $formData, $fields)
     {
-//        dump($formData, $fields->toArray());
+//        dump($formData, $fields->toArray(),2222);
         if (empty($formData)) {
             //发起时获取表单data数据
             $newFormData = [];
@@ -36,7 +36,7 @@ class FormDataService
             }
         } else {
             //有表单数据
-
+            $newFormData = $this->calculateFormDataDefaultValue($formData, $fields);
         }
         return $newFormData;
 //        $newFormData = $fields['form']->map(function ($field) use ($formData) {
@@ -148,6 +148,7 @@ class FormDataService
         }
         return $defaultValue;
     }
+
     /**
      * 获取当前员工默认值
      * @param $defaultValue
@@ -249,6 +250,50 @@ class FormDataService
     {
         return (is_numeric($text) || empty($text)) ? $text : "'$text'";
     }
+
+    /**
+     * 计算表单data默认值
+     * @param array $formData
+     * @param $fields
+     */
+    protected function calculateFormDataDefaultValue(array $formData, $fields)
+    {
+        foreach ($formData as $k => $v) {
+            //表单字段计算
+            if (is_string($v) && $v) {
+                $value = $this->getTextOrIntDefaultValue($v);
+                $value = $this->formFieldsVariate($value, $formData);
+                $formData[$k] = $value;
+            }
+            //控件字段计算
+//            else if(is_array($v) && $v && in_array($k,array_pluck($fields['grid'],'key'))){
+//                foreach($v as $key=>$item){
+//                    //@todo 未完成
+//                }
+//            }
+        }
+        return $formData;
+    }
+    /**
+     * 解析表单字段变量
+     * @param $defaultValue
+     * @param $formFieldsModel
+     */
+    public function formFieldsVariate($defaultValue, array $formData)
+    {
+        $value = $defaultValue;
+        if (preg_match('/{\?(\w+)\?}/', $defaultValue)) {
+            $value = preg_replace_callback('/{\?(\w+)\?}/', function ($matches) use ($formData) {
+                if (array_has($formData, $matches[1])) {
+                    $response = $formData[$matches[1]];
+                    return $response;
+                }
+                return $matches[1];
+            }, $defaultValue);
+        }
+        return $value;
+    }
+
     /*-----------------------------------------------------------------------------------------------------------------*/
     /**
      * 筛选控件与填充默认值
@@ -301,25 +346,7 @@ class FormDataService
     }
 
 
-    /**
-     * 解析表单字段变量
-     * @param $defaultValue
-     * @param $formFieldsModel
-     */
-    public function formFieldsVariate($defaultValue, array $formData)
-    {
-        $value = $defaultValue;
-        if (preg_match('/{\?(\w+)\?}/', $defaultValue)) {
-            $value = preg_replace_callback('/{\?(\w+)\?}/', function ($matches) use ($formData) {
-                if (array_has($formData, $matches[1])) {
-                    $response = $formData[$matches[1]];
-                    return $response;
-                }
-                return $matches[1];
-            }, $defaultValue);
-        }
-        return $value;
-    }
+
 
 
 }

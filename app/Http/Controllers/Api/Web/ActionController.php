@@ -12,6 +12,7 @@ use App\Http\Requests\Web\WithdrawRequest;
 use App\Jobs\SendCallback;
 use App\Models\Flow;
 use App\Services\Web\DeliverService;
+use App\Services\Web\PresetService;
 use App\Services\Web\RejectService;
 use App\Services\ResponseService;
 use Illuminate\Http\Request;
@@ -20,20 +21,24 @@ class ActionController extends Controller
 {
 
     protected $response;//返回
+    //预提交
+    protected $presetService;
 
-    public function __construct(ResponseService $responseService )
+    public function __construct(ResponseService $responseService,PresetService $presetService )
     {
         $this->response = $responseService;
+        $this->presetService = $presetService;
     }
 
     /**
      * 流程预提交处理
      * @param Request $request
      */
-    public function preset(PresetRequest $request, $flowId)
+    public function preset(PresetRequest $request)
     {
-        $responseData = app('action')->preset($request, $flowId);
-        return $this->response->post($responseData);
+        $data = $this->presetService->makePreset($request);
+//        $responseData = app('action')->preset($request);
+        return $this->response->post($data);
     }
 
     /**

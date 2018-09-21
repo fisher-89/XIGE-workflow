@@ -35,9 +35,9 @@ class ActionService
      * @param $request
      * @param $flowId
      */
-    public function preset($request, $flowId)
+    public function preset($request)
     {
-        $flow = Flow::withTrashed()->find($flowId);
+        $flow = Flow::withTrashed()->find($request->input('flow_id'));
         $requestFormData = $request->input('form_data');
         $step = $this->getStep($request, $flow);//步骤数据
         $filterRequestFormData = $this->filterRequestFormData($requestFormData, $step);//过滤request表单data
