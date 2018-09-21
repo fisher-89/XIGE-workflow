@@ -42,7 +42,7 @@ class WidgetField implements Rule
                 return false;
             }
             //最小值有时,可选项有时，可选项的个数必须大于等于最小值
-            if ($this->field['min'] && $this->field['options'] && count($this->field['options']) < $this->field['min']) {
+            if ($this->field['min'] && $this->field['options'] && (count($this->field['options']) < $this->field['min'])) {
                 $this->msg = '可选项 个数不能小于最小值';
                 return false;
             }
