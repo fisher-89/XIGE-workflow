@@ -73,11 +73,11 @@ class ValidationService
                         ];
                         $rules['form_data.' . $key . '.city_id'] = [
                             'nullable',
-                            Rule::exists('region', 'id')->where('level', 2)->where('parent_id', $region['province_id'])
+                            Rule::exists('region', 'id')->where('parent_id', ($region['province_id'] ?? 2))
                         ];
                         $rules['form_data.' . $key . '.county_id'] = [
                             'nullable',
-                            Rule::exists('region', 'id')->where('level', 3)->where('parent_id', $region['city_id'])
+                            Rule::exists('region', 'id')->where('parent_id', ($region['city_id'] ?? 3))
                         ];
                         $rules['form_data.' . $key . '.address'] = [
                             'nullable',
@@ -86,7 +86,7 @@ class ValidationService
                         $fieldRules[] = 'array';
                         break;
                     case 'staff':
-                        if (count($field->widgets)>0) {
+                        if (count($field->widgets) > 0) {
                             $staffSns = $field->widgets->pluck('value')->all();
                             if ($field->is_checkbox == 0) {
                                 $rules['form_data.' . $key . '.value'] = 'in:' . implode(',', $staffSns);
@@ -97,7 +97,7 @@ class ValidationService
                         $fieldRules[] = 'array';
                         break;
                     case 'department':
-                        if (count($field->widgets)>0) {
+                        if (count($field->widgets) > 0) {
                             $departmentIds = $field->widgets->pluck('value')->all();
                             if ($field->is_checkbox == 0) {
                                 $rules['form_data.' . $key . '.value'] = 'in:' . implode(',', $departmentIds);
@@ -108,7 +108,7 @@ class ValidationService
                         $fieldRules[] = 'array';
                         break;
                     case 'shop':
-                        if (count($field->widgets)>0) {
+                        if (count($field->widgets) > 0) {
                             $shopIds = $field->widgets->pluck('value')->all();
                             if ($field->is_checkbox == 0) {
                                 $rules['form_data.' . $key . '.value'] = 'in:' . implode(',', $shopIds);
