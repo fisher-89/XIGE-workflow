@@ -66,23 +66,46 @@ class ValidationService
                         $fieldRules[] = 'date_format:"H:i:s"';
                         break;
                     case 'region':
-                        $region = request()->get('form_data')[$key];
-                        $rules['form_data.' . $key . '.province_id'] = [
-                            'nullable',
-                            Rule::exists('region', 'id')->where('level', 1)
-                        ];
-                        $rules['form_data.' . $key . '.city_id'] = [
-                            'nullable',
-                            Rule::exists('region', 'id')->where('parent_id', ($region['province_id'] ?? 2))
-                        ];
-                        $rules['form_data.' . $key . '.county_id'] = [
-                            'nullable',
-                            Rule::exists('region', 'id')->where('parent_id', ($region['city_id'] ?? 3))
-                        ];
-                        $rules['form_data.' . $key . '.address'] = [
-                            'nullable',
-                            'string'
-                        ];
+
+                        if(strpos($key,'.*.')){
+                            //控件地区规则
+                            $rules['form_data.' . $key . '.province_id'] = [
+                                'nullable',
+                                Rule::exists('region', 'id')->where('level', 1)
+                            ];
+                            $rules['form_data.' . $key . '.city_id'] = [
+                                'nullable',
+                                Rule::exists('region', 'id')->where('level',  2)
+                            ];
+                            $rules['form_data.' . $key . '.county_id'] = [
+                                'nullable',
+                                Rule::exists('region', 'id')->where('parent_id',  3)
+                            ];
+                            $rules['form_data.' . $key . '.address'] = [
+                                'nullable',
+                                'string'
+                            ];
+                        }else{
+                            //表单字段地区规则
+                            $region = request()->get('form_data')[$key];
+                            $rules['form_data.' . $key . '.province_id'] = [
+                                'nullable',
+                                Rule::exists('region', 'id')->where('level', 1)
+                            ];
+                            $rules['form_data.' . $key . '.city_id'] = [
+                                'nullable',
+                                Rule::exists('region', 'id')->where('parent_id', ($region['province_id'] ?? 2))
+                            ];
+                            $rules['form_data.' . $key . '.county_id'] = [
+                                'nullable',
+                                Rule::exists('region', 'id')->where('parent_id', ($region['city_id'] ?? 3))
+                            ];
+                            $rules['form_data.' . $key . '.address'] = [
+                                'nullable',
+                                'string'
+                            ];
+                        }
+
                         $fieldRules[] = 'array';
                         break;
                     case 'staff':
