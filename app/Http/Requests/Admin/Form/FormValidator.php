@@ -111,7 +111,7 @@ class FormValidator
     protected function getFieldRule($request)
     {
         $fieldsType = ['int', 'text', 'date', 'datetime', 'time', 'file', 'array', 'select', 'department', 'staff', 'shop', 'region'];//字段type类型
-        $notInFields = ['id', 'run_id', 'created_at', 'updated_at', 'deleted_at'];//过滤字段
+        $notInFields = ['id', 'run_id', 'address', 'province_id', 'city_id', 'county_id', 'created_at', 'updated_at', 'deleted_at'];//过滤字段
         $rule = [
             'fields' => [
                 'required',
@@ -240,13 +240,13 @@ class FormValidator
 
         //获取字段规则
         $fieldRule = $this->getFieldsRule($request->fields);
-        $rule = array_collapse([$rule,$fieldRule]);
+        $rule = array_collapse([$rule, $fieldRule]);
 
-        if($request->has('grids') && $request->input('grids')){
+        if ($request->has('grids') && $request->input('grids')) {
             //列表控件规则
-            foreach($request->grids as $key=>$grid){
-                $fieldRule = $this->getFieldsRule($grid['fields'],$key);
-                $rule = array_collapse([$rule,$fieldRule]);
+            foreach ($request->grids as $key => $grid) {
+                $fieldRule = $this->getFieldsRule($grid['fields'], $key);
+                $rule = array_collapse([$rule, $fieldRule]);
             }
         }
         return $rule;
@@ -264,46 +264,46 @@ class FormValidator
      * @param $gridIndex
      * @return array
      */
-    protected function getFieldsRule($fields,$gridIndex=null)
+    protected function getFieldsRule($fields, $gridIndex = null)
     {
         $rule = [];
         foreach ($fields as $key => $field) {
             switch ($field['type']) {
                 case 'text':
-                    $typeRule = $this->getTextTypeRule($key, $field,$gridIndex);
+                    $typeRule = $this->getTextTypeRule($key, $field, $gridIndex);
                     break;
                 case 'int':
-                    $typeRule = $this->getIntTypeRule($key, $field,$gridIndex);
+                    $typeRule = $this->getIntTypeRule($key, $field, $gridIndex);
                     break;
                 case 'date':
-                    $typeRule = $this->getDateTypeRule($key, $field,$gridIndex);
+                    $typeRule = $this->getDateTypeRule($key, $field, $gridIndex);
                     break;
                 case 'datetime':
-                    $typeRule = $this->getDateTimeTypeRule($key, $field,$gridIndex);
+                    $typeRule = $this->getDateTimeTypeRule($key, $field, $gridIndex);
                     break;
                 case 'time':
-                    $typeRule = $this->getTimeTypeRule($key, $field,$gridIndex);
+                    $typeRule = $this->getTimeTypeRule($key, $field, $gridIndex);
                     break;
                 case 'select':
-                    $typeRule = $this->getSelectTypeRule($key, $field,$gridIndex);
+                    $typeRule = $this->getSelectTypeRule($key, $field, $gridIndex);
                     break;
                 case 'array':
-                    $typeRule = $this->getArrayTypeRule($key, $field,$gridIndex);
+                    $typeRule = $this->getArrayTypeRule($key, $field, $gridIndex);
                     break;
                 case 'file':
-                    $typeRule = $this->getFileTypeRule($key, $field,$gridIndex);
+                    $typeRule = $this->getFileTypeRule($key, $field, $gridIndex);
                     break;
                 case 'region':
-                    $typeRule = $this->getRegionTypeRule($key, $field,$gridIndex);
+                    $typeRule = $this->getRegionTypeRule($key, $field, $gridIndex);
                     break;
                 case 'staff':
-                    $typeRule = $this->getStaffTypeRule($key, $field,$gridIndex);
+                    $typeRule = $this->getStaffTypeRule($key, $field, $gridIndex);
                     break;
                 case 'department':
-                    $typeRule = $this->getDepartmentTypeRule($key, $field,$gridIndex);
+                    $typeRule = $this->getDepartmentTypeRule($key, $field, $gridIndex);
                     break;
                 case 'shop':
-                    $typeRule = $this->getShopTypeRule($key, $field,$gridIndex);
+                    $typeRule = $this->getShopTypeRule($key, $field, $gridIndex);
                     break;
                 default:
                     $typeRule = [];
