@@ -29,9 +29,13 @@ class WidgetField implements Rule
     public function passes($attribute, $value)
     {
         if ($this->field['is_checkbox'] == 1) {
-            if ($value && $this->field['available_options'] && !in_array($value['value'], array_pluck($this->field['available_options'], 'id'))) {
-                $this->msg = '默认值 不在可选项里';
-                return false;
+            if ($value && $this->field['available_options']) {
+               foreach ($value as $v){
+                   if(!in_array($v['value'],array_pluck($this->field['available_options'],'value'))){
+                       $this->msg = '默认值 '.$v['text'].'不在可选项里';
+                       return false;
+                   }
+               }
             }
             if ($value && $this->field['max'] && count($value) > $this->field['max']) {
                 $this->msg = '默认值 数量不能大于最大值';
@@ -47,7 +51,7 @@ class WidgetField implements Rule
                 return false;
             }
         } else {
-            if ($value && $this->field['available_options'] && !in_array($value['value'], array_pluck($this->field['available_options'], 'id')) && !in_array($value['value'], ['staff', 'department', 'shop'])) {
+            if ($value && $this->field['available_options'] && !in_array($value['value'], array_pluck($this->field['available_options'], 'value')) && !in_array($value['value'], ['staff', 'department', 'shop'])) {
                 $this->msg = '默认值 不在可选项里';
                 return false;
             }
