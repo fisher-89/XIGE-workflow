@@ -46,11 +46,10 @@ class SelectField implements Rule
                 }
             }
         } else {
-            if ($value && count($value) > 1) {
-                $this->msg = '默认值 不是多选时默认值只能有一个';
-                return false;
+            if($value && !is_string($value)){
+                $this->msg = '默认值 不是字符串';
             }
-            if ($value && !in_array($value[0], $this->field['options'])) {
+            if ($value && !in_array($value, $this->field['options'])) {
                 $this->msg = '默认值 只能在可选值里';
                 return false;
             }

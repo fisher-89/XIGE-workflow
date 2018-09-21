@@ -43,7 +43,7 @@ trait SelectType
                 'in:0'
             ],
             'fields.' . $key . '.default_value' => [
-                'array',
+//                'array',
                 new SelectField($field)
             ],
             'fields.' . $key . '.options' => [
