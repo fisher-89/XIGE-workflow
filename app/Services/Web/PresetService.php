@@ -73,7 +73,7 @@ class PresetService
             'concurrent_type' => $step->concurrent_type,//步骤并发类型
             'step_run_id' => $request->input('step_run_id')//步骤运行ID
         ];
-        $timestamp = app('preset')->setPresetDataToCache($cacheData);//预提交数据存入cache
+        $timestamp = $this->setPresetDataToCache($cacheData);//预提交数据存入cache
         $responseData = [
             'available_steps' => $nextStep,
             'step_end' => $step_end,
