@@ -50,7 +50,7 @@ class ValidationService
                         break;
                     case 'select':
                         $rules['form_data.' . $key . '.*'] = $fieldRules;
-                        $fieldRules = ['array'];
+//                        $fieldRules = ['array'];
                         break;
                     case 'array':
                         $rules['form_data.' . $key . '.*'] = $fieldRules;
