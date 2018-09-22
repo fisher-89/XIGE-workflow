@@ -5,6 +5,7 @@ namespace App\Http\Requests\Web;
 
 use App\Repository\Web\Auth\FlowAuth;
 use Illuminate\Foundation\Http\FormRequest;
+use Illuminate\Validation\Rule;
 
 class StartRequest extends FormRequest
 {
@@ -16,8 +17,8 @@ class StartRequest extends FormRequest
      */
     public function authorize()
     {
-        if ($this->flow->id && intval($this->flow->id))
-            return FlowAuth::checkFlowAuthorize($this->flow->id);
+        if ($this->flow_id && intval($this->flow_id))
+            return FlowAuth::checkFlowAuthorize($this->flow_id);
         return false;
     }
 
@@ -29,12 +30,9 @@ class StartRequest extends FormRequest
     public function rules()
     {
         return [
-//            'step_run_id' => [
-//                'nullable',
-//                'numeric',
-//                'integer',
-//                Rule::exists('step_run')->where('flow_id', $this->flow->id)->whereNull('deleted_at')
-//            ],
+            'flow_id' => [
+                Rule::exists('flows', 'id')->where('is_active', 1)
+            ],
             'timestamp' => [
                 'numeric',
                 'integer',
@@ -51,7 +49,7 @@ class StartRequest extends FormRequest
     public function attributes()
     {
         return [
-            'step_run_id' => '步骤运行ID',
+            'flow_id' => '流程ID',
             'timestamp' => '预提交时间戳',
             'next_step' => '下一步骤审批'
         ];
