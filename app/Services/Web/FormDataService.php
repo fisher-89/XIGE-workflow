@@ -95,6 +95,8 @@ class FormDataService
             }
         } else {
             $defaultValue = $field->default_value;
+            if($field->type == 'file')
+                $defaultValue = [];
         }
 
         return $defaultValue;
