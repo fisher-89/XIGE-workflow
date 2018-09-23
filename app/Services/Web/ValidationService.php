@@ -31,7 +31,10 @@ class ValidationService
             $key = $field->grid ? $field->grid->key . '.*.' . $field->key : $field->key;
             if (in_array($key, $editableFields)) {
                 $fieldRules = $field->validator->map(function ($validator) {
-                    return $validator->type . ($validator->params ? ':' . $validator->params : '');
+                    if($validator->type != 'mimes'){
+                        //去除文件类型验证
+                        return $validator->type . ($validator->params ? ':' . $validator->params : '');
+                    }
                 })->toArray();
 
                 switch ($field->type) {
@@ -46,7 +49,9 @@ class ValidationService
                         $fieldRules[] = 'string';
                         break;
                     case 'file':
-                        $fieldRules[] = 'array';
+                        $rules['form_data.' . $key] = 'array';
+                        $rules['form_data.' . $key . '.*'] = 'string';
+//                        $fieldRules[] = 'array';
                         break;
                     case 'select':
                         $rules['form_data.' . $key . '.*'] = $fieldRules;
