@@ -2,7 +2,9 @@
 
 namespace App\Http\Requests\Web;
 
+use App\Models\Field;
 use Illuminate\Foundation\Http\FormRequest;
+use Illuminate\Validation\Rule;
 
 class FileRequest extends FormRequest
 {
@@ -23,19 +25,24 @@ class FileRequest extends FormRequest
      */
     public function rules()
     {
-        $fileTypes = ['jpg','png','jpeg','bmp','gif','svg'];
+        $filenameExtension = Field::find($this->field_id)->validator->pluck('params')->all();
         return [
-            'upFile'=>[
+            'field_id' => [
+                Rule::exists('fields', 'id')->where('type', 'file')
+            ],
+            'upFile' => [
                 'required',
                 'file',
-                'image:'.implode(',',$fileTypes),
+                'mimes:' . implode(',', $filenameExtension),
             ]
         ];
     }
 
-    public function attributes(){
+    public function attributes()
+    {
         return [
-            'upFile'=>'文件',
+            'field_id'=>'字段ID',
+            'upFile' => '文件',
         ];
     }
 }
