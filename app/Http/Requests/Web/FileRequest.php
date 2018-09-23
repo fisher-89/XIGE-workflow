@@ -33,7 +33,7 @@ class FileRequest extends FormRequest
             'upFile' => [
                 'required',
                 'file',
-                'mimes:' . implode(',', $filenameExtension),
+                'image:' . implode(',', $filenameExtension),
             ]
         ];
     }
