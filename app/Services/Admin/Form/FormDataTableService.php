@@ -143,13 +143,13 @@ class FormDataTableService
                             $table->text($v['key'])->nullable()->comment($v['description']);
                             break;
                         case 'staff':
-                            $table->string($v['key'])->nullable()->comment($v['description']);
+                            $table->text($v['key'])->nullable()->comment($v['description']);
                             break;
                         case 'department':
-                            $table->string($v['key'])->nullable()->comment($v['description']);
+                            $table->text($v['key'])->nullable()->comment($v['description']);
                             break;
                         case 'shop':
-                            $table->string($v['key'])->nullable()->comment($v['description']);
+                            $table->text($v['key'])->nullable()->comment($v['description']);
                             break;
                         case 'region':
                             $table->text($v['key'])->nullable()->comment($v['description']);
