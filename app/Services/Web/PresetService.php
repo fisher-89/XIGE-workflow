@@ -38,7 +38,6 @@ class PresetService
         $requestFormData = $request->input('form_data');
         //获取预提交步骤数据
         $step = $this->getStep($request, $flow);
-//        dump($requestFormData, $step->toArray(),11111111);
         //过滤request表单data
         $filterRequestFormData = $this->filterRequestFormData($requestFormData, $step);
         //获取数据库表单data
@@ -369,9 +368,4 @@ class PresetService
         }
         return collect($nextStep);
     }
-
-
-
-
-
 }

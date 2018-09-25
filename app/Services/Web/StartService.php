@@ -17,11 +17,9 @@ use App\Models\FormGrid;
 use App\Models\Step;
 use App\Models\StepRun;
 use App\Repository\Web\FlowRepository;
-use App\Repository\Web\FormRepository;
 use App\Services\Web\File\Images;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
-use Illuminate\Support\Facades\Storage;
 
 class StartService
 {
@@ -53,10 +51,10 @@ class StartService
         //发起处理
         $stepRunData = $this->startSave($request, $cacheFormData['form_data']);
         //流程开始回调
-        SendCallback::dispatch($stepRunData['current_step_run_data']->id,'start');
+        SendCallback::dispatch($stepRunData['current_step_run_data']->id, 'start');
         //步骤开始回调
-        $stepRunData['next_step_run_data']->each(function($stepRun){
-            SendCallback::dispatch($stepRun->id,'step_start');
+        $stepRunData['next_step_run_data']->each(function ($stepRun) {
+            SendCallback::dispatch($stepRun->id, 'step_start');
         });
         //发送钉钉待办消息
         //@todo
@@ -363,7 +361,7 @@ class StartService
      * @param $dataId
      * @param $nextStep
      */
-    protected function createNextStepRunData($flowRun,int $dataId, array $nextStep)
+    protected function createNextStepRunData($flowRun, int $dataId, array $nextStep)
     {
         $flow = Flow::find($this->flowId);
         $nextStepRunData = [];//下一步骤运行数据
@@ -386,126 +384,4 @@ class StartService
         }
         return collect($nextStepRunData);
     }
-    /**
-     * 修改文件路径与移动临时文件
-     * @param $formData
-     * @param $formId
-     */
-//    protected function updateFormDataFilePath($formData, $formId)
-//    {
-//        $formRepository = new FormRepository();
-//        $fileFields = $formRepository->getFileFields($formId);;//获取文件字段
-//        return $this->fileFieldsReplace($formData, $fileFields);
-//    }
-
-
-    /**
-     * 文件路径处理
-     * @param $formData
-     * @param $fileFields
-     */
-//    protected function fileFieldsReplace($formData, $fileFields)
-//    {
-//        foreach ($formData as $k => $v) {
-//            if (in_array($k, $fileFields['form']) && !empty($v)) {
-//                //表单文件字段
-//                $formData[$k] = $this->moveFile($v);
-//            }
-//            if (is_array($v) && $v && array_has($fileFields['grid'], $k)) {
-//                //控件文件字段处理
-//                foreach ($v as $gridKey => $gridValue) {
-//                    foreach ($gridValue as $field => $value) {
-//                        if (in_array($field, $fileFields['grid'][$k]) && !empty($value)) {
-//                            $formData[$k][$gridKey][$field] = $this->moveFile($value);
-//                        }
-//                    }
-//                }
-//            }
-//        }
-//        return $formData;
-//    }
-
-//    protected function moveFile(array $filePath)
-//    {
-//        $data = [];
-//        foreach ($filePath as $v) {
-//            $data[] = $this->copyFile($v);
-//        }
-//        return json_encode($data);
-//    }
-
-//    protected function copyFile($filePath)
-//    {
-//        $fileTemp = str_replace('/storage/', '', $filePath);
-//        $sub = explode('.', $fileTemp);
-//        $thumbFileTemp = $sub[0] . '_thumb.' . $sub[1];//缩略临时路径
-//
-//        $checkFileTemp = Storage::disk('public')->exists($fileTemp);
-//        $checkThumbFileTemp = Storage::disk('public')->exists($thumbFileTemp);
-//
-//        if (!$checkFileTemp) {
-//            abort(404, $fileTemp . '该文件不存在');
-//        }
-//        if (!$checkThumbFileTemp) {
-//            abort(404, $thumbFileTemp . '该缩略图不存在');
-//        }
-//
-//        $newPath = 'uploads/perpetual/' . $this->flowId . '/' . date('Y') . '/' . date('m') . '/' . date('d') . '/';
-//
-//        if (!Storage::disk('public')->exists($newPath)) {
-//            //无路径
-//            Storage::disk('public')->makeDirectory($newPath);
-//        }
-//        $filePermanent = str_replace('uploads/temporary/', $newPath, $fileTemp);
-//        if (!Storage::disk('public')->exists($filePermanent)) {
-//            Storage::disk('public')->copy($fileTemp, $filePermanent);
-//        }
-//
-//        $thumbFilePermanent = str_replace('uploads/temporary/', $newPath, $thumbFileTemp);
-//        if (!Storage::disk('public')->exists($thumbFilePermanent)) {
-//            Storage::disk('public')->copy($thumbFileTemp, $thumbFilePermanent);
-//        }
-//        return '/storage/' . $filePermanent;
-//    }
-
-    /**
-     * 创建表单字段data数据
-     * @param $formData
-     * @param $flowRun
-     * @return mixed
-     */
-//    protected function createFormFieldsData($formData, $flowRun)
-//    {
-//        $formFields = Field::where('form_id', $flowRun->form_id)->whereNull('form_grid_id')->pluck('key')->all();
-//        $formData = array_only($formData, $formFields);
-//        $formData['run_id'] = $flowRun->id;
-//        //类型为数组的值转为json
-////        $formData = array_map(function($v){
-////            if(is_array($v)){
-////                $v = json_encode($v);
-////            }
-////            return $v;
-////        },$formData);
-//        $formDataId = DB::table($this->tablePrefix . $flowRun->form_id)->insertGetId($formData);
-//        return $formDataId;
-//    }
-
-    /**
-     * 创建控件data数据
-     * @param $formData
-     * @param $flowRun
-     * @param $dataId
-     */
-    protected function createGridFieldsData($formData, $flowRun, $dataId)
-    {
-        $gridKeys = FormGrid::where('form_id', $flowRun->form_id)->pluck('key')->all();//控件key
-        foreach ($formData as $key => $field) {
-            if (is_array($field) && in_array($key, $gridKeys)) {
-                $field = data_fill($field, '*.run_id', $flowRun->id);
-                $field = data_fill($field, '*.data_id', $dataId);
-                DB::table($this->tablePrefix . $flowRun->form_id . '_' . $key)->insert($field);
-            }
-        }
-    }
-
 }
