@@ -84,7 +84,7 @@ class ValidationService
                             ];
                             $rules['form_data.' . $key . '.county_id'] = [
                                 'nullable',
-                                Rule::exists('region', 'id')->where('parent_id',  3)
+                                Rule::exists('region', 'id')->where('level',  3)
                             ];
                             $rules['form_data.' . $key . '.address'] = [
                                 'nullable',
