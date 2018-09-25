@@ -13,7 +13,7 @@ class FlowRun extends Model
 
     protected $table = 'flow_run';
     protected $hidden = ['deleted_at'];
-    protected $fillable = ['flow_id', 'flow_type_id', 'form_id', 'name', 'creator_sn', 'creator_name', 'status'];
+    protected $fillable = ['flow_id', 'flow_type_id', 'form_id', 'name', 'creator_sn', 'creator_name', 'status', 'end_at', 'process_instance_id'];
 
     public function stepRun()
     {

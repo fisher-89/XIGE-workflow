@@ -123,7 +123,6 @@ class CreateWorkflowTable extends Migration
             $table->unsignedTinyInteger('is_active')->comment('是否启用')->default(0);
             $table->string('start_callback_uri')->comment('发起回调地址')->default('');
             $table->string('end_callback_uri')->comment('结束回调地址')->default('');
-            $table->char('process_instance_id',50)->nullable()->comment('审批实例id')->index();
             $table->timestamps();
             $table->softDeletes();
             $table->foreign('flow_type_id')->references('id')->on('flow_types');
