@@ -25,7 +25,7 @@ Route::middleware('auth:api')->namespace('Api\Web')->group(function () {
     Route::get('list', 'ResourceController@getFlowList');//获取可发起的流程
     Route::get('start/{flow}', 'ResourceController@start');//获取发起数据
     Route::post('preset', 'ActionController@preset');//预提交处理
-    Route::post('start/{flow}', 'ActionController@start');//发起处理
+    Route::post('start', 'ActionController@start');//发起处理
     Route::get('approval','ResourceController@getApproval');//获取审批列表
     Route::get('approval/{stepRun}','ResourceController@getApprovalDetail');//获取审批详情
     Route::get('sponsor','ResourceController@getSponsor');//获取发起列表
@@ -36,7 +36,7 @@ Route::middleware('auth:api')->namespace('Api\Web')->group(function () {
     Route::post('deliver','ActionController@deliver');//转交
     Route::get('flow-chart/{step_run_id}','ChartController@index');//流程图
 
-    Route::post('files','FileController@index')->middleware('crossDomain');//临时存储文件
+    Route::post('files','FileController@index')->middleware('crossDomain');//上传临时存储文件
     Route::delete('clear-temp-file','FileController@clearTempFile');//清楚临时文件
 
     //获取员工数据

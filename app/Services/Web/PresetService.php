@@ -311,13 +311,13 @@ class PresetService
     }
 
     /**
-     * 获取预提交数据
+     * 获取预提交数据 并删除
      * @param $timestamp
      */
     public function getPresetData($timestamp)
     {
         $cacheName = $timestamp . Auth::id();
-        return Cache::get($cacheName);
+        return Cache::pull($cacheName);
     }
 
     /**

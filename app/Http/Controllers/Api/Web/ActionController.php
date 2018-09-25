@@ -15,6 +15,7 @@ use App\Services\Web\DeliverService;
 use App\Services\Web\PresetService;
 use App\Services\Web\RejectService;
 use App\Services\ResponseService;
+use App\Services\Web\StartService;
 use Illuminate\Http\Request;
 
 class ActionController extends Controller
@@ -23,11 +24,14 @@ class ActionController extends Controller
     protected $response;//返回
     //预提交
     protected $presetService;
+    //发起
+    protected $startService;
 
-    public function __construct(ResponseService $responseService,PresetService $presetService )
+    public function __construct(ResponseService $responseService,PresetService $presetService,StartService $startService )
     {
         $this->response = $responseService;
         $this->presetService = $presetService;
+        $this->startService = $startService;
     }
 
     /**
@@ -47,10 +51,11 @@ class ActionController extends Controller
      * @return mixed
      * @throws \Illuminate\Container\EntryNotFoundException
      */
-    public function start(StartRequest $request, Flow $flow)
+    public function start(StartRequest $request)
     {
-        $stepRunData = app('action')->start($request, $flow);
-        return $this->response->post($stepRunData);
+//        $stepRunData = app('action')->start($request, $flow);
+        $data = $this->startService->makeStart($request);
+        return $this->response->post($data);
     }
 
     /**
