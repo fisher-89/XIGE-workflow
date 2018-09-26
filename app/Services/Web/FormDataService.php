@@ -68,6 +68,8 @@ class FormDataService
                     break;
                 case 'text':
                     $defaultValue = $this->getTextOrIntDefaultValue($field->default_value);
+                    if(is_int($defaultValue))
+                        $defaultValue = (string) $defaultValue;
                     break;
                 case 'date':
                     //default_value == data  当前日期
