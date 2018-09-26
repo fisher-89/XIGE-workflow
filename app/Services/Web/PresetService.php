@@ -46,8 +46,12 @@ class PresetService
         $newDbFormData = $this->replaceRequestFormDataToDbFormData($filterRequestFormData,$dbFormData);
         //获取表单字段（含控件）
         $fields = $this->formRepository->getFields($flow->form_id);
-        //计算表单的值（运算符号、字段类型、系统变量）
+        //计算表单的值（运算符号、字段类型、系统变量）全部表单字段
         $formData = $this->formData->getFilterFormData($newDbFormData,$fields);
+
+        $editableFields = $step->editable_fields;
+        //只包含 包含编辑字段
+        $formData = array_only($formData, $editableFields);
 
         $nextStep = [];
         if (empty($step->next_step_key)) {
