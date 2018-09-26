@@ -105,9 +105,9 @@ class FormRepository
             foreach ($gridKeys as $key) {
                 $gridFields = $gridDataKeyBy[$key]->fields;
                 $formData[$key] = DB::table($tableName . '_' . $key)->where('data_id', $formData['id'])
-                    ->get()->map(function ($item) use($gridFields){
-                        $item =  (array)$item;
-                        return $this->dbFormJsonDataToArray($item,$gridFields);
+                    ->get()->map(function ($item) use ($gridFields) {
+                        $item = (array)$item;
+                        return $this->dbFormJsonDataToArray($item, $gridFields);
                     })->toArray();
             }
         }
@@ -126,16 +126,21 @@ class FormRepository
         foreach ($formData as $k => $v) {
             if (in_array($k, $fieldKeys)) {
                 $type = $formField[$k]->type;
-                if($v){
+                if ($v) {
                     switch ($type) {
                         case 'array':
-                                $formData[$k] = json_decode($v, true);
+                            $formData[$k] = json_decode($v, true);
                             break;
                         case 'select':
-                                $formData[$k] = json_decode($v, true);
+                            $value = json_decode($v, true);
+                            if (is_array($value) && !is_null($value)) {
+                                $formData[$k] = $value;
+                            } else {
+                                $formData[$k] = $v;
+                            }
                             break;
                         case 'file':
-                                $formData[$k] = json_decode($v, true);
+                            $formData[$k] = json_decode($v, true);
                             break;
                         case 'department':
                             $formData[$k] = json_decode($v, true);
@@ -219,7 +224,6 @@ class FormRepository
 //        }
 //        return $gridData;
 //    }
-
 
 
     /**
