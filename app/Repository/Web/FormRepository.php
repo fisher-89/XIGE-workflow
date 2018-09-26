@@ -78,45 +78,95 @@ class FormRepository
             if (is_numeric($flowRun)) {
                 $flowRun = FlowRun::find($flowRun);
             }
-            $gridKeys = $this->getGridData($flowRun->form_id)->pluck('key');
-            $formData = $this->getFormFieldsData($flowRun, $gridKeys);
+            $gridKeys = $this->getGridData($flowRun->form_id)->pluck('key')->all();
+            $formData = $this->getDbFormFieldsData($flowRun, $gridKeys);
         }
         return (array)$formData;
     }
 
     /**
-     * 获取表单data数据
+     * 获取数据库表单data数据
      * @param $flowRun
      * @return mixed
      */
-    protected function getFormFieldsData($flowRun, $gridKeys)
+    protected function getDbFormFieldsData($flowRun, array $gridKeys)
     {
         $tableName = 'form_data_' . $flowRun->form_id;
         $runId = $flowRun->id;
         $formData = (array)DB::table($tableName)->whereRunId($runId)->first();
+        $fields = $this->getFields($flowRun->form_id);
+
+        //json字符串转数组
+        $formData = $this->dbFormJsonDataToArray($formData, $fields['form']);
+
+        //表单控件数据
         if (!empty($gridKeys)) {
+            $gridDataKeyBy = $fields['grid']->keyBy('key')->all();
             foreach ($gridKeys as $key) {
+                $gridFields = $gridDataKeyBy[$key]->fields;
                 $formData[$key] = DB::table($tableName . '_' . $key)->where('data_id', $formData['id'])
-                    ->get()->map(function ($item) {
-                        return (array)$item;
+                    ->get()->map(function ($item) use($gridFields){
+                        $item =  (array)$item;
+                        return $this->dbFormJsonDataToArray($item,$gridFields);
                     })->toArray();
             }
         }
-        $formData = $this->fileFieldsToArray($formData, $flowRun->form_id);//文件字段json转数组
         return $formData;
     }
-/*---------------------------------end------------------------------------------------*/
+
+    /**
+     *
+     * @param array $formData
+     * @param int $formId
+     */
+    protected function dbFormJsonDataToArray(array $formData, $formField)
+    {
+        $fieldKeys = $formField->pluck('key')->all();
+        $formField = $formField->keyBy('key');
+        foreach ($formData as $k => $v) {
+            if (in_array($k, $fieldKeys)) {
+                $type = $formField[$k]->type;
+                if($v){
+                    switch ($type) {
+                        case 'array':
+                                $formData[$k] = json_decode($v, true);
+                            break;
+                        case 'select':
+                                $formData[$k] = json_decode($v, true);
+                            break;
+                        case 'file':
+                                $formData[$k] = json_decode($v, true);
+                            break;
+                        case 'department':
+                            $formData[$k] = json_decode($v, true);
+                            break;
+                        case 'staff':
+                            $formData[$k] = json_decode($v, true);
+                            break;
+                        case 'shop':
+                            $formData[$k] = json_decode($v, true);
+                            break;
+                        case 'region':
+                            $formData[$k] = json_decode($v, true);
+                            break;
+                    }
+                }
+            }
+        }
+        return $formData;
+    }
+    /*---------------------------------end------------------------------------------------*/
     /**
      * 获取去除hidden的字段
      * @param $hiddenFields
      * @param $formId
      */
-    public function getExceptHiddenFields($hiddenFields, $formId)
-    {
-        $allFields = $this->getFields($formId);//获取全部字段
-        $fields = $this->exceptHiddenFields($allFields, $hiddenFields);//去除了隐藏的字段
-        return $fields;
-    }
+//    public function getExceptHiddenFields($hiddenFields, $formId)
+//    {
+//        $allFields = $this->getFields($formId);//获取全部字段
+//        $fields = $this->exceptHiddenFields($allFields, $hiddenFields);//去除了隐藏的字段
+//        return $fields;
+//    }
 
 
     /**
@@ -124,12 +174,12 @@ class FormRepository
      * @param $editableFields
      * @param $formId
      */
-    public function getOnlyEditableFields($editableFields, $formId)
-    {
-        $allFields = $this->getFields($formId);//获取全部字段
-        $fields = $this->onlyEditableFields($allFields, $editableFields);//包含可写的字段
-        return $fields;
-    }
+//    public function getOnlyEditableFields($editableFields, $formId)
+//    {
+//        $allFields = $this->getFields($formId);//获取全部字段
+//        $fields = $this->onlyEditableFields($allFields, $editableFields);//包含可写的字段
+//        return $fields;
+//    }
 
 
     /**
@@ -173,17 +223,6 @@ class FormRepository
 
 
     /**
-     * 获取文件字段
-     * @param $fromId
-     */
-    public function getFileFields($formId)
-    {
-        $fields = $this->getFields($formId);
-        $fileFields = $this->getFormDataFileFields($fields);//获取文件字段
-        return $fileFields;
-    }
-
-    /**
      * 获取表单的文件字段
      * @param $fields
      * @return mixed
@@ -206,59 +245,31 @@ class FormRepository
     }
 
 
-
-    /**
-     * 表单文件字段转数组
-     * @param $formData
-     * @param $formId
-     */
-    protected function fileFieldsToArray($formData, $formId)
-    {
-        $fileFields = $this->getFileFields($formId);
-        foreach ($formData as $field => $value) {
-            if (in_array($field, $fileFields['form']) && !empty($value)) {
-                $formData[$field] = json_decode($value, true);
-            }
-
-            if (is_array($value) && (!empty($value)) && array_has($fileFields['grid'], $field)) {
-                //控件文件字段处理
-                foreach ($value as $gridKey => $gridValue) {
-                    foreach ($gridValue as $k => $v) {
-                        if (in_array($k, $fileFields['grid'][$field]) && !empty($v)) {
-                            $formData[$field][$gridKey][$k] = json_decode($v, true);
-                        }
-                    }
-                }
-            }
-        }
-        return $formData;
-    }
-
     /**
      * 去除hidden字段
      * @param $allFields
      * @param $hiddenFields
      */
-    protected function exceptHiddenFields($allFields, $hiddenFields)
-    {
-        //去除表单的hidden字段
-        $allFields['form'] = $allFields['form']->filter(function ($field) use ($hiddenFields) {
-            return !in_array($field->key, $hiddenFields);
-        })->pluck([]);
-
-        //去除控件的hidden字段
-        $allFields['grid'] = $allFields['grid']->map(function ($grid) use ($hiddenFields) {
-            $gridKey = $grid->key;
-            $fields = $grid->fields->filter(function ($field) use ($gridKey, $hiddenFields) {
-                $key = $gridKey . '.*.' . $field->key;
-                return !in_array($key, $hiddenFields);
-            })->pluck([]);
-            $gridData = $grid->toArray();
-            $gridData['fields'] = $fields;
-            return collect($gridData);
-        });
-        return collect($allFields);
-    }
+//    protected function exceptHiddenFields($allFields, $hiddenFields)
+//    {
+//        //去除表单的hidden字段
+//        $allFields['form'] = $allFields['form']->filter(function ($field) use ($hiddenFields) {
+//            return !in_array($field->key, $hiddenFields);
+//        })->pluck([]);
+//
+//        //去除控件的hidden字段
+//        $allFields['grid'] = $allFields['grid']->map(function ($grid) use ($hiddenFields) {
+//            $gridKey = $grid->key;
+//            $fields = $grid->fields->filter(function ($field) use ($gridKey, $hiddenFields) {
+//                $key = $gridKey . '.*.' . $field->key;
+//                return !in_array($key, $hiddenFields);
+//            })->pluck([]);
+//            $gridData = $grid->toArray();
+//            $gridData['fields'] = $fields;
+//            return collect($gridData);
+//        });
+//        return collect($allFields);
+//    }
 
     /**
      * 获取包含可写的字段信息
@@ -266,21 +277,21 @@ class FormRepository
      * @param $editableFields
      * @return mixed
      */
-    protected function onlyEditableFields($allFields, $editableFields)
-    {
-        $allFields['form'] = $allFields['form']->filter(function ($field) use ($editableFields) {
-            return in_array($field->key, $editableFields);
-        })->pluck([]);
-        $allFields['grid'] = $allFields['grid']->map(function ($grid) use ($editableFields) {
-            $gridKey = $grid->key;
-            $fields = $grid->fields->filter(function ($field) use ($gridKey, $editableFields) {
-                $key = $gridKey . '.*.' . $field->key;
-                return in_array($key, $editableFields);
-            })->pluck([]);
-            $gridData = $grid->toArray();
-            $gridData['fields'] = $fields;
-            return collect($gridData);
-        });
-        return $allFields;
-    }
+//    protected function onlyEditableFields($allFields, $editableFields)
+//    {
+//        $allFields['form'] = $allFields['form']->filter(function ($field) use ($editableFields) {
+//            return in_array($field->key, $editableFields);
+//        })->pluck([]);
+//        $allFields['grid'] = $allFields['grid']->map(function ($grid) use ($editableFields) {
+//            $gridKey = $grid->key;
+//            $fields = $grid->fields->filter(function ($field) use ($gridKey, $editableFields) {
+//                $key = $gridKey . '.*.' . $field->key;
+//                return in_array($key, $editableFields);
+//            })->pluck([]);
+//            $gridData = $grid->toArray();
+//            $gridData['fields'] = $fields;
+//            return collect($gridData);
+//        });
+//        return $allFields;
+//    }
 }

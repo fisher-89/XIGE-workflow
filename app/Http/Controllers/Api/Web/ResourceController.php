@@ -128,9 +128,8 @@ class ResourceController extends Controller
      */
     public function getSponsorDetail($flowRunId)
     {
-        $stepRun = StepRun::where(['flow_run_id' => $flowRunId, 'approver_sn' => app('auth')->id(), 'action_type' => 1])->first();
-        $stepRunRepository = new StepRunRepository();
-        $data = $stepRunRepository->getDetail($stepRun);
+        $flowRunRepository = new FlowRunRepository();
+        $data = $flowRunRepository->getSponsorDetail($flowRunId);
         return $this->response->get($data);
     }
 }

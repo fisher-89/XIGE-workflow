@@ -27,18 +27,20 @@ class StepRunRepository
      * @param $request
      * @return mixed
      */
-    public function getApproval($request){
+    public function getApproval($request)
+    {
         $actionType = $this->actionType($request->type);
-        $data = StepRun::with('flowRun')->where(['approver_sn'=>$this->staffSn])
-            ->whereIn('action_type',$actionType)
-            ->when(($request->has('flow_id') && intval($request->flow_id)),function($query)use($request){
-                return $query->where('flow_id',$request->flow_id);
+        $data = StepRun::with('flowRun')->where(['approver_sn' => $this->staffSn])
+            ->whereIn('action_type', $actionType)
+            ->when(($request->has('flow_id') && intval($request->flow_id)), function ($query) use ($request) {
+                return $query->where('flow_id', $request->flow_id);
             })
             ->filterByQueryString()
             ->sortByQueryString()
             ->withPagination();
         return $data;
     }
+
     /**
      *  获取详情(发起、审批)
      * @param $stepRun
@@ -50,19 +52,19 @@ class StepRunRepository
         $currentStepData = $flowRepository->getCurrentStep($stepRun);//当前步骤数据
 
         $formRepository = new FormRepository();
-        //表单字段  去除了hidden字段
-        $fields = $formRepository->getExceptHiddenFields($currentStepData->hidden_fields, $stepRun->form_id);
+        //表单字段
+        $fields = $formRepository->getFields($stepRun->form_id);
 
+        //表单data
         $formData = $formRepository->getFormData($stepRun->flow_run_id);//获取表单data数据
-        $filterFormData = app('formData')->getFilterFormData($formData, $fields);//获取筛选过后的表单数据
         $stepRun->checked_at = date('Y-m-d H:i:s');
         $stepRun->save();
         $data = [
             'step' => $currentStepData,
-            'form_data' => $filterFormData,
+            'form_data' => $formData,
             'fields' => $fields,
             'flow_run' => $stepRun->flowRun->toArray(),
-            'step_run'=>$stepRun,
+            'step_run' => $stepRun,
         ];
         return $data;
     }
@@ -72,10 +74,11 @@ class StepRunRepository
      * @param $type
      * @return array
      */
-    protected function actionType($type){
-        switch($type){
+    protected function actionType($type)
+    {
+        switch ($type) {
             case 'all'://全部
-                $actionType = [0,2,3,-1];
+                $actionType = [0, 2, 3, -1];
                 break;
             case 'processing'://待审批
                 $actionType = [0];
@@ -90,8 +93,8 @@ class StepRunRepository
                 $actionType = [-1];
                 break;
             default:
-                $actionType = [0,2,3,-1];
+                $actionType = [0, 2, 3, -1];
         }
-        return$actionType;
+        return $actionType;
     }
 }
