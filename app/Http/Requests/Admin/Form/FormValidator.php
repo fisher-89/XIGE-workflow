@@ -118,7 +118,7 @@ class FormValidator
                 'array',
             ],
             'fields.*.id' => [
-                Rule::exists('fields', 'id')->where('form_id', request()->route('id'))->whereNull('deleted_at')
+                Rule::exists('fields', 'id')->whereNull('deleted_at')
             ],
             'fields.*.key' => [
                 'required',
@@ -188,7 +188,7 @@ class FormValidator
                 'array',
             ],
             'grids.*.fields.*.id' => [
-                Rule::exists('fields', 'id')->where('form_id', request()->route('id'))->whereNull('deleted_at')
+                Rule::exists('fields', 'id')->whereNull('deleted_at')
             ],
             'grids.*.fields.*.key' => [
                 'required',
