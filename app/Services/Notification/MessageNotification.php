@@ -15,8 +15,9 @@ class MessageNotification
 {
     protected $sendMessage;
 
-    public function __construct(OaApiService $oaApiService)
+    public function __construct()
     {
+        $oaApiService = new OaApiService();
         $this->sendMessage = $oaApiService;
     }
 
