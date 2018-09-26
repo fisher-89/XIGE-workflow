@@ -305,7 +305,7 @@ class PresetService
     public function setPresetDataToCache($data)
     {
         $userStaffSn = Auth::id();
-        Cache::put(time() . $userStaffSn, $data, 10);
+        Cache::put(time() . $userStaffSn, $data, 30);
         return time();
     }
 
