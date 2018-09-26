@@ -177,7 +177,7 @@ class StartService
             }
         }
 
-        $formDataId = DB::table($this->tablePrefix . $flowRun->form_id)->insert($formData);
+        $formDataId = DB::table($this->tablePrefix . $flowRun->form_id)->insertGetId($formData);
         return $formDataId;
     }
 
