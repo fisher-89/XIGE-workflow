@@ -62,7 +62,10 @@ class Field extends Model
     {
         if ($value) {
             if (in_array($this->type, ['select', 'array', 'region', 'staff', 'department', 'shop'])) {
-                return json_decode($value, true);
+                $checkValue = json_decode($value, true);
+                if(is_array($checkValue) && !is_null($checkValue)){
+                    return $checkValue;
+                }
             }
         }
         return $value;
