@@ -57,8 +57,6 @@ class StepRunRepository
 
         //表单data
         $formData = $formRepository->getFormData($stepRun->flow_run_id);//获取表单data数据
-        $stepRun->checked_at = date('Y-m-d H:i:s');
-        $stepRun->save();
         $data = [
             'step' => $currentStepData,
             'form_data' => $formData,

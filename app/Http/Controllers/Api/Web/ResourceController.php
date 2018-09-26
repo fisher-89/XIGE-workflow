@@ -24,7 +24,7 @@ class ResourceController extends Controller
     protected $response;
     protected $formData;
 
-    public function __construct(ResponseService $responseService,FormDataService $formDataService)
+    public function __construct(ResponseService $responseService, FormDataService $formDataService)
     {
         $this->response = $responseService;
         $this->formData = $formDataService;
@@ -104,6 +104,8 @@ class ResourceController extends Controller
      */
     public function getApprovalDetail(StepRun $stepRun)
     {
+        $stepRun->checked_at = date('Y-m-d H:i:s');
+        $stepRun->save();
         $stepRunRepository = new StepRunRepository();
         $data = $stepRunRepository->getDetail($stepRun);
         //步骤查看回调
