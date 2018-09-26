@@ -29,6 +29,10 @@ class DateField implements Rule
      */
     public function passes($attribute, $value)
     {
+        if(is_null($value)){
+            $this->msg = '默认值 不能是null';
+            return false;
+        }
         switch ($this->field['type']) {
             case 'date':
                 if (date('Y-m-d', strtotime($value)) != $value && $value != 'date') {

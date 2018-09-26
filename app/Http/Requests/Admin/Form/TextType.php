@@ -40,7 +40,6 @@ trait TextType
                 'in:0'
             ],
             'fields.' . $key . '.default_value' => [
-                'nullable',
                 'between:'.($field['min']?:0).','.($field['max']?:9999999)
             ],
             'fields.' . $key . '.options' => [

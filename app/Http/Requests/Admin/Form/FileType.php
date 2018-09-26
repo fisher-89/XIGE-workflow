@@ -39,7 +39,6 @@ trait FileType
                 'in:0'
             ],
             'fields.' . $key . '.default_value' => [
-                'nullable',
                 'string'
             ],
             'fields.' . $key . '.options' => [

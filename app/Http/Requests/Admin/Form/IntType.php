@@ -68,7 +68,6 @@ trait IntType
                 'in:0'
             ],
             'fields.' . $this->key . '.default_value' => [
-                'nullable',
                 'numeric',
                 'between:' . ($field['min'] ?: 0) . ',' . ($field['max'] ?: 9999999999)
             ],

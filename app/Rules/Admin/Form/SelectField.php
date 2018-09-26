@@ -28,6 +28,10 @@ class SelectField implements Rule
      */
     public function passes($attribute, $value)
     {
+        if(is_null($value)){
+            $this->msg = '默认值 不能是null';
+            return false;
+        }
         if ($this->field['is_checkbox'] == 1) {
             if($value && $this->field['min'] && count($value)<$this->field['min']){
                 $this->msg = '默认值 最小个数不能小于最小值';
