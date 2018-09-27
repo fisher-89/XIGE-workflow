@@ -16,6 +16,7 @@ use App\Services\Web\PresetService;
 use App\Services\Web\RejectService;
 use App\Services\ResponseService;
 use App\Services\Web\StartService;
+use App\Services\Web\ThroughService;
 use Illuminate\Http\Request;
 
 class ActionController extends Controller
@@ -74,9 +75,9 @@ class ActionController extends Controller
      * 通过处理
      * @param Request $request
      */
-    public function through(ThroughRequest $request)
+    public function through(ThroughRequest $request,ThroughService $throughService)
     {
-        $stepRunData = app('through', ['stepRunId' => $request->input('step_run_id')])->through($request);
+        $stepRunData = $throughService->through($request);
         return $this->response->patch($stepRunData);
     }
 

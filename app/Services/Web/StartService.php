@@ -62,10 +62,10 @@ class StartService
     }
 
     /**
-     * 检测发起数据
+     * 检测发起、通过数据
      * @param $request
      */
-    protected function checkStartRequest($request, array $cacheData)
+    public function checkStartRequest($request, array $cacheData)
     {
         if (!empty($cacheData['available_steps'])) {
             //下一步审批人编号
@@ -216,7 +216,7 @@ class StartService
      * @param $files
      * @return mixed
      */
-    protected function moveTempFile($files)
+    public function moveTempFile($files)
     {
         foreach ($files as $k => $file) {
             $files[$k] = $this->images->copyTempFile($file);
@@ -258,8 +258,8 @@ class StartService
     protected function createFormGridFieldsData(array $formData, $flowRun, int $formDataId)
     {
         $gridData = FormGrid::where('form_id', $flowRun->form_id)->get();
-        $gridDataKeyBy = $gridData->keyBy('key')->all();
         if ($gridData) {
+            $gridDataKeyBy = $gridData->keyBy('key')->all();
             //控件key
             $gridKeys = $gridData->pluck('key')->all();
             $formGridsData = array_only($formData, $gridKeys);

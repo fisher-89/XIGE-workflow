@@ -23,11 +23,16 @@ class ThroughService
     protected $formData;
     protected $tablePrefix = 'form_data_';//表名前缀
     protected $message;
+    //预提交
+    protected $presetService;
+    //发起
+    protected $startService;
 
-    public function __construct($stepRunId)
+    public function __construct(PresetService $presetService, StartService $startService)
     {
-        $this->stepRun = StepRun::find($stepRunId);
         $this->message = new MessageNotification();
+        $this->presetService = $presetService;
+        $this->startService = $startService;
     }
 
     /**
@@ -38,13 +43,16 @@ class ThroughService
      */
     public function through($request)
     {
-        $cacheFormData = app('preset')->getPresetData($request->input('timestamp'));
+        //步骤运行数据
+        $this->stepRun = StepRun::find($request->input('step_run_id'));
+
+
+        $cacheFormData = $this->presetService->getPresetData($request->input('timestamp'));
         if (!$cacheFormData)
             abort(404, '预提交数据已失效，请重新提交数据');
-        app('action')->checkStartRequest($request, $cacheFormData);//检测审批人数据与step_run_id是否正确、缓存是否失效
+        $this->startService->checkStartRequest($request, $cacheFormData);//检测审批人数据与step_run_id是否正确、缓存是否失效
         $this->formData = $cacheFormData['form_data'];
         $nextStepRunData = $this->saveThrough($request, $cacheFormData['step_end']);
-        app('preset')->forgetPresetData($request->input('timestamp'));//清楚预提交缓存数据
 
         //步骤通过回调
         SendCallback::dispatch($this->stepRun->id, 'step_agree');
@@ -133,48 +141,214 @@ class ThroughService
      */
     protected function saveFormData()
     {
-        $formFields = Field::where('form_id', $this->stepRun->form_id)->whereNull('form_grid_id')->pluck('key')->all();
-        $formData = array_only($this->formData, $formFields);
-        $formData = array_map(function ($item) {
-            if (is_array($item))
-                $item = json_encode($item);
-            return $item;
-        }, $formData);
-        if (count($formData) > 0) {
+        $formFieldsData = Field::where('form_id', $this->stepRun->form_id)->whereNull('form_grid_id')->get();
+        $formFieldsKeys = $formFieldsData->pluck('key')->all();
+        $formFieldsDataKeyBy = $formFieldsData->keyBy('key')->all();
+
+        $formData = array_only($this->formData, $formFieldsKeys);
+        if ($formData && count($formData) > 0) {
+            foreach ($formData as $k => $v) {
+                if (is_array($v)) {
+                    $fieldType = $formFieldsDataKeyBy[$k]->type;
+                    $newFieldValue = $this->setFieldTypeData($v, $fieldType, $k);
+                    if ($fieldType == 'region') {
+                        //地区级数
+                        $regionLevel = $formFieldsDataKeyBy[$k]->region_level;
+                        switch ($regionLevel) {
+                            case 1;
+                                $formData['province_id'] = $v ? $v['province_id'] : null;
+                                break;
+                            case 2;
+                                $formData['province_id'] = $v ? $v['province_id'] : null;
+                                $formData['city_id'] = $v ? $v['city_id'] : null;
+                                break;
+                            case 3;
+                                $formData['province_id'] = $v ? $v['province_id'] : null;
+                                $formData['city_id'] = $v ? $v['city_id'] : null;
+                                $formData['county_id'] = $v ? $v['county_id'] : null;
+                                break;
+                            case 4;
+                                $formData['province_id'] = $v ? $v['province_id'] : null;
+                                $formData['city_id'] = $v ? $v['city_id'] : null;
+                                $formData['county_id'] = $v ? $v['county_id'] : null;
+                                $formData['address'] = $v ? $v['address'] : null;
+                                break;
+                        }
+                    } elseif ($fieldType == 'file') {
+                        $v = $newFieldValue;
+                    }
+                    $formData[$k] = json_encode($v);
+                }
+            }
             DB::table($this->tablePrefix . $this->stepRun->form_id)
                 ->where('id', $this->stepRun->data_id)
                 ->update($formData);
         }
-
     }
+
+    /**
+     * 文件、员工控件、部门控件、店铺控件类型处理
+     * @param array $fieldValue
+     * @param $fieldType
+     * @param string $fieldKey
+     * @param $flowRun
+     * @param $gridKey
+     * @return array|mixed
+     */
+    protected function setFieldTypeData(array $fieldValue, $fieldType, string $fieldKey, $gridKey = false)
+    {
+        switch ($fieldType) {
+            case 'file':
+                //文件处理
+                if ($fieldValue) {
+                    $fieldValue = $this->startService->moveTempFile($fieldValue);
+                }
+                break;
+            case 'staff':
+                $this->updateFieldWidgetData($fieldValue, $fieldKey, $gridKey);
+                break;
+            case 'department':
+                $this->updateFieldWidgetData($fieldValue, $fieldKey, $gridKey);
+                break;
+            case 'shop':
+                $this->updateFieldWidgetData($fieldValue, $fieldKey, $gridKey);
+                break;
+        }
+        return $fieldValue;
+    }
+
+    /**
+     * 修改字段控件data数据
+     * @param array $fieldValue
+     * @param string $fieldKey
+     * @param $gridKey
+     */
+    protected function updateFieldWidgetData(array $fieldValue, string $fieldKey, $gridKey)
+    {
+        if ($gridKey) {
+            //表单控件data控件
+            $tableName = $this->tablePrefix . $this->stepRun->form_id . '_' . $gridKey . '_fieldType_' . $fieldKey;
+        } else {
+            //表单data控件
+            $tableName = $this->tablePrefix . $this->stepRun->form_id . '_fieldType_' . $fieldKey;
+        }
+        //删除表单字段控件数据
+        DB::table($tableName)->where('run_id', $this->stepRun->flow_run_id)->delete();
+        if ($fieldValue) {
+            $data = $fieldValue;
+            if (count($data) == count($data, 1)) {
+                //单选  一维数组
+                $data['run_id'] = $this->stepRun->flow_run_id;
+            } else {
+                //多选 二维数组
+                data_fill($data, '*.run_id', $this->stepRun->flow_run_id);
+            }
+            DB::table($tableName)->insert($data);
+        }
+    }
+
 
     /**
      * 修改表单控件数据
      */
     protected function saveGridFormData()
     {
-        $gridKeys = (array)FormGrid::where('form_id', $this->stepRun->form_id)->pluck('key')->all();//控件key
-        $formGridData = array_only($this->formData, $gridKeys);
-        if (!empty($formGridData)) {
-            foreach ($formGridData as $k => $v) {
-                $tableName = $this->tablePrefix . $this->stepRun->form_id . '_' . $k;
-                if (!empty($v)) {
-                    foreach ($v as $gridKey => $value) {
-                        if (array_has($value, 'id') && intval($value['id'])) {
-                            //编辑
-                            DB::table($tableName)->where(['id' => $value['id'], 'data_id' => $this->stepRun->data_id])->update($value);
-                        } else {
-                            //新增
-                            $value['data_id'] = $this->stepRun->data_id;
-                            $value['run_id'] = $this->stepRun->flow_run_id;
-                            DB::table($tableName)->insert($value);
-                        }
+        $gridData = FormGrid::where('form_id', $this->stepRun->form_id)->get();
+
+        if ($gridData) {
+            //该表单有控件
+            $gridDataKeyBy = $gridData->keyBy('key')->all();
+            $gridKeys = $gridData->pluck('key')->all();
+            $formGridData = array_only($this->formData, $gridKeys);
+            if ($formGridData) {
+                //表单控件有数据
+                foreach ($formGridData as $gridKey => $v) {
+                    $gridFieldsData = $gridDataKeyBy[$gridKey]->fields;
+                    $gridFieldsDataKeyBy = $gridFieldsData->keyBy('key')->all();
+                    if (count($v) < 1) {
+                        //无控件data  删除表单控件data
+                        $this->deleteFormGridData($gridKey, $gridFieldsDataKeyBy);
+                    } else {
+                        $this->updateGridFormData($v,$gridKey,$gridFieldsDataKeyBy);
                     }
                 }
             }
         }
     }
 
+    /**
+     * 删除控件表单Data
+     * @param $gridKey
+     * @param $gridFieldsDataKeyBy
+     */
+    protected function deleteFormGridData($gridKey, $gridFieldsDataKeyBy)
+    {
+        $tableName = $this->tablePrefix . $this->stepRun->form_id . '_' . $gridKey;
+        foreach($gridFieldsDataKeyBy as $field){
+            $gridWidgetTableName = $tableName . '_fieldType_' . $field->key;
+            switch ($field->type) {
+                case 'staff':
+                    DB::table($gridWidgetTableName)->where('run_id', $this->stepRun->flow_run_id)->delete();
+                    break;
+                case 'department':
+                    DB::table($gridWidgetTableName)->where('run_id', $this->stepRun->flow_run_id)->delete();
+                    break;
+                case 'shop':
+                    DB::table($gridWidgetTableName)->where('run_id', $this->stepRun->flow_run_id)->delete();
+                    break;
+            }
+        }
+        DB::table($tableName)->where('data_id', $this->stepRun->data_id)->delete();
+    }
+
+    protected function updateGridFormData($gridFormData,$gridKey,$gridFieldsDataKeyBy)
+    {
+        //删除表单控件数据
+        $this->deleteFormGridData($gridKey,$gridFieldsDataKeyBy);
+        //获取新增表单控件数据
+        foreach ($gridFormData as $k=>$v){
+            foreach ($v as $fieldKey=>$value){
+                $gridFormData[$k]['run_id'] = $this->stepRun->flow_run_id;
+                $gridFormData[$k]['data_id'] = $this->stepRun->data_id;
+                if (is_array($value)) {
+                    if ($value) {
+                        $fieldType = $gridFieldsDataKeyBy[$fieldKey]->type;
+                        $newFieldValue = $this->setFieldTypeData($value, $fieldType, $fieldKey, $gridKey);
+                        if ($fieldType == 'region') {
+                            //地区级数
+                            $regionLevel = $gridFieldsDataKeyBy[$fieldKey]->region_level;
+                            switch ($regionLevel) {
+                                case 1;
+                                    $gridFormData[$k]['province_id'] = $value['province_id'];
+                                    break;
+                                case 2;
+                                    $gridFormData[$k]['province_id'] = $value['province_id'];
+                                    $gridFormData[$k]['city_id'] = $value['city_id'];
+                                    break;
+                                case 3;
+                                    $gridFormData[$k]['province_id'] = $value['province_id'];
+                                    $gridFormData[$k]['city_id'] = $value['city_id'];
+                                    $gridFormData[$k]['county_id'] = $value['county_id'];
+                                    break;
+                                case 4;
+                                    $gridFormData[$k]['province_id'] = $value['province_id'];
+                                    $gridFormData[$k]['city_id'] = $value['city_id'];
+                                    $gridFormData[$k]['county_id'] = $value['county_id'];
+                                    $gridFormData[$k]['address'] = $value['address'];
+                                    break;
+                            }
+                        } elseif ($fieldType == 'file') {
+                            $value = $newFieldValue;
+                        }
+                    }
+                    $gridFormData[$k][$fieldKey] = json_encode($value);
+                }
+            }
+        }
+        //新增表单data控件数据
+        $tableName = $this->tablePrefix.$this->stepRun->form_id.'_'.$gridKey;
+        DB::table($tableName)->insert($gridFormData);
+    }
     /**
      * 流程结束处理
      * @param $id
