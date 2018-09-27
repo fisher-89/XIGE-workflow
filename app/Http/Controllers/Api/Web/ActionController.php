@@ -10,13 +10,13 @@ use App\Http\Requests\Web\StartRequest;
 use App\Http\Requests\Web\ThroughRequest;
 use App\Http\Requests\Web\WithdrawRequest;
 use App\Jobs\SendCallback;
-use App\Models\Flow;
 use App\Services\Web\DeliverService;
 use App\Services\Web\PresetService;
 use App\Services\Web\RejectService;
 use App\Services\ResponseService;
 use App\Services\Web\StartService;
 use App\Services\Web\ThroughService;
+use App\Services\Web\WithdrawService;
 use Illuminate\Http\Request;
 
 class ActionController extends Controller
@@ -28,7 +28,7 @@ class ActionController extends Controller
     //发起
     protected $startService;
 
-    public function __construct(ResponseService $responseService,PresetService $presetService,StartService $startService )
+    public function __construct(ResponseService $responseService, PresetService $presetService, StartService $startService)
     {
         $this->response = $responseService;
         $this->presetService = $presetService;
@@ -64,9 +64,9 @@ class ActionController extends Controller
      * @param WithdrawRequest $request
      * @return mixed
      */
-    public function withdraw(WithdrawRequest $request)
+    public function withdraw(WithdrawRequest $request, WithdrawService $withdrawService)
     {
-        $flowRunData = app('withdraw')->withdraw($request);
+        $flowRunData = $withdrawService->withdraw($request);
         return $this->response->patch($flowRunData);
 
     }
@@ -75,7 +75,7 @@ class ActionController extends Controller
      * 通过处理
      * @param Request $request
      */
-    public function through(ThroughRequest $request,ThroughService $throughService)
+    public function through(ThroughRequest $request, ThroughService $throughService)
     {
         $stepRunData = $throughService->through($request);
         return $this->response->patch($stepRunData);
@@ -97,11 +97,11 @@ class ActionController extends Controller
      * @param DeliverService $deliverService
      * @return mixed
      */
-    public function deliver(DeliverRequest $request, DeliverService $deliverService )
+    public function deliver(DeliverRequest $request, DeliverService $deliverService)
     {
         $stepRunData = $deliverService->deliver($request);
         //触发转交回调
-        SendCallback::dispatch($stepRunData->id,'step_deliver');
+        SendCallback::dispatch($stepRunData->id, 'step_deliver');
         return $this->response->post($stepRunData);
     }
 }
