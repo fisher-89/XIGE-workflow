@@ -10,6 +10,7 @@
 namespace App\Services\Web;
 
 
+use App\Jobs\SendCallback;
 use App\Models\StepRun;
 use Illuminate\Support\Facades\DB;
 
@@ -23,10 +24,11 @@ class DeliverService
     {
         $stepRun = StepRun::find($request->input('step_run_id'));
         $deliverData = [];
-        DB::transaction(function () use ($request,$stepRun, &$deliverData) {
+        DB::transaction(function () use ($request, $stepRun, &$deliverData) {
             $stepRun->action_type = 3;
+            $stepRun->acted_at = date('Y-m-d');
             $stepRun->save();
-            $stepRunData = array_except($stepRun->toArray(), ['id', 'approver_sn', 'approver_name', 'created_at', 'updated_at', 'deleted_at']);
+            $stepRunData = array_except($stepRun->toArray(), ['id', 'approver_sn', 'approver_name', 'acted_at', 'created_at', 'updated_at', 'deleted_at']);
             foreach ($request->input('deliver') as $staff) {
                 $data = $stepRunData;
                 $data['action_type'] = 0;
@@ -35,12 +37,11 @@ class DeliverService
                 $deliverData[] = $deliverStepRunData;
             }
         });
+        //触发转交回调
+        foreach ($deliverData as $stepRunData) {
+            SendCallback::dispatch($stepRunData->id, 'step_deliver');
+        }
+
         return collect($deliverData);
-        //一条sql处理新增
-//        $data = array_map(function($staff) use($stepRunData){
-//            $stepRunData['action_type'] = 3;
-//            return array_collapse([$stepRunData,$staff]);
-//        },$request->input('deliver'));
-//        $deliverData = StepRun::insert($data);
     }
 }

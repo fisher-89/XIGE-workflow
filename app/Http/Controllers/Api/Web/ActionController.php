@@ -9,7 +9,6 @@ use App\Http\Requests\Web\RejectRequest;
 use App\Http\Requests\Web\StartRequest;
 use App\Http\Requests\Web\ThroughRequest;
 use App\Http\Requests\Web\WithdrawRequest;
-use App\Jobs\SendCallback;
 use App\Services\Web\DeliverService;
 use App\Services\Web\PresetService;
 use App\Services\Web\RejectService;
@@ -100,8 +99,6 @@ class ActionController extends Controller
     public function deliver(DeliverRequest $request, DeliverService $deliverService)
     {
         $stepRunData = $deliverService->deliver($request);
-        //触发转交回调
-        SendCallback::dispatch($stepRunData->id, 'step_deliver');
         return $this->response->post($stepRunData);
     }
 }
