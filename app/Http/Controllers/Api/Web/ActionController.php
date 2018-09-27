@@ -88,8 +88,6 @@ class ActionController extends Controller
     public function reject(RejectRequest $request, RejectService $rejectService)
     {
         $stepRunData = $rejectService->reject($request);
-        //步骤驳回回调
-        SendCallback::dispatch($stepRunData->id, 'step_reject');
         return $this->response->patch($stepRunData);
     }
 

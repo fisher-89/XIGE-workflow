@@ -10,6 +10,7 @@ namespace App\Services\Web;
 
 
 use App\Models\StepRun;
+use App\Jobs\SendCallback;
 
 class RejectService
 {
@@ -33,6 +34,9 @@ class RejectService
         $stepRunData->flowRun->status = -1;
         $stepRunData->flowRun->end_at = date('Y-m-d H:i:s');
         $stepRunData->flowRun->save();
+
+        //步骤驳回回调
+        SendCallback::dispatch($stepRunData->id, 'step_reject');
         return $stepRunData;
     }
 }
