@@ -73,6 +73,17 @@ class OaApiService
     }
 
     /**
+     * 获取品牌
+     * @param string $filters
+     * @return mixed
+     */
+    public function getBrand($filters = '')
+    {
+        $url = config('oa.get_brand') . '?' . $filters;
+        return app('curl')->get($url);
+    }
+
+    /**
      * 通过OA发送钉钉工作通知消息
      * @param $data
      * @return mixed
