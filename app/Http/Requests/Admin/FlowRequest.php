@@ -155,17 +155,17 @@ class FlowRequest extends FormRequest
             ],
             'steps.*.approvers.staff' => [
                 'array',
-                'required_without_all:steps.*.approvers.roles,steps.*.approvers.departments',
+//                'required_without_all:steps.*.approvers.roles,steps.*.approvers.departments',
                 new StaffExists('审批人'),
             ],
             'steps.*.approvers.roles' => [
                 'array',
-                'required_without_all:steps.*.approvers.staff,steps.*.approvers.departments',
+//                'required_without_all:steps.*.approvers.staff,steps.*.approvers.departments',
                 new RoleExists('角色'),
             ],
             'steps.*.approvers.departments' => [
                 'array',
-                'required_without_all:steps.*.approvers.staff,steps.*.approvers.roles',
+//                'required_without_all:steps.*.approvers.staff,steps.*.approvers.roles',
                 new DepartmentExists('部门'),
             ],
             'steps.*.allow_condition' => [
