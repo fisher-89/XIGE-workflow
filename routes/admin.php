@@ -20,5 +20,9 @@ Route::namespace('Api\Admin')->middleware('auth:api')->group(function(){
 
     Route::get('variate-calculation','VariateController@index');//获取默认值的变量数据与计算公式数据
     //字段接口配置
-    Route::apiResource('field-api-configuration','FieldApiConfigurationController')->parameter('field_api_configuration','id');
+    Route::apiResource('field-api-configuration','FieldApiConfigurationController',[
+        'only'=>['index','store','update','destroy','show']
+    ])->parameter('field_api_configuration','id');
+    //检查OA接口地址测试
+    Route::post('check-oa-api','FieldApiConfigurationController@checkOaApi');
 });

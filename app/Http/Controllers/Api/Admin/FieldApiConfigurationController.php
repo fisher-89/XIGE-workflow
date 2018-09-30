@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers\Api\Admin;
 
+use App\Http\Requests\Admin\CheckOaApiRequest;
 use App\Http\Requests\Admin\FieldApiConfigurationRequest;
 use App\Services\ResponseService;
 use Illuminate\Http\Request;
@@ -106,5 +107,27 @@ class FieldApiConfigurationController extends Controller
         }
         $data->delete();
         return $this->response->delete();
+    }
+
+    /**
+     * 检查OA接口地址
+     * @param Request $request
+     * @return \Illuminate\Contracts\Routing\ResponseFactory|\Symfony\Component\HttpFoundation\Response
+     */
+    public function checkOaApi(Request $request)
+    {
+        $this->validate($request,[
+            'url'=>[
+                'required',
+                'url'
+            ]
+        ],[],['url'=>'接口地址']);
+        try{
+            $result = app('curl')->get($request->input('url'));
+        }catch (\Exception $e){
+            abort(400,'接口地址错误');
+        }
+        $columns = array_keys($result[0]);
+        return $this->response->post($columns);
     }
 }
