@@ -69,6 +69,7 @@ class CreateWorkflowTable extends Migration
             $table->unsignedInteger('form_id')->comment('表单ID');
             $table->unsignedInteger('form_grid_id')->comment('列表控件ID')->nullable();
             $table->unsignedTinyInteger('sort')->default(0)->comment('字段排序');
+            $table->unsignedInteger('field_api_configuration_id')->nullable()->comment('字段接口配置ID');
             $table->timestamps();
             $table->softDeletes();
             $table->foreign('form_id')->references('id')->on('forms');
