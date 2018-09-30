@@ -116,18 +116,49 @@ class FieldApiConfigurationController extends Controller
      */
     public function checkOaApi(Request $request)
     {
-        $this->validate($request,[
-            'url'=>[
+        $this->validate($request, [
+            'url' => [
                 'required',
                 'url'
             ]
-        ],[],['url'=>'接口地址']);
-        try{
+        ], [], ['url' => '接口地址']);
+        try {
             $result = app('curl')->get($request->input('url'));
-        }catch (\Exception $e){
-            abort(400,'接口地址错误');
+        } catch (\Exception $e) {
+            abort(400, '接口地址错误');
         }
         $columns = array_keys($result[0]);
         return $this->response->post($columns);
+    }
+
+    /**
+     * 获取OA接口数据
+     * @param Request $request
+     * @return \Illuminate\Contracts\Routing\ResponseFactory|\Symfony\Component\HttpFoundation\Response
+     */
+    public function getOaApi($id)
+    {
+        $data = FieldApiConfiguration::find($id);
+        if (is_null($data))
+            abort(404, '数据不存在');
+        $url = $data->url;
+        try{
+            $result = app('curl')->get($url);
+        }catch(\Exception $e){
+            abort(400,'接口地址错误');
+        }
+        $columns = array_keys($result[0]);
+        if(!in_array($data->value,$columns) || !in_array($data->text,$columns)){
+            abort(400,'接口配置 '.$data->name.'的显示值或者显示文本不存在');
+        }
+        $columns = [
+            $data->value,
+            $data->text
+        ];
+        $response = [];
+        foreach($result as $k=>$v){
+            $response[] = array_only($v,$columns);
+        }
+        return $this->response->get($response);
     }
 }
