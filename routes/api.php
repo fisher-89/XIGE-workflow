@@ -45,6 +45,8 @@ Route::middleware('auth:api')->namespace('Api\Web')->group(function () {
     Route::get('/department','WidgetController@getDepartment');
     //获取店铺
     Route::get('/shop','WidgetController@getShops');
+    //获取oa接口配置数据
+    Route::get('/oa-api/{id}','WidgetController@getOaApi');
 });
 
 //待办事项通知回调
