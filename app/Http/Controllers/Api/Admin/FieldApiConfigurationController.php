@@ -4,6 +4,7 @@ namespace App\Http\Controllers\Api\Admin;
 
 use App\Http\Requests\Admin\CheckOaApiRequest;
 use App\Http\Requests\Admin\FieldApiConfigurationRequest;
+use App\Repository\ApiConfigurationRepository;
 use App\Services\ResponseService;
 use Illuminate\Http\Request;
 use App\Http\Controllers\Controller;
@@ -136,31 +137,9 @@ class FieldApiConfigurationController extends Controller
      * @param Request $request
      * @return \Illuminate\Contracts\Routing\ResponseFactory|\Symfony\Component\HttpFoundation\Response
      */
-    public function getOaApi($id)
+    public function getOaApi($id, ApiConfigurationRepository $apiConfigurationRepository)
     {
-        $data = FieldApiConfiguration::find($id);
-        if (is_null($data))
-            abort(404, '数据不存在');
-        $url = $data->url;
-        try{
-            $result = app('curl')->get($url);
-        }catch(\Exception $e){
-            abort(400,'接口地址错误');
-        }
-        $columns = array_keys($result[0]);
-        if(!in_array($data->value,$columns) || !in_array($data->text,$columns)){
-            abort(400,'接口配置 '.$data->name.'的显示值或者显示文本不存在');
-        }
-        $columns = [
-            $data->value,
-            $data->text
-        ];
-        $response = [];
-        foreach($result as $k=>$v){
-            $item['value'] = $v[$data->value];
-            $item['text'] = $v[$data->text];
-            $response[] = $item;
-        }
-        return $this->response->get($response);
+        $data = $apiConfigurationRepository->getOaApiConfigurationResult($id);
+        return $this->response->get($data);
     }
 }
