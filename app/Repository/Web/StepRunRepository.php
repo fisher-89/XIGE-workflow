@@ -30,7 +30,8 @@ class StepRunRepository
     public function getApproval($request)
     {
         $actionType = $this->actionType($request->type);
-        $data = StepRun::with('flowRun')->where(['approver_sn' => $this->staffSn])
+        $data = StepRun::with('flowRun')
+            ->where(['approver_sn' => $this->staffSn])
             ->whereIn('action_type', $actionType)
             ->when(($request->has('flow_id') && intval($request->flow_id)), function ($query) use ($request) {
                 return $query->where('flow_id', $request->flow_id);
@@ -81,17 +82,11 @@ class StepRunRepository
             case 'processing'://待审批
                 $actionType = [0];
                 break;
-            case 'approved'://已通过
-                $actionType = [2];
-                break;
-            case 'deliver'://已转交
-                $actionType = [3];
-                break;
-            case 'rejected'://已驳回
-                $actionType = [-1];
+            case 'approved'://已审批
+                $actionType = [2, 3, -1];
                 break;
             default:
-                $actionType = [0, 2, 3, -1];
+                $actionType = [];
         }
         return $actionType;
     }
