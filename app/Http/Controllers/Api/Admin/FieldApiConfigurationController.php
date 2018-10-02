@@ -157,7 +157,9 @@ class FieldApiConfigurationController extends Controller
         ];
         $response = [];
         foreach($result as $k=>$v){
-            $response[] = array_only($v,$columns);
+            $item['value'] = $v[$data->value];
+            $item['text'] = $v[$data->text];
+            $response[] = $item;
         }
         return $this->response->get($response);
     }
