@@ -24,7 +24,8 @@ class FormValidator
         FileType,
         StaffType,
         DepartmentType,
-        ShopType;
+        ShopType,
+        ApiType;
 
     protected $msg = [
         'name' => '名称',
@@ -49,6 +50,7 @@ class FormValidator
         'fields.*.scale' => '小数位数',
         'fields.*.default_value' => '默认值',
         'fields.*.options' => '可选值',
+        'fields.*.field_api_configuration_id' => '字段接口配置ID',
         'fields.*.validator_id' => '验证规则',
         'fields.*.validator_id.*' => '验证规则ID',
         //字段列表
@@ -72,6 +74,7 @@ class FormValidator
         'grids.*.fields.*.scale' => '小数位数',
         'grids.*.fields.*.default_value' => '默认值',
         'grids.*.fields.*.options' => '可选值',
+        'grids.*.fields.*.field_api_configuration_id' => '字段接口配置ID',
         'grids.*.fields.*.validator_id' => '验证规则',
         'grids.*.fields.*.validator_id.*' => '验证规则ID',
     ];
@@ -110,7 +113,7 @@ class FormValidator
 
     protected function getFieldRule($request)
     {
-        $fieldsType = ['int', 'text', 'date', 'datetime', 'time', 'file', 'array', 'select', 'department', 'staff', 'shop', 'region'];//字段type类型
+        $fieldsType = ['int', 'text', 'date', 'datetime', 'time', 'file', 'array', 'select', 'department', 'staff', 'shop', 'region', 'api'];//字段type类型
         $notInFields = ['id', 'run_id', 'address', 'province_id', 'city_id', 'county_id', 'created_at', 'updated_at', 'deleted_at'];//过滤字段
         $rule = [
             'fields' => [
@@ -159,6 +162,12 @@ class FormValidator
             ],
             'fields.*.available_options.text' => [
                 'max:100',
+            ],
+            'fields.*.field_api_configuration_id' => [
+                'nullable',
+                Rule::exists('field_api_configuration', 'id')
+                    ->whereNull('deleted_at'),
+                'required_if:fields.*.type,api'
             ],
             'fields.*.validator_id' => [
                 'nullable',
@@ -228,6 +237,12 @@ class FormValidator
             ],
             'grids.*.fields.*.available_options.text' => [
                 'max:100',
+            ],
+            'grids.*.fields.*.field_api_configuration_id' => [
+                'nullable',
+                Rule::exists('field_api_configuration', 'id')
+                    ->whereNull('deleted_at'),
+                'required_if:fields.*.type,api'
             ],
             'grids.*.fields.*.validator_id' => [
                 'nullable',
@@ -304,6 +319,9 @@ class FormValidator
                     break;
                 case 'shop':
                     $typeRule = $this->getShopTypeRule($key, $field, $gridIndex);
+                    break;
+                case 'api':
+                    $typeRule = $this->getApiTypeRule($key, $field, $gridIndex);
                     break;
                 default:
                     $typeRule = [];

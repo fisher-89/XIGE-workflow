@@ -9,7 +9,7 @@ class Field extends Model
 {
     use SoftDeletes;
 
-    protected $fillable = ['key', 'name', 'description', 'type', 'is_checkbox', 'condition', 'region_level', 'max', 'min', 'scale', 'default_value', 'options', 'form_id', 'form_grid_id', 'sort','field_api_configuration_id'];
+    protected $fillable = ['key', 'name', 'description', 'type', 'is_checkbox', 'condition', 'region_level', 'max', 'min', 'scale', 'default_value', 'options', 'form_id', 'form_grid_id', 'sort', 'field_api_configuration_id'];
     protected $appends = ['validator_id', 'available_options'];
 
     protected $hidden = ['created_at', 'updated_at', 'deleted_at'];
@@ -56,9 +56,9 @@ class Field extends Model
 
     public function setDefaultValueAttribute($value)
     {
-        if (is_array($value)){
+        if (is_array($value)) {
             $this->attributes['default_value'] = json_encode($value);
-        }else{
+        } else {
             $this->attributes['default_value'] = $value;
         }
 
@@ -67,9 +67,9 @@ class Field extends Model
     public function getDefaultValueAttribute($value)
     {
         if ($value) {
-            if (in_array($this->type, ['select', 'array', 'region', 'staff', 'department', 'shop'])) {
+            if (in_array($this->type, ['select', 'array', 'region', 'staff', 'department', 'shop', 'api'])) {
                 $checkValue = json_decode($value, true);
-                if(is_array($checkValue) && !is_null($checkValue)){
+                if (is_array($checkValue) && !is_null($checkValue)) {
                     return $checkValue;
                 }
             }

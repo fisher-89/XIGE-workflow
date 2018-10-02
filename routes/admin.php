@@ -25,5 +25,6 @@ Route::namespace('Api\Admin')->middleware('auth:api')->group(function(){
     ])->parameter('field_api_configuration','id');
     //检查OA接口地址测试
     Route::post('check-oa-api','FieldApiConfigurationController@checkOaApi');
+    //获取接口配置oa接口数据
     Route::get('get-oa-api/{id}','FieldApiConfigurationController@getOaApi');
 });

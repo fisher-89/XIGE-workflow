@@ -111,7 +111,7 @@ class FormDataTableService
                     switch ($v['type']) {
                         case 'int':
                             if ($v['scale']) {
-                                $max = strlen($v['max']) - 1;
+                                $max = $v['max']?strlen($v['max']) - 1:20;
                                 $table->decimal($v['key'], $max, $v['scale'])->nullable()->comment($v['description']);
                             } else {
                                 $table->unsignedInteger($v['key'])->nullable()->comment($v['description']);
@@ -174,6 +174,11 @@ class FormDataTableService
                                     break;
                             }
                             break;
+                        case 'api':
+                            $table->text($v['key'])->nullable()->comment($v['description']);
+                            break;
+                        default :
+                            $table->text($v['key'])->nullable()->comment($v['description']);
                     }
                 }
                 $table->nullableTimestamps();
