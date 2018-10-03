@@ -49,7 +49,6 @@ class AppServiceProvider extends ServiceProvider
         //前台
         $this->app->singleton('validation', ValidationService::class);
         $this->app->singleton('formData',FormDataService::class);
-        $this->app->singleton('action',ActionService::class);
         $this->app->singleton('defaultValueVariate',DefaultValueVariateService::class);
         $this->app->singleton('defaultValueCalculation',DefaultValueCalculationService::class);
         $this->app->singleton('preset',PresetService::class);

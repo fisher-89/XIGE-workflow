@@ -306,7 +306,7 @@ class PresetService
      * @param $formData 表单数据
      * @param $availableStep 下一步审批人数据
      */
-    public function setPresetDataToCache($data)
+    protected function setPresetDataToCache($data)
     {
         $userStaffSn = Auth::id();
         Cache::put(time() . $userStaffSn, $data, 30);
@@ -332,44 +332,5 @@ class PresetService
     {
         $cacheName = $timestamp . Auth::id();
         Cache::forget($cacheName);
-    }
-
-    /*------------------------------------------------------------------------*/
-    /**
-     *获取下一步骤数据
-     * @param $step
-     * @param $formData
-     * @return \Illuminate\Contracts\Routing\ResponseFactory|\Symfony\Component\HttpFoundation\Response
-     */
-    public function getNextStep($step, array $formData)
-    {
-        $stepData = Step::where('flow_id', $step->flow_id)->whereIn('step_key', $step->next_step_key)->get();
-        $isNext = false;//下一步是否配置错误
-        $nextStep = [];
-        foreach ($stepData as $k => $stepItem) {
-            $allowCondition = empty($stepItem->allow_condition) ? true : app('formData')->analysisDefaultValueVariate($stepItem->allow_condition, $formData);
-            $skipCondition = empty($stepItem->skip_condition) ? false : app('formData')->analysisDefaultValueVariate($stepItem->skip_condition, $formData);
-            $stepItem->approvers = $this->getUserInfo($stepItem->approvers);//获取审批人信息
-            if ($allowCondition && $skipCondition) {//访问条件通过 略过条件true
-                if ($stepItem->merge_type == 1 && count($step->next_step_key) > 1) {
-                    $isNext = true;
-                    break;
-                } else {
-                    $skipStep = $this->getNextStep($stepItem, $formData);
-                    $nextStep = array_collapse([$nextStep, $skipStep]);
-                }
-            } elseif ($allowCondition && !$skipCondition) {//访问条件通过  未略过条件
-                if ($stepItem->merge_type == 1 && count($step->next_step_key) > 1) {
-                    $isNext = true;
-                    break;
-                } else {
-                    $nextStep[] = $stepItem;
-                }
-            }
-        }
-        if ($isNext) {
-            return [];
-        }
-        return collect($nextStep);
     }
 }

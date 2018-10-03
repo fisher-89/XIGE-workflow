@@ -41,7 +41,6 @@ class ActionController extends Controller
     public function preset(PresetRequest $request)
     {
         $data = $this->presetService->makePreset($request);
-//        $responseData = app('action')->preset($request);
         return $this->response->post($data);
     }
 
@@ -53,7 +52,6 @@ class ActionController extends Controller
      */
     public function start(StartRequest $request)
     {
-//        $stepRunData = app('action')->start($request, $flow);
         $data = $this->startService->makeStart($request);
         return $this->response->post($data);
     }

@@ -23,7 +23,6 @@ class FormDataService
      */
     public function getFilterFormData(array $formData, $fields)
     {
-//        dump($formData, $fields->toArray(),2222);
         if (empty($formData)) {
             //发起时获取表单data数据
             $newFormData = [];
@@ -39,18 +38,6 @@ class FormDataService
             $newFormData = $this->calculateFormDataDefaultValue($formData, $fields);
         }
         return $newFormData;
-//        $newFormData = $fields['form']->map(function ($field) use ($formData) {
-//            $response[$field->key] = !empty($formData[$field->key]) ? $formData[$field->key] : (!empty($field->default_value) ? $this->analysisDefaultValueVariate($field->default_value, $formData) : '');
-//            return $response;
-//        });
-//        $newFormData = array_collapse($newFormData->toArray());
-//
-//        //控件字段过滤
-//        if (count($fields['grid']) > 0) {
-//            $gridData = $this->filterFormGridData($fields['grid'], $formData);
-//            $newFormData = array_collapse([$newFormData, $gridData]);
-//        }
-//        return $newFormData;
     }
 
     /**
@@ -170,23 +157,6 @@ class FormDataService
         return $defaultValue;
     }
 
-    /**
-     * 获取表单控件data默认值
-     * @param $gridData
-     * @return array
-     */
-//    protected function getFormGridDataDefaultValue($gridData)
-//    {
-//        $gridFormData = [];
-//        $gridData->map(function($gridItem)use(&$gridFormData){
-//            $gridFieldData = [];
-//            $gridItem->fields->map(function($field)use(&$gridFieldData){
-//                $gridFieldData[$field->key] = $this->getFormDataDefaultValue($field);
-//            });
-//            $gridFormData[$gridItem->key] = $gridFieldData;
-//        });
-//        return $gridFormData;
-//    }
 
     /**
      * 获取初始表单控件data
@@ -297,60 +267,5 @@ class FormDataService
         }
         return $value;
     }
-
-    /*-----------------------------------------------------------------------------------------------------------------*/
-    /**
-     * 筛选控件与填充默认值
-     * @param $grid
-     * @param $formData
-     */
-    protected function filterFormGridData($grid, array $formData)
-    {
-        $gridData = [];
-        foreach ($grid as $gridKey => $gridItem) {
-            $gridItemData = [];
-            foreach ($gridItem['fields'] as $fieldKey => $fieldItem) {
-                if (array_has($formData, $gridItem['key']) && $formData[$gridItem['key']]) {
-                    //表单data有数据
-                    foreach ($formData[$gridItem['key']] as $formKey => $formValue) {
-                        if (empty($formValue[$fieldItem['key']])) {
-                            $value = !empty($fieldItem['default_value']) ? $this->analysisDefaultValueVariate($fieldItem['default_value'], $formValue) : '';
-                        } else {
-                            $value = $formValue[$fieldItem['key']];
-                        }
-                        $gridItemData[$formKey][$fieldItem['key']] = $value;
-                        if (array_has($formValue, 'id')) {
-                            $gridItemData[$formKey]['id'] = $formValue['id'];
-                        }
-                    }
-                }
-            }
-            $gridData[$gridItem['key']] = $gridItemData;
-        }
-        return $gridData;
-    }
-
-    /**
-     * 解析默认值变量
-     * 系统变量、计算变量、字段变量
-     * @param $defaultValue
-     * @param $formData
-     */
-    public function analysisDefaultValueVariate($defaultValue, array $formData)
-    {
-        $value = $this->systemVariate($defaultValue);//系统变量解析
-        if (!empty($formData)) {
-            $value = $this->formFieldsVariate($value, $formData);//解析字段变量
-            $value = $this->calculation($value);//解析运算公式
-        } else {
-            if (preg_match('/{\?(\w+)\?}/', $value))
-                $value = '';
-        }
-        return $value;
-    }
-
-
-
-
 
 }
