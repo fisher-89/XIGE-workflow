@@ -164,10 +164,10 @@ class CreateWorkflowTable extends Migration
             $table->unsignedInteger('step_key')->comment('步骤标识');
             $table->string('prev_step_key', 50)->comment('上一步标识')->default('');
             $table->string('next_step_key', 50)->comment('下一步标识')->default('');
-            $table->string('hidden_fields', 800)->comment('隐藏字段')->default('');
-            $table->string('editable_fields', 800)->comment('可编辑字段')->default('');
-            $table->string('required_fields', 800)->comment('必填字段')->default('');
-            $table->string('approvers', 800)
+            $table->text('hidden_fields')->comment('隐藏字段')->default('');
+            $table->text('editable_fields')->comment('可编辑字段')->default('');
+            $table->text('required_fields')->comment('必填字段')->default('');
+            $table->text('approvers')
                 ->comment('审批人，json对象{staff:[],roles:[],departments:[]},仅一人时为固定审批人,空值自由选择')
                 ->default('');
             $table->string('allow_condition', 800)->comment('访问条件，字段：${field}，其他参数：_params_')->default('');
