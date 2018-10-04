@@ -9,13 +9,20 @@
 namespace App\Services\Web;
 
 
-use App\Models\FormGrid;
 use App\Models\StepRun;
+use App\Repository\Web\FormRepository;
 use Illuminate\Support\Facades\Auth;
-use Illuminate\Support\Facades\DB;
 
 class CallbackService
 {
+
+    protected $formRepository;
+
+    public function __construct()
+    {
+        $this->formRepository = new FormRepository;
+    }
+
     /**
      * 发送回调
      * @param int $stepRunId
@@ -71,12 +78,14 @@ class CallbackService
      */
     protected function flowStartCallback($stepRunData)
     {
-        $url = $stepRunData->flow->start_callback_uri;
+        $flowData = $stepRunData->flow()->withTrashed()->first();
+        $url = $flowData->start_callback_uri;
         if ($url && is_string($url)) {
             $data = $this->getCallbackData($stepRunData);
             $data['type'] = 'start';//回调类型
             $data['time'] = strtotime($stepRunData->flowRun->created_at);
-            app('curl')->sendMessageByPost($url, $data);
+            $result = app('curl')->sendMessageByPost($url, $data);
+            //todo 是否处理返回值
         }
     }
 
@@ -86,13 +95,15 @@ class CallbackService
      */
     protected function flowFinishCallback($stepRunData)
     {
-        $url = $stepRunData->flow->end_callback_uri;
+        $flowData = $stepRunData->flow()->withTrashed()->first();
+        $url = $flowData->end_callback_uri;
         if ($url) {
             $data = $this->getCallbackData($stepRunData);
             $data['type'] = 'finish';
             $data['time'] = strtotime($stepRunData->flowRun->end_at);
             $data['result'] = $stepRunData->flowRun->status == 1 ? 'agree' : 'refuse';
-            app('curl')->sendMessageByPost($url, $data);
+            $result = app('curl')->sendMessageByPost($url, $data);
+            //todo 是否处理返回值
         }
     }
 
@@ -102,12 +113,13 @@ class CallbackService
      */
     protected function stepStartCallback($stepRunData)
     {
-        $url = $stepRunData->steps->start_callback_uri;
+        $stepData = $stepRunData->steps()->withTrashed()->first();
+        $url = $stepData->start_callback_uri;
         if ($url) {
             $data = $this->getCallbackData($stepRunData);
             $data['type'] = 'step_start';
             $data['time'] = strtotime($stepRunData->created_at);
-            app('curl')->sendMessageByPost($url, $data);
+            $result = app('curl')->sendMessageByPost($url, $data);
         }
     }
 
@@ -117,12 +129,13 @@ class CallbackService
      */
     protected function stepCheckCallback($stepRunData)
     {
-        $url = $stepRunData->steps->check_callback_uri;
+        $stepData = $stepRunData->steps()->withTrashed()->first();
+        $url = $stepData->check_callback_uri;
         if ($url) {
             $data = $this->getCallbackData($stepRunData);
             $data['type'] = 'step_check';
             $data['time'] = strtotime($stepRunData->checked_at);
-            app('curl')->sendMessageByPost($url, $data);
+            $result = app('curl')->sendMessageByPost($url, $data);
         }
     }
 
@@ -132,12 +145,13 @@ class CallbackService
      */
     protected function stepAgreeCallback($stepRunData)
     {
-        $url = $stepRunData->steps->approve_callback_uri;
+        $stepData = $stepRunData->steps()->withTrashed()->first();
+        $url = $stepData->approve_callback_uri;
         if ($url) {
             $data = $this->getCallbackData($stepRunData);
             $data['type'] = 'step_agree';
             $data['time'] = strtotime($stepRunData->acted_at);
-            app('curl')->sendMessageByPost($url, $data);
+            $result = app('curl')->sendMessageByPost($url, $data);
         }
     }
 
@@ -147,12 +161,13 @@ class CallbackService
      */
     protected function stepRejectCallback($stepRunData)
     {
-        $url = $stepRunData->steps->reject_callback_uri;
+        $stepData = $stepRunData->steps()->withTrashed()->first();
+        $url = $stepData->reject_callback_uri;
         if ($url) {
             $data = $this->getCallbackData($stepRunData);
             $data['type'] = 'step_reject';
             $data['time'] = strtotime($stepRunData->acted_at);
-            app('curl')->sendMessageByPost($url, $data);
+            $result = app('curl')->sendMessageByPost($url, $data);
         }
     }
 
@@ -162,12 +177,13 @@ class CallbackService
      */
     protected function stepDeliverCallback($stepRunData)
     {
-        $url = $stepRunData->steps->transfer_callback_uri;
+        $stepData = $stepRunData->steps()->withTrashed()->first();
+        $url = $stepData->transfer_callback_uri;
         if ($url) {
             $data = $this->getCallbackData($stepRunData);
             $data['type'] = 'step_deliver';
             $data['time'] = strtotime($stepRunData->acted_at);
-            app('curl')->sendMessageByPost($url, $data);
+            $result = app('curl')->sendMessageByPost($url, $data);
         }
     }
 
@@ -177,12 +193,13 @@ class CallbackService
      */
     protected function stepFinishCallback($stepRunData)
     {
-        $url = $stepRunData->steps->end_callback_uri;
+        $stepData = $stepRunData->steps()->withTrashed()->first();
+        $url = $stepData->end_callback_uri;
         if ($url) {
             $data = $this->getCallbackData($stepRunData);
             $data['type'] = 'step_finish';
             $data['time'] = strtotime($stepRunData->acted_at);
-            app('curl')->sendMessageByPost($url, $data);
+            $result = app('curl')->sendMessageByPost($url, $data);
         }
     }
 
@@ -192,12 +209,13 @@ class CallbackService
      */
     protected function stepWithDrawCallback($stepRunData)
     {
-        $url = $stepRunData->steps->withdraw_callback_uri;
+        $stepData = $stepRunData->steps()->withTrashed()->first();
+        $url = $stepData->withdraw_callback_uri;
         if ($url) {
             $data = $this->getCallbackData($stepRunData);
             $data['type'] = 'step_withdraw';
             $data['time'] = strtotime($stepRunData->acted_at);
-            app('curl')->sendMessageByPost($url, $data);
+            $result = app('curl')->sendMessageByPost($url, $data);
         }
     }
 
@@ -218,7 +236,7 @@ class CallbackService
         $data['remark'] = $stepRunData->remark;
         $data['flow_run_id'] = $stepRunData->flow_run_id;
         $data['process_instance_id'] = $stepRunData->flowRun->process_instance_id;//审批实例ID
-        $formData = $this->getFormData($stepRunData->form_id, $stepRunData->data_id);
+        $formData = $this->formRepository->getFormData($stepRunData->flowRun);
         $data['data'] = $formData;
         return $data;
     }
@@ -229,19 +247,19 @@ class CallbackService
      * @param $dataId
      * @return array
      */
-    protected function getFormData($formId, $dataId)
-    {
-        $formGridKey = FormGrid::where('form_id', $formId)->pluck('key')->all();
-        //表单数据
-        $formData = DB::table('form_data_' . $formId)->find($dataId);
-        $formData = collect($formData)->all();
-        if (!empty($formGridKey)) {
-            //表单控件数据
-            array_map(function ($key) use (&$formData, $formId) {
-                $gridData = DB::table('form_data_' . $formId . '_' . $key)->where('data_id', $formData['id'])->get();
-                $formData[$key] = json_decode(json_encode($gridData), true);
-            }, $formGridKey);
-        }
-        return $formData;
-    }
+//    protected function getFormData($formId, $dataId)
+//    {
+//        $formGridKey = FormGrid::where('form_id', $formId)->pluck('key')->all();
+//        //表单数据
+//        $formData = DB::table('form_data_' . $formId)->find($dataId);
+//        $formData = collect($formData)->all();
+//        if (!empty($formGridKey)) {
+//            //表单控件数据
+//            array_map(function ($key) use (&$formData, $formId) {
+//                $gridData = DB::table('form_data_' . $formId . '_' . $key)->where('data_id', $formData['id'])->get();
+//                $formData[$key] = json_decode(json_encode($gridData), true);
+//            }, $formGridKey);
+//        }
+//        return $formData;
+//    }
 }
