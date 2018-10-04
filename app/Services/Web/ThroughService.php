@@ -65,6 +65,10 @@ class ThroughService
         } else {
             //流程未结束
 
+            //步骤开始回调
+            $nextStepRunData->each(function ($stepRun) {
+                SendCallback::dispatch($stepRun->id, 'step_start');
+            });
             //发送消息给流程发起人
 
             //发送消息给下一步审批人
