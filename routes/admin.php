@@ -29,6 +29,8 @@ Route::namespace('Api\Admin')->middleware('auth:api')->group(function(){
     Route::apiResource('flow', 'FlowController')->parameter('flow', 'id');
     //步骤审批配置
     Route::apiResource('step-approver','StepApproverController');
+    //步骤部门审批配置
+    Route::apiResource('step-department-approver','StepDepartmentApproverController');
 
     Route::get('variate-calculation','VariateController@index');//获取默认值的变量数据与计算公式数据
 
