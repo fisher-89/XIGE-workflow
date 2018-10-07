@@ -17,4 +17,9 @@ class StepApprover extends Model
     {
         return $this->hasMany(StepDepartmentApprover::class);
     }
+
+    public function steps()
+    {
+        return $this->hasMany(Step::class);
+    }
 }
