@@ -4,7 +4,6 @@ namespace App\Http\Controllers\Api\Admin;
 
 use App\Http\Requests\Admin\StepApproverRequest;
 use App\Models\StepApprover;
-use App\Services\Admin\StepApproverService;
 use App\Services\ResponseService;
 use Illuminate\Http\Request;
 use App\Http\Controllers\Controller;
@@ -12,12 +11,10 @@ use App\Http\Controllers\Controller;
 class StepApproverController extends Controller
 {
     protected $response;
-    protected $stepApprover;
 
-    public function __construct(ResponseService $responseService,StepApproverService $stepApproverService)
+    public function __construct(ResponseService $responseService)
     {
         $this->response = $responseService;
-        $this->stepApprover = $stepApproverService;
     }
     /**
      * Display a listing of the resource.
@@ -26,7 +23,7 @@ class StepApproverController extends Controller
      */
     public function index()
     {
-        $data = StepApprover::with('departments')->get();
+        $data = StepApprover::get();
         return $this->response->get($data);
     }
 
@@ -48,7 +45,7 @@ class StepApproverController extends Controller
      */
     public function store(StepApproverRequest $request)
     {
-        $data = $this->stepApprover->store($request);
+        $data = StepApprover::create($request->input());
         return $this->response->post($data);
     }
 
@@ -60,7 +57,7 @@ class StepApproverController extends Controller
      */
     public function show($id)
     {
-        $data = StepApprover::with('departments')->find($id);
+        $data = StepApprover::find($id);
         return $this->response->get($data);
     }
 
@@ -84,7 +81,8 @@ class StepApproverController extends Controller
      */
     public function update(StepApproverRequest $request, $id)
     {
-        $data = $this->stepApprover->update($request,$id);
+        $data = StepApprover::find($id);
+        $data->update($request->input());
         return $this->response->put($data);
     }
 
