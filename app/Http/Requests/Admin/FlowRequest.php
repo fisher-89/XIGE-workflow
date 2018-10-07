@@ -38,7 +38,7 @@ class FlowRequest extends FormRequest
                 'required',
                 'max:20',
                 'string',
-                Rule::unique('flows', 'name')->whereNull('deleted_at')->ignore($this->route('id') ?? null),
+                Rule::unique('flows', 'name')->whereNull('deleted_at')->ignore($this->route('id')),
             ],
             'description' => [
                 'nullable',
@@ -96,7 +96,6 @@ class FlowRequest extends FormRequest
                 'array',
                 'min:2',
                 new StepGroup,
-                new StepApprover,
                 new MergeType(),  //验证合并步骤
             ],
             'steps.*.name' => [
@@ -150,23 +149,17 @@ class FlowRequest extends FormRequest
             'steps.*.required_fields.*' => [
                 new FormFields($this->form_id)
             ],
+            'steps.*.approver_type'=>[
+                'required',
+                Rule::in([0,1,2,3])
+            ],
+            'steps.*.step_approver_id'=>[
+              'nullable',
+              'required_if:steps.*.approver_type,2'
+            ],
             'steps.*.approvers' => [
-                'array'
-            ],
-            'steps.*.approvers.staff' => [
                 'array',
-//                'required_without_all:steps.*.approvers.roles,steps.*.approvers.departments',
-                new StaffExists('审批人'),
-            ],
-            'steps.*.approvers.roles' => [
-                'array',
-//                'required_without_all:steps.*.approvers.staff,steps.*.approvers.departments',
-                new RoleExists('角色'),
-            ],
-            'steps.*.approvers.departments' => [
-                'array',
-//                'required_without_all:steps.*.approvers.staff,steps.*.approvers.roles',
-                new DepartmentExists('部门'),
+                'required_if:steps.*.approver_type,1,3'
             ],
             'steps.*.allow_condition' => [
                 'string',
@@ -228,11 +221,6 @@ class FlowRequest extends FormRequest
             ],
             /*--------步骤验证end------*/
         ];
-        if ($this->merge_type == 1) {
-            $rule['steps.*.approvers.staff'] = $rule['steps.*.approvers.staff'][] = 'required';
-            $rule['steps.*.approvers.roles'] = [];
-            $rule['steps.*.approvers.departments'] = [];
-        }
         return $rule;
     }
 
@@ -266,10 +254,9 @@ class FlowRequest extends FormRequest
             'steps.*.editable_fields.*' => '可编辑字段key',
             'steps.*.required_fields' => '必填字段',
             'steps.*.required_fields.*' => '必填字段key',
+            'steps.*.approver_type' => '审批人类型',
+            'steps.*.step_approver_id' => '审批人配置ID',
             'steps.*.approvers' => '审批',
-            'steps.*.approvers.staff' => '审批人',
-            'steps.*.approvers.roles' => '角色',
-            'steps.*.approvers.departments' => '部门',
             'steps.*.allow_condition' => '访问条件',
             'steps.*.skip_condition' => '略过条件',
             'steps.*.reject_type' => '退回类型',

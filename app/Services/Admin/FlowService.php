@@ -11,6 +11,9 @@ namespace App\Services\Admin;
 
 use App\Models\Flow;
 use App\Models\FlowRun;
+use App\Models\Step;
+use App\Models\StepChooseApprover;
+use App\Models\StepManagerApprover;
 use App\Models\SubStep;
 use App\Repository\Admin\Flow\FlowRepository;
 use Illuminate\Support\Facades\DB;
@@ -52,8 +55,14 @@ class FlowService
     {
         //创建流程数据
         $flow = Flow::create($request->input());//保存流程数据
-        //创建步骤与流程发起数据
-        $this->createData($flow, $request);
+        //流程发起人data
+        $this->createFlowSponsor($flow, $request);
+
+        //创建步骤
+        $this->createStepData($request->input('steps'), $flow);
+
+        //创建子步骤
+        $this->createSubSteps($flow, $request->input('steps'));//创建子步骤数据
         return $flow->withDetail();
     }
 
@@ -61,7 +70,7 @@ class FlowService
      * 编辑保存
      * @param $request
      */
-    private function editSave($request)
+    protected function editSave($request)
     {
         $flow = Flow::find($request->id);
         if (empty($flow))
@@ -71,25 +80,129 @@ class FlowService
             $flow->delete();
             $flow = $this->addSave($request);
         } else {
-            $flow->update($request->input());//保存流程数据
-            $flow->staff()->delete();
-            $flow->roles()->delete();
-            $flow->departments()->delete();
-            $flow->steps()->delete();
-            $flow->subSteps()->delete();//删除子步骤
-
-            //创建步骤与流程发起数据
-            $this->createData($flow, $request);
+            $this->updateFlowData($flow, $request);
         }
         return $flow->withDetail();
     }
 
+
     /**
-     * 创建步骤与流程发起数据
+     * 创建步骤数据
+     * @param array $steps
+     * @param $flow
+     */
+    protected function createStepData(array $steps, $flow)
+    {
+        array_map(function ($step) use ($flow) {
+            $step['flow_id'] = $flow->id;
+            $stepData = Step::create($step);
+            switch ($step['approver_type']) {
+                case 1:
+                    $stepData->stepChooseApprover()->create($step['approvers']);
+                    break;
+                case 3:
+                    $stepData->stepManagerApprover()->create(['approver_manager' => $step['approvers'][0]]);
+                    break;
+            }
+        }, $steps);
+    }
+
+    /**
+     * 修改流程data数据
      * @param $flow
      * @param $request
      */
-    protected function createData($flow, $request)
+    protected function updateFlowData($flow, $request)
+    {
+        //保存流程数据
+        $flow->update($request->input());
+        //修改修改流程发起人数据
+        $this->updateFlowSponsor($flow, $request);
+        //修改步骤数据
+        $this->updateStepData($flow, $request->input('steps'));
+        $flow->subSteps()->delete();//删除子步骤
+        //创建子步骤
+        $this->createSubSteps($flow, $request->input('steps'));//创建子步骤数据
+    }
+
+    /**
+     * 修改流程发起人数据
+     * @param $flow
+     * @param $request
+     */
+    protected function updateFlowSponsor($flow, $request)
+    {
+        $flow->staff()->delete();
+        $flow->roles()->delete();
+        $flow->departments()->delete();
+        $this->createFlowSponsor($flow, $request);
+    }
+
+    /**
+     * 修改步骤数据
+     * @param $flow
+     * @param $request
+     */
+    protected function updateStepData($flow, array $steps)
+    {
+        //全部步骤ID
+        $allId = $flow->steps->pluck('id')->all();
+        $updateId = [];
+        array_map(function ($step) use ($flow, &$updateId) {
+            if (array_has($step, 'id')) {
+                //编辑步骤含有ID的
+                $updateId[] = $step['id'];
+                $stepData = Step::find($step['id']);
+
+                if ($stepData->approver_type == 1) {
+                    $stepData->stepChooseApprover()->delete();
+                } else if ($stepData->approver_type == 3) {
+                    $stepData->stepManagerApprover()->delete();
+                }
+
+                $stepData->update($step);
+
+                if ($stepData->approver_type == 1) {
+                    $stepData->stepChooseApprover()->create($step['approvers']);
+                } else if ($stepData->approver_type == 3) {
+                    $stepData->stepManagerApprover()->create(['approver_manager' => $step['approvers'][0]]);
+                }
+            } else {
+                //编辑时没有ID的进行新增
+                $step['flow_id'] = $flow->id;
+                $stepData = Step::create($step);
+                switch ($step['approver_type']) {
+                    case 1:
+                        $stepData->stepChooseApprover()->create($step['approvers']);
+                        break;
+                    case 3:
+                        $stepData->stepManagerApprover()->create(['approver_manager' => $step['approvers'][0]]);
+                        break;
+                }
+            }
+        }, $steps);
+
+        //删除没编辑ID的
+        $deleteId = array_diff($allId, $updateId);
+        if ($deleteId) {
+            $deleteData = Step::find($deleteId);
+            $deleteData->each(function ($step) {
+                if ($step->approver_type == 1) {
+                    $step->stepChooseApprover()->delete();
+                } else if ($step->approver_type == 3) {
+                    $step->stepManagerApprover()->delete();
+                }
+                $step->delete();
+            });
+        }
+    }
+
+    /**
+     * 创建流程发起人数据
+     * @param $flow
+     * @param $request
+     */
+    protected function createFlowSponsor($flow, $request)
     {
         //创建流程发起的员工
         $flow->staff()->createMany(array_map(function ($item) {
@@ -111,12 +224,6 @@ class FlowService
                 'department_id' => $item
             ];
         }, $request->input('flows_has_departments', [])));
-
-        //创建步骤
-        $flow->steps()->createMany($request->input('steps'));
-
-        //创建子步骤
-        $this->createSubSteps($flow, $request->input('steps'));//创建子步骤数据
     }
 
     /**
@@ -197,6 +304,5 @@ class FlowService
         }, $stepKey);
         SubStep::insert($data);
     }
-
 
 }

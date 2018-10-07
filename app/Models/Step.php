@@ -9,7 +9,7 @@ class Step extends Model
 {
     use SoftDeletes;
 
-    protected $fillable = ['name', 'description', 'flow_id', 'step_key', 'prev_step_key', 'next_step_key', 'hidden_fields', 'editable_fields', 'required_fields', 'approvers', 'allow_condition', 'skip_condition', 'reject_type', 'concurrent_type', 'merge_type', 'start_callback_uri', 'checking_callback_uri', 'approved_callback_uri', 'reject_callback_uri', 'transfer_callback_uri', 'end_callback_uri','withdraw_callback_uri'];
+    protected $fillable = ['name', 'description', 'flow_id', 'step_key', 'prev_step_key', 'next_step_key', 'hidden_fields', 'editable_fields', 'required_fields','approver_type','step_approver_id', 'approvers', 'allow_condition', 'skip_condition', 'reject_type', 'concurrent_type', 'merge_type', 'start_callback_uri', 'checking_callback_uri', 'approved_callback_uri', 'reject_callback_uri', 'transfer_callback_uri', 'end_callback_uri','withdraw_callback_uri'];
 
     protected $casts = [
         'prev_step_key' => 'array',
@@ -31,6 +31,34 @@ class Step extends Model
     public function stepRun(){
         return $this->hasMany(StepRun::class);
     }
+
+    /**
+     * 审批配置关联
+     * @return \Illuminate\Database\Eloquent\Relations\HasOne
+     */
+    public function stepApprover()
+    {
+        return $this->hasOne(StepApprover::class);
+    }
+
+    /**
+     * 选择审批关联
+     * @return \Illuminate\Database\Eloquent\Relations\HasOne
+     */
+    public function stepChooseApprover()
+    {
+        return $this->hasOne(StepChooseApprover::class);
+    }
+
+    /**
+     * 当前管理审批关联
+     * @return \Illuminate\Database\Eloquent\Relations\HasOne
+     */
+    public function stepManagerApprover()
+    {
+        return $this->hasOne(StepManagerApprover::class);
+    }
+
 
     public function setHiddenFieldsAttribute($value)
     {

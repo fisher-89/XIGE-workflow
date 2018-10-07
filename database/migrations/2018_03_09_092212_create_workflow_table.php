@@ -168,7 +168,7 @@ class CreateWorkflowTable extends Migration
             $table->text('editable_fields')->comment('可编辑字段')->default('');
             $table->text('required_fields')->comment('必填字段')->default('');
             $table->unsignedTinyInteger('approver_type')->comment('审批人类型 0全部审批人，1选择审批人，2选择配置部门的审批人，3当前人管理者')->default(0);
-            $table->unsignedInteger('approver_id')->comment('审批人配置ID')->nullable();
+            $table->unsignedInteger('step_approver_id')->comment('审批人配置ID')->nullable();
             $table->text('approvers')
                 ->comment('审批人，json对象{staff:[],roles:[],departments:[]},仅一人时为固定审批人,空值自由选择')
                 ->default('');

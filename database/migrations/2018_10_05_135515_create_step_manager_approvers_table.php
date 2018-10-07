@@ -14,8 +14,10 @@ class CreateStepManagerApproversTable extends Migration
     public function up()
     {
         Schema::create('step_manager_approvers', function (Blueprint $table) {
-            $table->increments('id');
+//            $table->increments('id');
+            $table->unsignedInteger('step_id')->comment('步骤ID');
             $table->char('approver_manager',50)->comment('审批管理者 department_manager 部门负责人，shop_manager 店长');
+            $table->primary('step_id');
 //            $table->timestamps();
         });
     }
