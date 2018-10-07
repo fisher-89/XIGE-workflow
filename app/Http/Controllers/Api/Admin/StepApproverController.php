@@ -57,7 +57,7 @@ class StepApproverController extends Controller
      */
     public function show($id)
     {
-        $data = StepApprover::find($id);
+        $data = StepApprover::with('departments')->find($id);
         return $this->response->get($data);
     }
 
