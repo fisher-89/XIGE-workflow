@@ -33,17 +33,13 @@ class DeliverRequest extends FormRequest
                     ->where('action_type', 0)
                     ->whereNull('deleted_at')
             ],
-            'deliver' => [
-                'array',
-                'required'
-            ],
-            'deliver.*.approver_sn' => [
+            'approver_sn'=>[
                 'required',
                 'numeric',
                 'max:999999',
                 'min:100000',
             ],
-            'deliver.*.approver_name' => [
+            'approver_name' => [
                 'required',
                 'string',
                 'between:2,10'
@@ -54,10 +50,9 @@ class DeliverRequest extends FormRequest
     public function attributes()
     {
         return [
-            'step_run_id' => '该步骤不能进行转交',
-            'deliver' => '转交数据',
-            'deliver.*.approver_sn' => '转交人工号',
-            'deliver.*.approver_name' => '转交人名字',
+            'step_run_id' => '步骤运行ID',
+            'approver_sn' => '转交人工号',
+            'approver_name' => '转交人名字',
         ];
     }
 }
