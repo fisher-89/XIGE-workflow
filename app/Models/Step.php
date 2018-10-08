@@ -42,6 +42,15 @@ class Step extends Model
     }
 
     /**
+     * 配置部门关联
+     * @return \Illuminate\Database\Eloquent\Relations\HasMany
+     */
+    public function stepDepartmentApprover()
+    {
+        return $this->hasMany(StepDepartmentApprover::class,'step_approver_id','step_approver_id');
+    }
+
+    /**
      * 选择审批关联
      * @return \Illuminate\Database\Eloquent\Relations\HasOne
      */
