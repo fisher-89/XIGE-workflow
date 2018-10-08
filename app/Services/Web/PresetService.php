@@ -20,9 +20,13 @@ use Illuminate\Support\Facades\Cache;
 
 class PresetService
 {
+    use NextStepApprover;//下一步骤审批人
+
+
     protected $formData;
     protected $formRepository;
-    public function __construct(FormDataService $formDataService,FormRepository $formRepository)
+
+    public function __construct(FormDataService $formDataService, FormRepository $formRepository)
     {
         $this->formData = $formDataService;
         $this->formRepository = $formRepository;
@@ -41,13 +45,13 @@ class PresetService
         //过滤request表单data
         $filterRequestFormData = $this->filterRequestFormData($requestFormData, $step);
         //获取数据库表单data
-        $dbFormData = $this->getDbFormData($step->flowRun,$flow);
+        $dbFormData = $this->getDbFormData($step->flowRun, $flow);
         //替换数据库表单数据
-        $newDbFormData = $this->replaceRequestFormDataToDbFormData($filterRequestFormData,$dbFormData);
+        $newDbFormData = $this->replaceRequestFormDataToDbFormData($filterRequestFormData, $dbFormData);
         //获取表单字段（含控件）
         $fields = $this->formRepository->getFields($flow->form_id);
         //计算表单的值（运算符号、字段类型、系统变量）全部表单字段
-        $formData = $this->formData->getFilterFormData($newDbFormData,$fields);
+        $formData = $this->formData->getFilterFormData($newDbFormData, $fields);
 
         $editableFields = $step->editable_fields;
         //只包含 包含编辑字段
@@ -60,13 +64,13 @@ class PresetService
         } else {
             //流程未结束  获取下一步骤数据
             $step_end = 0;
-            $nextStep= $this->getNextSteps($step, $formData);
+            $nextStep = $this->getNextSteps($step, $formData);
             if (empty($nextStep)) {
-                abort(400,'该步骤为合并类型，后台配置错误，只能有一个审批步骤');
+                abort(400, '该步骤为合并类型，后台配置错误，只能有一个审批步骤');
             }
 
-            $nextStep  = $nextStep->map(function ($field) {
-                return $field->only(['id', 'name', 'approvers']);
+            $nextStep = $nextStep->map(function ($field) {
+                return $field->only(['id', 'name','approver_type', 'approvers']);
             })->all();
         }
         $cacheData = [
@@ -144,7 +148,7 @@ class PresetService
                     //控件字段名
                     $gridField = explode('.*.', $val)[1];
                     $gridCount = count($formData[$gridKey]);
-                    for ($i = 0; $i < $gridCount; $i++){
+                    for ($i = 0; $i < $gridCount; $i++) {
                         array_forget($formData, $gridKey . '.' . $i . '.' . $gridField);
                     }
                 }
@@ -159,12 +163,12 @@ class PresetService
      * @param $flow
      * @return array
      */
-    protected function getDbFormData($flowRun,$flow)
+    protected function getDbFormData($flowRun, $flow)
     {
-        if($flowRun){
+        if ($flowRun) {
             //流程通过
             $dbFormData = $this->formRepository->getFormData($flowRun);
-        }else{
+        } else {
             //流程发起
             $dbFormData = [];
         }
@@ -178,10 +182,10 @@ class PresetService
      * @param array $requestFormData
      * @param array $dbFormData
      */
-    protected function replaceRequestFormDataToDbFormData(array $requestFormData,array $dbFormData)
+    protected function replaceRequestFormDataToDbFormData(array $requestFormData, array $dbFormData)
     {
-        foreach ($requestFormData as $k=>$v) {
-            if(array_has($dbFormData,$k)){
+        foreach ($requestFormData as $k => $v) {
+            if (array_has($dbFormData, $k)) {
                 $dbFormData[$k] = $v;
             }
         }
@@ -198,7 +202,9 @@ class PresetService
         foreach ($stepData as $k => $stepItem) {
             $allowCondition = empty($stepItem->allow_condition) ? true : $this->analysisCondition($stepItem->allow_condition, $formData);
             $skipCondition = empty($stepItem->skip_condition) ? false : $this->analysisCondition($stepItem->skip_condition, $formData);
-            $stepItem->approvers = $this->getUserInfo($stepItem->approvers);//获取审批人信息
+//            $stepItem->approvers = $this->getUserInfo($stepItem->approvers);//获取审批人信息
+            //获取下一步骤审批人数据
+            $stepItem->approvers = $this->getNextStepApproverUser($stepItem);
             if ($allowCondition && $skipCondition) {//访问条件通过 略过条件true
                 if ($stepItem->merge_type == 1 && count($step->next_step_key) > 1) {
                     $isNext = true;
@@ -227,78 +233,17 @@ class PresetService
      * @param $condition
      * @param array $formData
      */
-    protected function analysisCondition($condition,array $formData)
+    protected function analysisCondition($condition, array $formData)
     {
         //解析系统变量
         $value = $this->formData->systemVariate($condition);
         //解析表单字段变量
-        $value = $this->formData->formFieldsVariate($value,$formData);
+        $value = $this->formData->formFieldsVariate($value, $formData);
         //解析运算符
         $value = $this->formData->calculation($value);
-        if($value)
+        if ($value)
             return true;
         return false;
-    }
-
-    /**
-     * 从OA获取人员数据
-     * @param $data
-     * staff 员工编号 array
-     * roles 角色ID   array
-     * departments 部门ID array
-     */
-    public function getUserInfo(array $data)
-    {
-        $filters = 'filters=';
-        if (!empty($data['staff']))
-            $filters .= 'staff_sn=['.implode(',',$data['staff']).']|';
-        if (!empty($data['roles'])) {
-            $filters .= 'roles.id=['.implode(',',$data['roles']).']|';
-        }
-        if (!empty($data['departments']))
-            $filters .= 'department_id=['.implode(',',$data['departments']).']|';
-        $filters = rtrim($filters,'|');
-        $oaApiService = new OaApiService();
-        $response = $oaApiService->getStaff($filters);
-        $userData = $this->filterUserInfo($response);//筛选字段
-        $userData = $this->userDistinct($userData);//去除重复的员工
-        return $userData;
-    }
-
-    /**
-     * 过滤用户字段数据
-     * @param $user
-     */
-    protected function filterUserInfo($user)
-    {
-        $data = array_map(function ($item) {
-            $user = [];
-            $user['staff_sn'] = $item['staff_sn'];
-            $user['realname'] = $item['realname'];
-            $user['department_id'] = $item['department']['id'];
-            $user['department_full_name'] = $item['department']['full_name'];
-            $user['position_name'] = $item['position']['name'];
-            return $user;
-        }, $user);
-        return $data;
-    }
-
-    /**
-     * 员工数据去重
-     * @param $user
-     */
-    protected function userDistinct($user)
-    {
-        $staff = [];
-        $data = array_map(function ($item) use (&$staff) {
-            if (!in_array($item['staff_sn'], $staff)) {
-                $staff[] = $item['staff_sn'];
-                return $item;
-            }
-
-        }, $user);
-        $data = array_merge(array_filter($data));//去除空值与重新排序
-        return $data;
     }
 
     /**
