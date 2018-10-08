@@ -59,16 +59,32 @@ class FlowRunRepository
         return $flowRunData->map(function ($flowRun) {
             $tableName = 'form_data_' . $flowRun->form_id;
             $formData = (array)DB::table($tableName)->where('run_id', $flowRun->id)->first();
-            //表单字段json转数组
-            $formData = array_map(function ($value) {
-                $newValue = json_decode($value, true);
-                if (is_array($newValue) && !is_null($newValue)) {
-                    $value = $newValue;
-                }
-                return $value;
-            }, $formData);
+            $formRepository = new FormRepository();
+            $fields = $formRepository->getFields($flowRun->form_id);
+            //可展示的字段
+            $formField= $fields['form']->filter(function ($field, $key) use ($formData) {
+                return (in_array($field->type, ['int', 'text', 'date', 'datetime', 'time', 'select', 'shop', 'staff', 'department']) && ($field->is_checkbox == 0));
+            });
 
-            $flowRun->form_data = $formData;
+            //表单键值处理
+            $newFormData =[];
+            $count = 0;
+            $formField->map(function($field)use($formData,&$newFormData,&$count){
+                $key = $field->name;
+                $value = $formData[$field->key];
+                if(!empty($value)){
+                    $count = $count+1;
+                    $newValue = json_decode($value, true);
+                    if (is_array($newValue) && !is_null($newValue)) {
+                        $value = $newValue['text'];
+                    }
+                    if($count<4){
+                        $newFormData[] = [$key=>$value];
+                    }
+                }
+            })->all();
+
+            $flowRun->form_data = $newFormData;
             return $flowRun;
         });
     }
