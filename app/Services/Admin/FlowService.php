@@ -98,10 +98,10 @@ class FlowService
             $stepData = Step::create($step);
             switch ($step['approver_type']) {
                 case 1:
-                    $stepData->stepChooseApprover()->create($step['approvers']);
+                    $stepData->stepChooseApprover()->create(array_only($step['approvers'], ['staff', 'roles', 'departments']));
                     break;
                 case 3:
-                    $stepData->stepManagerApprover()->create(['approver_manager' => $step['approvers'][0]]);
+                    $stepData->stepManagerApprover()->create(['approver_manager' => $step['approvers']['manager']]);
                     break;
             }
         }, $steps);
@@ -163,9 +163,9 @@ class FlowService
                 $stepData->update($step);
 
                 if ($stepData->approver_type == 1) {
-                    $stepData->stepChooseApprover()->create($step['approvers']);
+                    $stepData->stepChooseApprover()->create(array_only($step['approvers'], ['staff', 'roles', 'departments']));
                 } else if ($stepData->approver_type == 3) {
-                    $stepData->stepManagerApprover()->create(['approver_manager' => $step['approvers'][0]]);
+                    $stepData->stepManagerApprover()->create(['approver_manager' => $step['approvers']['manager']]);
                 }
             } else {
                 //编辑时没有ID的进行新增
@@ -173,10 +173,10 @@ class FlowService
                 $stepData = Step::create($step);
                 switch ($step['approver_type']) {
                     case 1:
-                        $stepData->stepChooseApprover()->create($step['approvers']);
+                        $stepData->stepChooseApprover()->create(array_only($step['approvers'], ['staff', 'roles', 'departments']));
                         break;
                     case 3:
-                        $stepData->stepManagerApprover()->create(['approver_manager' => $step['approvers'][0]]);
+                        $stepData->stepManagerApprover()->create(['approver_manager' => $step['approvers']['manager']]);
                         break;
                 }
             }
