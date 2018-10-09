@@ -95,11 +95,10 @@ class StepApproverController extends Controller
     public function destroy($id)
     {
         $data = StepApprover::with(['departments','steps'])->find($id);
-
-        if($data->departments){
+        if(count($data->departments)>0){
             abort(400,'该审批视图下有所属部门，不能删除');
         }
-        if($data->steps){
+        if(count($data->steps)>0){
             $flowIds = $data->steps->pluck('flow_id')->all();
             $stepName = $data->steps->pluck('name')->all();
             abort(400,'流程ID为 ('.implode(',',$flowIds).') 下面步骤名 ('.implode(',',$stepName).')  使用了该审批视图');
