@@ -114,9 +114,9 @@ trait NextStepApprover
         if ($staff)
             $filters .= '(staff_sn=[' . implode(',', array_pluck($staff, 'value')) . '])|';
         if($departments)
-            $filters .= '(department_id=[' . implode(',', array_pluck($departments, 'value')) . '])|';
+            $filters .= '(department_id=[' . implode(',', $departments) . '])|';
         if($roles)
-            $filters .= '(roles.id=[' . implode(',', array_pluck($roles, 'value')) . '])|';
+            $filters .= '(roles.id=[' . implode(',', $roles) . '])|';
         $filters = rtrim($filters, '|');
         $oaApiService = new OaApiService();
         $result = $oaApiService->getStaff($filters);
