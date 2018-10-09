@@ -113,6 +113,13 @@ Trait ListScopes
                 preg_match('/((?<relation>.*)\.|^)(?<key>.+?)(?<mark>=|~|>=|>|<=|<)(?<value>.+?)$/', $filter, $match);
                 $relation = trim($match['relation']);
                 if ($relation) {
+
+                    /*------------------liuYong  修改关联为驼峰命名start----------*/
+                    //包含关联
+                    $relation = camel_case($relation);
+                    $match['relation'] = $relation;
+                    /*------------------liuYong  修改关联为驼峰命名end ----------*/
+
                     $query->whereHas($relation, function ($query) use ($match, $isOrWhere) {
                         $this->filterBuilder($query, $match, $isOrWhere);
                     });
