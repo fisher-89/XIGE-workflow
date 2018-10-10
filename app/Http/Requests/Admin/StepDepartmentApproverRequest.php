@@ -72,11 +72,7 @@ class StepDepartmentApproverRequest extends FormRequest
             'approver_staff.*.value' => '员工工号',
             'approver_staff.*.text' => '员工姓名',
             'approver_roles' => '角色',
-            'approver_roles.*.value' => '角色ID',
-            'approver_roles.*.text' => '角色名称',
             'approver_departments' => '部门',
-            'approver_departments.*.value' => '部门ID',
-            'approver_departments.*.text' => '部门名称',
         ];
     }
 }
