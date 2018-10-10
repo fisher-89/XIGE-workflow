@@ -48,7 +48,7 @@ class StaffRepository
         $data['children'] = [];
         $data['staff'] = [];
         $fieldData = Field::find($request->field_id);
-        if (!count($fieldData->widgets) > 0) {
+        if (count($fieldData->widgets) > 0) {
             //含有员工的权限
             $filters = 'filters=staff_sn=[' . implode(',', $fieldData->widgets->pluck('value')->all()) . ']';
             if (!empty($fieldData->condition))
