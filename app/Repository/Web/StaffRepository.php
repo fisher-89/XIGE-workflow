@@ -81,7 +81,7 @@ class StaffRepository
      * @return mixed
      * @throws \Illuminate\Container\EntryNotFoundException
      */
-    protected function getDepartmentUser($request)
+    public function getDepartmentUser($request)
     {
         if ($request->has('filters') && $request->filters) {
             //搜索员工

@@ -47,6 +47,9 @@ Route::middleware('auth:api')->namespace('Api\Web')->group(function () {
     Route::get('/shop','WidgetController@getShops');
     //获取oa接口配置数据
     Route::get('/oa-api/{id}','WidgetController@getOaApi');
+
+    //获取全部审批人
+    Route::get('/approve-staff','ApproveStaffController@getAllApproveStaff');
 });
 
 //待办事项通知回调
