@@ -58,7 +58,7 @@ class StepDepartmentApproverController extends Controller
      */
     public function show($id)
     {
-        $data = StepDepartmentApprover::find($id);
+        $data = StepDepartmentApprover::findOrFail($id);
         return $this->response->get($data);
     }
 
@@ -82,7 +82,7 @@ class StepDepartmentApproverController extends Controller
      */
     public function update(StepDepartmentApproverRequest $request, $id)
     {
-        $data = StepDepartmentApprover::find($id);
+        $data = StepDepartmentApprover::findOrFail($id);
         $data->update($request->input());
         return $this->response->put($data);
     }
