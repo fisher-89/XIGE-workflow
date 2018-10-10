@@ -19,7 +19,7 @@ class FormController extends Controller
     //表单验证
     protected $formValidator;
 
-    public function __construct(ResponseService $responseService,FormService $formService,FormValidator $formValidator)
+    public function __construct(ResponseService $responseService, FormService $formService, FormValidator $formValidator)
     {
         $this->response = $responseService;
         $this->formService = $formService;
@@ -36,7 +36,7 @@ class FormController extends Controller
         //表单验证
         $rules = $this->formValidator->rules($request);
         $message = $this->formValidator->message();
-        $this->validate($request,$rules,[],$message);
+        $this->validate($request, $rules, [], $message);
         $data = $this->formService->store($request);
         return $this->response->post($data);
     }
@@ -51,7 +51,7 @@ class FormController extends Controller
         //表单验证
         $rules = $this->formValidator->rules($request);
         $message = $this->formValidator->message();
-        $this->validate($request,$rules,[],$message);
+        $this->validate($request, $rules, [], $message);
         $data = $this->formService->update($request);
         return $this->response->put($data);
     }
@@ -73,12 +73,9 @@ class FormController extends Controller
      */
     public function destroy($id)
     {
-        $data = Form::find($id);
-        if (empty($data))
-            abort(404, '该表单不存在');
-        $flowData = Flow::where('form_id', $id)->count();
-        if ($flowData > 0)
-            abort(403, '该表单已被流程使用了');
+        $data = Form::withCount('flows')->findOrFail($id);
+        if ($data->flows_count > 0)
+            abort(403, '该表单已被 ' . $data->flows_count . ' 流程使用了');
         $data->delete();
         return $this->response->delete();
     }
@@ -95,9 +92,7 @@ class FormController extends Controller
             },
             'fields.validator',
             'grids.fields.validator'
-        ])->find($id);
-        if (empty($data))
-            abort(404, '该表单不存在');
+        ])->findOrFail($id);
         return $this->response->get($data);
     }
 }
