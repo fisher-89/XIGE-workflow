@@ -164,14 +164,14 @@ class CreateWorkflowTable extends Migration
             $table->unsignedInteger('step_key')->comment('步骤标识');
             $table->string('prev_step_key', 50)->comment('上一步标识')->default('');
             $table->string('next_step_key', 50)->comment('下一步标识')->default('');
-            $table->text('hidden_fields')->comment('隐藏字段')->default('');
-            $table->text('editable_fields')->comment('可编辑字段')->default('');
-            $table->text('required_fields')->comment('必填字段')->default('');
+            $table->text('hidden_fields')->comment('隐藏字段')->nullable();
+            $table->text('editable_fields')->comment('可编辑字段')->nullable();
+            $table->text('required_fields')->comment('必填字段')->nullable();
             $table->unsignedTinyInteger('approver_type')->comment('审批人类型 0全部审批人，1选择审批人，2选择配置部门的审批人，3当前人管理者')->default(0);
             $table->unsignedInteger('step_approver_id')->comment('审批人配置ID')->nullable();
             $table->text('approvers')
                 ->comment('审批人，json对象{staff:[],roles:[],departments:[]},仅一人时为固定审批人,空值自由选择')
-                ->default('');
+                ->nullable();
             $table->string('allow_condition', 800)->comment('访问条件，字段：${field}，其他参数：_params_')->default('');
             $table->string('skip_condition', 800)->comment('略过条件')->default('');
             $table->unsignedTinyInteger('reject_type')->comment('退回类型：0.禁止 1.到上一步 2.到之前任意步骤')->default(0);
