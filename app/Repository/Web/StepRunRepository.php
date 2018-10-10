@@ -10,6 +10,7 @@ namespace App\Repository\Web;
 
 
 use App\Models\StepRun;
+use Illuminate\Support\Facades\DB;
 
 class StepRunRepository
 {
@@ -39,7 +40,54 @@ class StepRunRepository
             ->filterByQueryString()
             ->sortByQueryString()
             ->withPagination();
+        //添加form_data数据
+
+        if (array_has($data, 'data')) {
+            $data['data'] = $this->getApproveFormData(collect($data['data']));
+        } else {
+            $data = $this->getApproveFormData($data);
+        }
         return $data;
+    }
+
+    /**
+     * 获取审批表单data
+     * @param $StepRunData
+     * @return mixed
+     */
+    protected function getApproveFormData($StepRunData)
+    {
+        return $StepRunData->map(function ($stepRun) {
+            $tableName = 'form_data_' . $stepRun->form_id;
+            $formData = (array)DB::table($tableName)->where('run_id', $stepRun->flow_run_id)->first();
+            $formRepository = new FormRepository();
+            $fields = $formRepository->getFields($stepRun->form_id);
+            //可展示的字段
+            $formField = $fields['form']->filter(function ($field, $key) use ($formData) {
+                return (in_array($field->type, ['int', 'text', 'date', 'datetime', 'time', 'select', 'shop', 'staff', 'department']) && ($field->is_checkbox == 0));
+            });
+
+            //表单键值处理
+            $newFormData = [];
+            $count = 0;
+            $formField->map(function ($field) use ($formData, &$newFormData, &$count) {
+                $key = $field->name;
+                $value = $formData[$field->key];
+                if (!empty($value)) {
+                    $count = $count + 1;
+                    $newValue = json_decode($value, true);
+                    if (is_array($newValue) && !is_null($newValue)) {
+                        $value = $newValue['text'];
+                    }
+                    if ($count < 4) {
+                        $newFormData[] = [$key => $value];
+                    }
+                }
+            })->all();
+
+            $stepRun->form_data = $newFormData;
+            return $stepRun;
+        });
     }
 
     /**
