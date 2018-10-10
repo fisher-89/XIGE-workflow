@@ -60,7 +60,7 @@ class FieldApiConfigurationController extends Controller
      */
     public function show($id)
     {
-        $data = FieldApiConfiguration::find($id);
+        $data = FieldApiConfiguration::findOrFail($id);
         return $this->response->get($data);
     }
 
@@ -84,8 +84,8 @@ class FieldApiConfigurationController extends Controller
      */
     public function update(FieldApiConfigurationRequest $request, $id)
     {
-        $data = FieldApiConfiguration::find($id);
-        if ($data->fields && count($data->fields) > 0) {
+        $data = FieldApiConfiguration::findOrFail($id);
+        if ($data->fields->count() > 0) {
             abort(400, '该接口配置已被表单ID为 ' . implode(',', $data->fields->pluck('form_id')->all()) . '使用了');
         }
         $data->update($request->input());
@@ -100,10 +100,8 @@ class FieldApiConfigurationController extends Controller
      */
     public function destroy($id)
     {
-        $data = FieldApiConfiguration::find($id);
-        if (is_null($data))
-            abort(404, '该接口配置不存在');
-        if ($data->fields && count($data->fields) > 0) {
+        $data = FieldApiConfiguration::findOrFail($id);
+        if ($data->fields->count() > 0) {
             abort(400, '该接口配置已被表单ID为 ' . implode(',', $data->fields->pluck('form_id')->all()) . '使用了。不能进行删除');
         }
         $data->delete();
