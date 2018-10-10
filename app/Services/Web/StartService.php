@@ -47,7 +47,7 @@ class StartService
         $cacheFormData = $this->presetService->getPresetData($request->input('timestamp'));
         if (is_null($cacheFormData))
             abort(404, '预提交数据已失效，请重新提交数据');
-        $this->checkStartRequest($request, $cacheFormData);//检测审批人数据与step_run_id是否正确、缓存是否失效
+//        $this->checkStartRequest($request, $cacheFormData);//检测审批人数据与step_run_id是否正确、缓存是否失效
         //发起处理
         $stepRunData = $this->startSave($request, $cacheFormData['form_data']);
         //流程开始回调
