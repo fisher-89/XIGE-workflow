@@ -55,25 +55,9 @@ class StepDepartmentApproverRequest extends FormRequest
                 'array',
                 'required_without_all:approver_staff,approver_departments'
             ],
-            'approver_roles.*.value' => [
-                'integer',
-                'required',
-            ],
-            'approver_roles.*.text' => [
-                'string',
-                'required'
-            ],
             'approver_departments' => [
                 'array',
                 'required_without_all:approver_roles,approver_staff'
-            ],
-            'approver_departments.*.value' => [
-                'integer',
-                'required',
-            ],
-            'approver_departments.*.text' => [
-                'string',
-                'required'
             ],
         ];
     }
