@@ -33,7 +33,7 @@ class DeliverRequest extends FormRequest
                     ->where('action_type', 0)
                     ->whereNull('deleted_at')
             ],
-            'approver_sn'=>[
+            'approver_sn' => [
                 'required',
                 'numeric',
                 'max:999999',
@@ -44,6 +44,10 @@ class DeliverRequest extends FormRequest
                 'string',
                 'between:2,10'
             ],
+            'remark' => [
+                'string',
+                'max:200'
+            ]
         ];
     }
 
@@ -53,6 +57,7 @@ class DeliverRequest extends FormRequest
             'step_run_id' => '步骤运行ID',
             'approver_sn' => '转交人工号',
             'approver_name' => '转交人名字',
+            'remark' => '备注',
         ];
     }
 }

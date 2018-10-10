@@ -26,6 +26,7 @@ class DeliverService
         DB::transaction(function () use ($request, $stepRun, &$deliverData) {
             $stepRun->action_type = 3;
             $stepRun->acted_at = date('Y-m-d H:i:s');
+            $stepRun->remark = trim($request->input('remark'));
             $stepRun->save();
             $stepRunData = array_except($stepRun->toArray(), ['id', 'approver_sn', 'approver_name', 'acted_at', 'created_at', 'updated_at', 'deleted_at']);
             $data = $stepRunData;
