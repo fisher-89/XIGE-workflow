@@ -50,7 +50,7 @@ class ThroughService
         $cacheFormData = $this->presetService->getPresetData($request->input('timestamp'));
         if (!$cacheFormData)
             abort(404, '预提交数据已失效，请重新提交数据');
-        $this->startService->checkStartRequest($request, $cacheFormData);//检测审批人数据与step_run_id是否正确、缓存是否失效
+//        $this->startService->checkStartRequest($request, $cacheFormData);//检测审批人数据与step_run_id是否正确、缓存是否失效
         $this->formData = $cacheFormData['form_data'];
         $nextStepRunData = $this->saveThrough($request, $cacheFormData['step_end']);
 
