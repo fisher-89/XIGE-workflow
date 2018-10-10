@@ -58,9 +58,7 @@ class FlowController extends Controller
      */
     public function destroy($id)
     {
-        $flow = Flow::find($id);
-        if (empty($flow))
-            abort(404, '该流程不存在');
+        $flow = Flow::findOrFail($id);
         if ($flow->is_active == 1)
             abort(403, '该流程已启用无法进行删除');
         $flow->delete();
@@ -74,9 +72,7 @@ class FlowController extends Controller
      */
     public function show($id)
     {
-        $flow = Flow::detail()->find($id);
-        if (empty($flow))
-            abort(404, '该流程不存在');
+        $flow = Flow::detail()->findOrFail($id);
         return $this->response->get($flow);
     }
 }
