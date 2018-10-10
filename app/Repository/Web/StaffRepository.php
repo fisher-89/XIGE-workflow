@@ -62,7 +62,12 @@ class StaffRepository
             if (!empty($query)) {
                 $filters .= '&' . http_build_query($query);
             }
-            $data['staff'] = $this->oaApiSerivce->getStaff($filters);
+            if($request->has('filters') && $request->filters){
+                $data = $this->oaApiSerivce->getStaff($filters);
+            }else{
+                $data['staff'] = $this->oaApiSerivce->getStaff($filters);
+            }
+
         } else {
             //全部员工
             $data = $this->getDepartmentUser($request);
