@@ -76,7 +76,7 @@ class StepRunRepository
                 if (!empty($value)) {
                     $count = $count + 1;
                     $newValue = json_decode($value, true);
-                    if (is_array($newValue) && !is_null($newValue)) {
+                    if (is_array($newValue) && $newValue && !is_null($newValue)) {
                         $value = $newValue['text'];
                     }
                     if ($count < 4) {
