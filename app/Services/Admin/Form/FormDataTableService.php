@@ -112,47 +112,47 @@ class FormDataTableService
                         case 'int':
                             if ($v['scale']) {
                                 $max = $v['max']?strlen($v['max']) - 1:20;
-                                $table->decimal($v['key'], $max, $v['scale'])->nullable()->comment($v['description']);
+                                $table->decimal($v['key'], $max, $v['scale'])->nullable()->comment($v['name']);
                             } else {
-                                $table->unsignedInteger($v['key'])->nullable()->comment($v['description']);
+                                $table->unsignedInteger($v['key'])->nullable()->comment($v['name']);
                             }
                             break;
                         case 'text':
                             if ($v['max'] && $v['max'] < 255) {
-                                $table->char($v['key'], $v['max'])->nullable()->comment($v['description']);
+                                $table->char($v['key'], $v['max'])->nullable()->comment($v['name']);
                             } else {
-                                $table->text($v['key'])->nullable()->comment($v['description']);
+                                $table->text($v['key'])->nullable()->comment($v['name']);
                             }
                             break;
                         case 'date':
-                            $table->date($v['key'])->nullable()->comment($v['description']);
+                            $table->date($v['key'])->nullable()->comment($v['name']);
                             break;
                         case 'datetime':
-                            $table->dateTime($v['key'])->nullable()->comment($v['description']);
+                            $table->dateTime($v['key'])->nullable()->comment($v['name']);
                             break;
                         case 'time':
-                            $table->time($v['key'])->nullable()->comment($v['description']);
+                            $table->time($v['key'])->nullable()->comment($v['name']);
                             break;
                         case 'array':
-                            $table->text($v['key'])->nullable()->comment($v['description']);
+                            $table->text($v['key'])->nullable()->comment($v['name']);
                             break;
                         case 'select':
-                            $table->text($v['key'])->nullable()->comment($v['description']);
+                            $table->text($v['key'])->nullable()->comment($v['name']);
                             break;
                         case 'file':
-                            $table->text($v['key'])->nullable()->comment($v['description']);
+                            $table->text($v['key'])->nullable()->comment($v['name']);
                             break;
                         case 'staff':
-                            $table->text($v['key'])->nullable()->comment($v['description']);
+                            $table->text($v['key'])->nullable()->comment($v['name']);
                             break;
                         case 'department':
-                            $table->text($v['key'])->nullable()->comment($v['description']);
+                            $table->text($v['key'])->nullable()->comment($v['name']);
                             break;
                         case 'shop':
-                            $table->text($v['key'])->nullable()->comment($v['description']);
+                            $table->text($v['key'])->nullable()->comment($v['name']);
                             break;
                         case 'region':
-                            $table->text($v['key'])->nullable()->comment($v['description']);
+                            $table->text($v['key'])->nullable()->comment($v['name']);
                             switch ($v['region_level']) {
                                 case 1:
                                     $table->char('province_id', 20)->nullable()->index()->comment('地区 省编码');
@@ -175,10 +175,10 @@ class FormDataTableService
                             }
                             break;
                         case 'api':
-                            $table->text($v['key'])->nullable()->comment($v['description']);
+                            $table->text($v['key'])->nullable()->comment($v['name']);
                             break;
                         default :
-                            $table->text($v['key'])->nullable()->comment($v['description']);
+                            $table->text($v['key'])->nullable()->comment($v['name']);
                     }
                 }
                 $table->nullableTimestamps();
