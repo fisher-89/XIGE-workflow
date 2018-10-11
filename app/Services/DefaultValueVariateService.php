@@ -10,6 +10,7 @@ namespace App\Services;
 
 
 use App\Models\DefaultValueVariate;
+use Illuminate\Support\Facades\Cache;
 
 class DefaultValueVariateService
 {
@@ -20,8 +21,9 @@ class DefaultValueVariateService
      * @throws \Exception
      */
     public function get(){
-        $variate = cache()->get('variate',function(){
-           return $this->setVariateToCache();
+        $variate = Cache::rememberForever('variate',function(){
+            $data =  DefaultValueVariate::get()->keyBy('key')->toArray();
+            return $data;
         });
         return $variate;
     }
@@ -30,18 +32,6 @@ class DefaultValueVariateService
      * 清楚变量缓存
      */
     public function clearVariateCache(){
-        cache()->forget('variate');
+        Cache::forget('variate');
     }
-
-    /**
-     * 默认值变量添加到缓存
-     */
-    public function setVariateToCache(){
-       $data =  DefaultValueVariate::get()->keyBy('key')->toArray();
-       cache()->forever('variate',$data);
-       return $data;
-    }
-
-
-
 }
