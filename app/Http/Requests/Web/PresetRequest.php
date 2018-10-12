@@ -38,7 +38,7 @@ class PresetRequest extends FormRequest
 
         $basicRules = [
             'flow_id'=>[
-                Rule::exists('flows','id')->where('is_active',1)->whereNull('deleted_at')
+                Rule::exists('flows','id')->where('is_active',1)
             ],
             'step_run_id' => [
                 Rule::exists('step_run', 'id')->where('flow_id', $this->flow_id)
