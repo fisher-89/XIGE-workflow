@@ -70,11 +70,49 @@ class StaffRepository
 
         } else {
             //全部员工
-            $data = $this->getDepartmentUser($request);
+            $data = $this->getFieldDepartmentUser($request,$fieldData);
         }
         return $data;
     }
 
+    /**
+     * 字段类型获取全部员工
+     * @param $request
+     * @param $fieldData
+     * @return mixed
+     * @throws \Illuminate\Container\EntryNotFoundException
+     */
+    protected function getFieldDepartmentUser($request,$fieldData)
+    {
+        if ($request->has('filters') && $request->filters) {
+            //搜索员工
+            $filters = 'filters=' . $request->filters;
+            if (!empty($fieldData->condition))
+                $filters .= ';' . $fieldData->condition;
+            $query = $request->except(['field_id', 'filters', 'department_id']);
+            if (!empty($query)) {
+                $filters .= '&' . http_build_query($query);
+            }
+            $data = $this->oaApiSerivce->getStaff($filters);
+        } else {
+            if ($request->has('department_id') && $request->query('department_id')) {
+                //选择部门时获取
+                $departmentFilters = 'filters=parent_id='.$request->query('department_id');
+                $data['children'] = $this->oaApiSerivce->getDepartments($departmentFilters);
+
+                $staffFilters = 'filters=department_id='.$request->query('department_id');
+                if (!empty($fieldData->condition))
+                    $staffFilters .= ';' . $fieldData->condition;
+                $data['staff'] = $this->oaApiSerivce->getStaff($staffFilters);
+            } else {
+                $filters = 'filters=parent_id=0';
+                $children = $this->oaApiSerivce->getDepartments($filters);
+                $data['children'] = $children;
+                $data['staff'] = [];
+            }
+        }
+        return $data;
+    }
     /**
      * 获取部门员工
      * @param $request
@@ -86,7 +124,7 @@ class StaffRepository
         if ($request->has('filters') && $request->filters) {
             //搜索员工
             $filters = 'filters=' . $request->filters;
-            $query = $request->except(['field_id', 'filters', 'department_id']);
+            $query = $request->except(['filters', 'department_id']);
             if (!empty($query)) {
                 $filters .= '&' . http_build_query($query);
             }
@@ -94,7 +132,11 @@ class StaffRepository
         } else {
             if ($request->has('department_id') && $request->query('department_id')) {
                 //选择部门时获取
-                $data = $this->oaApiSerivce->getDepartmentUser($request->query('department_id'));
+                $departmentFilters = 'filters=parent_id='.$request->query('department_id');
+                $data['children'] = $this->oaApiSerivce->getDepartments($departmentFilters);
+
+                $staffFilters = 'filters=department_id='.$request->query('department_id');
+                $data['staff'] = $this->oaApiSerivce->getStaff($staffFilters);
             } else {
                 $filters = 'filters=parent_id=0';
                 $children = $this->oaApiSerivce->getDepartments($filters);
