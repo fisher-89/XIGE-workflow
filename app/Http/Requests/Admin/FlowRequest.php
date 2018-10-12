@@ -220,11 +220,9 @@ class FlowRequest extends FormRequest
                 'max:255'
             ],
             'steps.*.x'=>[
-                'string',
                 'max:50',
             ],
             'steps.*.y'=>[
-                'string',
                 'max:50',
             ],
             /*--------步骤验证end------*/
