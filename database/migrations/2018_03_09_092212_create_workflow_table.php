@@ -184,6 +184,8 @@ class CreateWorkflowTable extends Migration
             $table->string('transfer_callback_uri')->comment('转交回调地址')->default('');
             $table->string('end_callback_uri')->comment('结束回调地址')->default('');
             $table->string('withdraw_callback_uri')->comment('撤回回调地址')->default('');
+            $table->char('x',50)->comment('步骤坐标X轴');
+            $table->char('y',50)->comment('步骤坐标Y轴');
             $table->timestamps();
             $table->softDeletes();
             $table->unique(['flow_id', 'step_key','deleted_at']);

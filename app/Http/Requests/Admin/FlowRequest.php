@@ -219,6 +219,16 @@ class FlowRequest extends FormRequest
                 'url',
                 'max:255'
             ],
+            'steps.*.x'=>[
+                'string',
+                'max:50',
+                'required'
+            ],
+            'steps.*.y'=>[
+                'string',
+                'max:50',
+                'required'
+            ],
             /*--------步骤验证end------*/
         ];
         return $rule;
@@ -269,6 +279,8 @@ class FlowRequest extends FormRequest
             'steps.*.transfer_callback_uri' => '转交回调地址',
             'steps.*.end_callback_uri' => '结束回调地址',
             'steps.*.withdraw_callback_uri' => '撤回回调地址',
+            'steps.*.x' => '坐标X轴',
+            'steps.*.y' => '坐标Y轴',
         ];
     }
 }
