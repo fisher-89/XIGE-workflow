@@ -55,8 +55,8 @@ class FormDataService
                     break;
                 case 'text':
                     $defaultValue = $this->getTextOrIntDefaultValue($field->default_value);
-                    if(is_int($defaultValue))
-                        $defaultValue = (string) $defaultValue;
+                    if (is_int($defaultValue))
+                        $defaultValue = (string)$defaultValue;
                     break;
                 case 'date':
                     //default_value == data  当前日期
@@ -84,7 +84,7 @@ class FormDataService
             }
         } else {
             $defaultValue = $field->default_value;
-            if($field->type == 'file')
+            if ($field->type == 'file')
                 $defaultValue = [];
         }
 
@@ -216,7 +216,9 @@ class FormDataService
         }, $defaultValue);
         if (preg_match('/{\?.*\?}/', $value, $reg) || preg_match('/{<(\d+)>}/', $value, $reg) || preg_match('/{{(\w+)}}/', $value, $reg))
             abort(400, $reg[0] . '配置错误,请联系管理员');
-        eval('$value = ' . $value . ';');
+        if (!empty($value)) {
+            eval('$value = ' . $value . ';');
+        }
         return $value;
     }
 
@@ -248,6 +250,7 @@ class FormDataService
         }
         return $formData;
     }
+
     /**
      * 解析表单字段变量
      * @param $defaultValue
