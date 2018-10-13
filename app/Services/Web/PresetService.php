@@ -64,7 +64,7 @@ class PresetService
         } else {
             //流程未结束  获取下一步骤数据
             $step_end = 0;
-            $nextStep = $this->getNextSteps($step, $formData);
+            $nextStep = $this->getNextSteps($step, $newDbFormData);
             if (empty($nextStep)) {
                 abort(400, '该步骤为合并类型，后台配置错误，只能有一个审批步骤');
             }
