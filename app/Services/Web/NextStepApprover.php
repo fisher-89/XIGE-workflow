@@ -103,8 +103,8 @@ trait NextStepApprover
     {
         $filters = 'filters=staff_sn='.$staff;
         $oaApiService = new OaApiService();
-        $result = $oaApiService->getStaff($filters);
-        $userData = $this->filterUserInfo($result);//筛选字段
+        $userData = $oaApiService->getStaff($filters);
+//        $userData = $this->filterUserInfo($result);//筛选字段
         return $userData;
     }
 
