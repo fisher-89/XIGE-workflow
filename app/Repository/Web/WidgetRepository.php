@@ -33,72 +33,8 @@ class WidgetRepository
     {
         $staff = new StaffRepository();
         $data = $staff->getUser($request);
-       return $data;
-//        $type = 'department';//返回类型为部门结构
-//        if ($request->has('field_id') && $request->field_id) {
-//            //表单字段选人控件
-//
-//            $fieldData = Field::find($request->field_id);
-//            if (count($fieldData->widgets) > 0) {
-//                //含有员工的权限
-//                $filters = 'filters=staff_sn=[' . implode(',', $fieldData->widgets->pluck('value')->all()) . ']';
-//                if (!empty($fieldData->condition))
-//                    $filters .= ';' . $fieldData->condition;
-//
-//                //请求筛选
-//                if ($request->has('filters')) {
-//                    $filters .= ';' . $request->query('filters');
-//                }
-//                $query = $request->except(['field_id', 'filters']);
-//                if (!empty($query)) {
-//                    $filters .= '&' . http_build_query($query);
-//                }
-//                $type = 'staff';//返回类型为部门结构
-//                $data = $this->oaApiSerivce->getStaff($filters);
-//            } else {
-//                //全部员工
-//                $data = $this->getDepartmentUser($request);
-//            }
-//        } else {
-//            //全部员工
-//            $data = $this->getDepartmentUser($request);
-//        }
-//        return [
-//            'type' => $type,
-//            'data' => $data,
-//        ];
+        return $data;
     }
-
-    /**
-     * 获取部门员工
-     * @param $request
-     * @return mixed
-     * @throws \Illuminate\Container\EntryNotFoundException
-     */
-//    protected function getDepartmentUser($request)
-//    {
-//        if ($request->has('filters') && $request->filters) {
-//            //搜索
-//            $filters = 'filters=' . $request->filters;
-//            $query = $request->except(['field_id', 'filters']);
-//            if (!empty($query)) {
-//                $filters .= '&' . http_build_query($query);
-//            }
-//            $data = $this->oaApiSerivce->getStaff($filters);
-//        } else {
-//            if ($request->has('department')) {
-//                //选择部门
-//                $data = $this->oaApiSerivce->getDepartmentUser($request->query('department'));
-//            } else {
-//                //父级部门
-//                $filters = 'filters=parent_id=0';
-//                $children = $this->oaApiSerivce->getDepartments($filters);
-//                $data['children'] = $children;
-//                $data['staff'] = [];
-//            }
-//        }
-//        return $data;
-//    }
 
     /**
      * 获取部门
