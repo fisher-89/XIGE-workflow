@@ -120,24 +120,24 @@ trait NextStepApprover
         $filters = rtrim($filters, '|');
         $oaApiService = new OaApiService();
         $result = $oaApiService->getStaff($filters);
-        $userData = $this->filterUserInfo($result);//筛选字段
-        return $userData;
+//        $userData = $this->filterUserInfo($result);//筛选字段
+        return $result;
     }
     /**
      * 过滤用户字段数据
      * @param $user
      */
-    protected function filterUserInfo(array $user)
-    {
-        $data = array_map(function ($item) {
-            $user = [];
-            $user['staff_sn'] = $item['staff_sn'];
-            $user['realname'] = $item['realname'];
-            $user['department_id'] = $item['department']['id'];
-            $user['department_full_name'] = $item['department']['full_name'];
-            $user['position_name'] = $item['position']['name'];
-            return $user;
-        }, $user);
-        return $data;
-    }
+//    protected function filterUserInfo(array $user)
+//    {
+//        $data = array_map(function ($item) {
+//            $user = [];
+//            $user['staff_sn'] = $item['staff_sn'];
+//            $user['realname'] = $item['realname'];
+//            $user['department_id'] = $item['department']['id'];
+//            $user['department_full_name'] = $item['department']['full_name'];
+//            $user['position_name'] = $item['position']['name'];
+//            return $user;
+//        }, $user);
+//        return $data;
+//    }
 }
