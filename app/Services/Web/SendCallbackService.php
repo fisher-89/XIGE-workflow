@@ -13,7 +13,7 @@ use App\Models\StepRun;
 use App\Repository\Web\FormRepository;
 use Illuminate\Support\Facades\Auth;
 
-class CallbackService
+class SendCallbackService
 {
 
     protected $formRepository;

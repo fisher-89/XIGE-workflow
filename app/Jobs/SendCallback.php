@@ -2,7 +2,7 @@
 
 namespace App\Jobs;
 
-use App\Services\Web\CallbackService;
+use App\Services\Web\SendCallbackService;
 use Illuminate\Bus\Queueable;
 use Illuminate\Queue\SerializesModels;
 use Illuminate\Queue\InteractsWithQueue;
@@ -23,7 +23,7 @@ class SendCallback implements ShouldQueue
      *
      * @return void
      */
-    public function __construct($stepRunId, $type)
+    public function __construct(int $stepRunId, string $type)
     {
         $this->stepRunId = $stepRunId;
         $this->type = $type;
@@ -34,9 +34,9 @@ class SendCallback implements ShouldQueue
      *
      * @return void
      */
-    public function handle(CallbackService $callbackService)
+    public function handle(SendCallbackService $sendCallbackService)
     {
-        $callbackService->sendCallback($this->stepRunId, $this->type);
+        $sendCallbackService->sendCallback($this->stepRunId, $this->type);
     }
 
     public function failed(\Exception $exception)
