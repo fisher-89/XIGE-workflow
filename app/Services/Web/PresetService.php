@@ -12,6 +12,7 @@ namespace App\Services\Web;
 
 use App\Models\Flow;
 use App\Models\Step;
+use App\Models\StepRun;
 use App\Repository\Web\FlowRepository;
 use App\Repository\Web\FormRepository;
 use App\Services\OA\OaApiService;
@@ -45,7 +46,7 @@ class PresetService
         //过滤request表单data
         $filterRequestFormData = $this->filterRequestFormData($requestFormData, $step);
         //获取数据库表单data
-        $dbFormData = $this->getDbFormData($step->flowRun, $flow);
+        $dbFormData = $this->getDbFormData($request, $flow->form_id);
         //替换数据库表单数据
         $newDbFormData = $this->replaceRequestFormDataToDbFormData($filterRequestFormData, $dbFormData);
         //获取表单字段（含控件）
@@ -163,16 +164,17 @@ class PresetService
      * @param $flow
      * @return array
      */
-    protected function getDbFormData($flowRun, $flow)
+    protected function getDbFormData($request, $formId)
     {
-        if ($flowRun) {
+        if ($request->has('step_run_id') && $request->step_run_id) {
             //流程通过
+            $flowRun = StepRun::find($request->step_run_id)->flowRun;
             $dbFormData = $this->formRepository->getFormData($flowRun);
         } else {
             //流程发起
             $dbFormData = [];
         }
-        $fields = $this->formRepository->getFields($flow->form_id);
+        $fields = $this->formRepository->getFields($formId);
         $filterFormData = $this->formData->getFilterFormData($dbFormData, $fields);//获取筛选过后的表单数据
         return $filterFormData;
     }
