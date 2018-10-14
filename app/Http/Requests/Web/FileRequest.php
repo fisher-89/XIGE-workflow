@@ -25,17 +25,22 @@ class FileRequest extends FormRequest
      */
     public function rules()
     {
-        $filenameExtension = Field::find($this->field_id)->validator->pluck('params')->all();
-        return [
+        $rule = [
             'field_id' => [
                 Rule::exists('fields', 'id')->where('type', 'file')
             ],
             'upFile' => [
                 'required',
                 'file',
-                'image:' . implode(',', $filenameExtension),
             ]
         ];
+        $fieldData = Field::findOrFail($this->field_id);
+        if($fieldData->validator->count()>0){
+            $filenameExtension = $fieldData->validator->pluck('params')->all();
+            $rule['upFile'][] = 'image:' . implode(',', $filenameExtension);
+        }
+        return $rule;
+
     }
 
     public function attributes()
