@@ -37,6 +37,7 @@ class FormDataService
             //有表单数据
             $newFormData = $this->calculateFormDataDefaultValue($formData, $fields);
         }
+        dd($newFormData);
         return $newFormData;
     }
 
@@ -83,7 +84,7 @@ class FormDataService
                     $defaultValue = $field->default_value;
             }
         } else {
-            $defaultValue = $field->default_value;
+            $defaultValue = null;
             if ($field->type == 'file')
                 $defaultValue = [];
         }
