@@ -25,7 +25,7 @@ class Images
     {
         $file = $request->file('upFile');
         $originalExtension = $file->getClientOriginalExtension(); // 扩展名
-        $name = Auth::id() . '_' . date('YmdHis');
+        $name = $this->setFileName();
         $newFileName = $name . '.' . $originalExtension;//新的文件名
         $newFilePath = 'uploads/temporary/' . date('Y') . '/' . date('m') . '/' . date('d') . '/';//新的文件路径
         $file->storeAs($newFilePath, $newFileName, 'public');//图片存储
@@ -35,7 +35,6 @@ class Images
         $newThumbFileName = $name . '_thumb' . '.' . $originalExtension;//缩略图文件名
         $thumbImg = Image::make($realPath)->resize(100, 100);
         $thumbImg->save(Storage::disk('public')->copy($newFilePath . $newFileName, $newFilePath . $newThumbFileName));//缩略图保存
-//        $thumbImg->save(public_path('storage/' . $newFilePath . $newThumbFileName));//缩略图保存
 
         $path = '/storage/' . $newFilePath . $newFileName;
         return [
@@ -43,6 +42,21 @@ class Images
             'url' => config('app.url') . $path,
             'thumb_url' => config('app.url') . '/storage/' . $newFilePath . $newThumbFileName
         ];
+    }
+
+    /**
+     * 生成文件名
+     * @return string
+     */
+    protected function setFileName()
+    {
+        $str = '1234567890';
+        $random = '';
+        for ($i = 1; $i <= 6; $i++) {
+            $random .= mt_rand(0, strlen($str) - 1);
+        }
+        $name = Auth::id() . '_' . date('YmdHis') . '_' . $random;
+        return $name;
     }
 
     /**
