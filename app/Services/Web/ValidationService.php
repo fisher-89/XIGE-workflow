@@ -64,12 +64,15 @@ class ValidationService
                         break;
                     case 'date':
                         $fieldRules[] = 'date_format:"Y-m-d"';
+                        $fieldRules[] = 'nullable';
                         break;
                     case 'datetime':
                         $fieldRules[] = 'date_format:"Y-m-d H:i:s"';
+                        $fieldRules[] = 'nullable';
                         break;
                     case 'time':
                         $fieldRules[] = 'date_format:"H:i:s"';
+                        $fieldRules[] = 'nullable';
                         break;
                     case 'region':
 
