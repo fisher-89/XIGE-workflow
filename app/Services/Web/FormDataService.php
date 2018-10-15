@@ -37,7 +37,6 @@ class FormDataService
             //有表单数据
             $newFormData = $this->calculateFormDataDefaultValue($formData, $fields);
         }
-        dd($newFormData);
         return $newFormData;
     }
 
