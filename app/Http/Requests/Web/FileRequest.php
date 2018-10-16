@@ -35,9 +35,9 @@ class FileRequest extends FormRequest
             ]
         ];
         $fieldData = Field::findOrFail($this->field_id);
-        if($fieldData->validator->count()>0){
+        if ($fieldData->validator->count() > 0) {
             $filenameExtension = $fieldData->validator->pluck('params')->all();
-            $rule['upFile'][] = 'image:' . implode(',', $filenameExtension);
+            $rule['upFile'][] = 'mimes:' . implode(',', $filenameExtension);
         }
         return $rule;
 
@@ -46,7 +46,7 @@ class FileRequest extends FormRequest
     public function attributes()
     {
         return [
-            'field_id'=>'字段ID',
+            'field_id' => '字段ID',
             'upFile' => '文件',
         ];
     }
