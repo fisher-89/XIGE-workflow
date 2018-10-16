@@ -154,6 +154,14 @@ class FormRepository
                         case 'region':
                             $formData[$k] = json_decode($v, true);
                             break;
+                        case 'api':
+                            $value = json_decode($v, true);
+                            if (is_array($value) && !is_null($value)) {
+                                $formData[$k] = $value;
+                            } else {
+                                $formData[$k] = $v;
+                            }
+                            break;
                     }
                 }
             }
