@@ -46,6 +46,10 @@ class ThroughRequest extends FormRequest
             'remark' => [
                 'string',
                 'max:200'
+            ],
+            'host'=>[
+                'required',
+                'url'
             ]
         ];
     }
@@ -57,6 +61,7 @@ class ThroughRequest extends FormRequest
             'timestamp' => '预提交时间戳',
             'next_step' => '下一步骤审批',
             'remark'=>'备注',
+            'host'=>'审批详情地址'
         ];
     }
 }

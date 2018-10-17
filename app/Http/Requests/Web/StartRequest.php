@@ -41,6 +41,10 @@ class StartRequest extends FormRequest
             'next_step' => [
                 'required',
                 'array'
+            ],
+            'host'=>[
+                'required',
+                'url'
             ]
         ];
 
@@ -51,7 +55,8 @@ class StartRequest extends FormRequest
         return [
             'flow_id' => '流程ID',
             'timestamp' => '预提交时间戳',
-            'next_step' => '下一步骤审批'
+            'next_step' => '下一步骤审批',
+            'host'=>'审批详情地址'
         ];
     }
 }

@@ -21,7 +21,7 @@ trait Todo
     public function sendTodoMessage($currentStepRun, $nextStepRunData)
     {
         $nextStepRunData->each(function ($stepRun) use ($currentStepRun) {
-            $this->sendTodoMessageToDingTalk($stepRun,$currentStepRun);
+            $this->sendTodoMessageToDingTalk($stepRun, $currentStepRun);
         });
     }
 
@@ -32,29 +32,29 @@ trait Todo
             'userid' => $stepRun->approver_sn,
             'create_time' => strtotime($stepRun->create_at) . '000',
             'title' => $createName . '发起的' . $stepRun->flow_name . '流程需要你审批',
-            'url' => 'http://' . request()->header('host') . '/approvelist?type=processing&page=1',
-            'formItemList'=>[
+            'url' => request()->get('host') . '/' . $stepRun->id,
+            'formItemList' => [
                 [
-                    'title'=>'发起时间',
-                    'content'=>$currentStepRun->flowRun->created_at->format('Y-m-d H:i:s')
+                    'title' => '发起时间',
+                    'content' => $currentStepRun->flowRun->created_at->format('Y-m-d H:i:s')
                 ],
                 [
-                    'title'=>'审批人',
-                    'content'=>$currentStepRun->approver_name
+                    'title' => '审批人',
+                    'content' => $currentStepRun->approver_name
                 ],
                 [
-                    'title'=>'提交时间',
-                    'content'=>$stepRun->created_at->format('Y-m-d H:i:s')
+                    'title' => '提交时间',
+                    'content' => $stepRun->created_at->format('Y-m-d H:i:s')
                 ]
             ],
-            'step_run_id'=>$stepRun->id,
-            'callback'=>route('todo'),
+            'step_run_id' => $stepRun->id,
+            'callback' => route('todo'),
         ];
-        try{
+        try {
             $oaApiService = new OaApiService();
             //result 1发送成功 0发送失败
             $result = $oaApiService->sendAddTodoMessage($data);
-        }catch(\Exception $e){
+        } catch (\Exception $e) {
 
         }
     }
