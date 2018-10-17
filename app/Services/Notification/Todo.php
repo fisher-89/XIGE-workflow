@@ -36,7 +36,7 @@ trait Todo
             'formItemList'=>[
                 [
                     'title'=>'发起时间：',
-                    'content'=>$currentStepRun->flowRun->created_at
+                    'content'=>$currentStepRun->flowRun->created_at->format('Y-m-d H:i:s')
                 ],
                 [
                     'title'=>'审批人：',
@@ -44,7 +44,7 @@ trait Todo
                 ],
                 [
                     'title'=>'提交时间：',
-                    'content'=>$stepRun->created_at
+                    'content'=>$stepRun->created_at->format('Y-m-d H:i:s')
                 ]
             ],
             'step_run_id'=>$stepRun->id,
