@@ -47,6 +47,10 @@ class DeliverRequest extends FormRequest
             'remark' => [
                 'string',
                 'max:200'
+            ],
+            'host'=>[
+                'required',
+                'url'
             ]
         ];
     }
@@ -58,6 +62,7 @@ class DeliverRequest extends FormRequest
             'approver_sn' => '转交人工号',
             'approver_name' => '转交人名字',
             'remark' => '备注',
+            'host'=>'审批详情地址',
         ];
     }
 }
