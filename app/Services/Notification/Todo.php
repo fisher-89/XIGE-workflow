@@ -21,7 +21,7 @@ trait Todo
     public function sendTodoMessage($currentStepRun, $nextStepRunData)
     {
         $nextStepRunData->each(function ($stepRun) use ($currentStepRun) {
-            $this->sendTodoMessageToDingTalk($stepRun);
+            $this->sendTodoMessageToDingTalk($stepRun,$currentStepRun);
         });
     }
 
