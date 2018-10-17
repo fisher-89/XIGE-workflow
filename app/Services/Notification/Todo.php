@@ -35,15 +35,15 @@ trait Todo
             'url' => 'http://' . request()->header('host') . '/approvelist?type=processing&page=1',
             'formItemList'=>[
                 [
-                    'title'=>'发起时间：',
+                    'title'=>'发起时间',
                     'content'=>$currentStepRun->flowRun->created_at->format('Y-m-d H:i:s')
                 ],
                 [
-                    'title'=>'审批人：',
+                    'title'=>'审批人',
                     'content'=>$currentStepRun->approver_name
                 ],
                 [
-                    'title'=>'提交时间：',
+                    'title'=>'提交时间',
                     'content'=>$stepRun->created_at->format('Y-m-d H:i:s')
                 ]
             ],
