@@ -30,7 +30,7 @@ trait Todo
         $createName = $currentStepRun->flowRun->creator_name;
         $data = [
             'userid' => $stepRun->approver_sn,
-            'create_time' => strtotime($stepRun->create_at) . '000',
+            'create_time' => strtotime($stepRun->created_at) . '000',
             'title' => $createName . '发起的' . $stepRun->flow_name . '流程需要你审批',
             'url' => request()->get('host') . '/' . $stepRun->id,
             'formItemList' => [
