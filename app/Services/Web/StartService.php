@@ -17,6 +17,7 @@ use App\Models\FormGrid;
 use App\Models\Step;
 use App\Models\StepRun;
 use App\Repository\Web\FlowRepository;
+use App\Services\Notification\MessageNotification;
 use App\Services\Web\File\Images;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
@@ -29,11 +30,14 @@ class StartService
     protected $presetService;
     //文件处理
     protected $images;
+    //消息通知
+    protected $dingTalkMessage;
 
     public function __construct(PresetService $presetService, Images $images)
     {
         $this->presetService = $presetService;
         $this->images = $images;
+        $this->dingTalkMessage = new MessageNotification();
     }
 
 
@@ -57,7 +61,7 @@ class StartService
             SendCallback::dispatch($stepRun->id, 'step_start');
         });
         //发送钉钉待办消息
-        //@todo
+        $this->dingTalkMessage->sendTodoMessage($stepRunData['current_step_run_data'],$stepRunData['next_step_run_data']);
         return $stepRunData;
     }
 

@@ -13,12 +13,14 @@ use App\Services\OA\OaApiService;
 
 class MessageNotification
 {
-    protected $sendMessage;
+    //待办
+    use Todo;
+
+    protected $oaApiService;
 
     public function __construct()
     {
-        $oaApiService = new OaApiService();
-        $this->sendMessage = $oaApiService;
+        $this->oaApiService = new OaApiService();
     }
 
     /**
@@ -43,53 +45,10 @@ class MessageNotification
                     ]
                 ]
             ];
-            $this->sendMessage->sendDingtalkJobNotificationMessage($message);
+            $this->oaApiService->sendDingtalkJobNotificationMessage($message);
         });
     }
 
-    /**
-     * 发起待办消息（钉钉）
-     * @param $currentStepRunData
-     * @param $nextStepRunData
-     */
-    public function sendDingtalkTodoMessage($currentStepRunData,$nextStepRunData)
-    {
-        $nextStepRunData->map(function ($stepRun) use($currentStepRunData) {
-            $message = [
-                'userid' => $stepRun->approver_sn,
-                'create_time' => strtotime($stepRun->created_at) . '000',
-                'title' =>$stepRun->flowRun->creator_name.'发起的'.$stepRun->flow_name.'流程需要你审批',
-                'url'=>'http://'.request()->header('host'),
-                'formItemList'=>[
-                    [
-                        'title'=>'发起人：',
-                        'content'=>$stepRun->flowRun->creator_name
-                    ],
-                    [
-                        'title'=>'发起时间：',
-                        'content'=>$stepRun->flowRun->created_at
-                    ],
-                    [
-                        'title'=>'审批人：',
-                        'content'=>$currentStepRunData->approver_name
-                    ],
-                    [
-                        'title'=>'提交时间：',
-                        'content'=>$stepRun->created_at
-                    ]
-                ],
-                'step_run_id'=>$stepRun->id,
-                'callback'=>route('todo'),
-            ];
-            try{
-                //result 1发送成功 0发送失败
-                $result = $this->sendMessage->sendAddTodoMessage($message);
-            }catch(\Exception $exception){
-
-            }
-
-        });
-    }
 
     /**
      * 发送消息给流程发起人
@@ -112,6 +71,6 @@ class MessageNotification
                 ]
             ]
         ];
-        $this->sendMessage->sendDingtalkJobNotificationMessage($message);
+        $this->oaApiService->sendDingtalkJobNotificationMessage($message);
     }
 }
