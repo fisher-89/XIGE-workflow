@@ -114,4 +114,16 @@ class OaApiService
         $result = app('curl')->sendMessageByPost($url, $data);
         return $result;
     }
+
+    /**
+     * 更新待办信息（钉钉）
+     * @param $data
+     * @return mixed
+     */
+    public function updateTodo($data)
+    {
+        $url = config('oa.dingtalk.todo.update');
+        $result = app('curl')->sendMessageByPost($url,$data);
+        return $result;
+    }
 }

@@ -51,6 +51,3 @@ Route::middleware('auth:api')->namespace('Api\Web')->group(function () {
     //获取全部审批人
     Route::get('/approve-staff','ApproveStaffController@getAllApproveStaff');
 });
-
-//待办事项通知回调
-Route::post('/callback/todo','Api\Web\CallbackController@todo')->name('todo');

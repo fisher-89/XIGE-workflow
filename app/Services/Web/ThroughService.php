@@ -46,7 +46,6 @@ class ThroughService
         //步骤运行数据
         $this->stepRun = StepRun::find($request->input('step_run_id'));
 
-
         $cacheFormData = $this->presetService->getPresetData($request->input('timestamp'));
         if (!$cacheFormData)
             abort(404, '预提交数据已失效，请重新提交数据');
@@ -58,6 +57,10 @@ class ThroughService
         SendCallback::dispatch($this->stepRun->id, 'step_agree');
         //步骤结束回调
         SendCallback::dispatch($this->stepRun->id, 'step_finish');
+
+        //更新待办
+//        $this->message->updateTodo($this->stepRun);
+
         if (empty($nextStepRunData) && $cacheFormData['step_end'] == 1) {
             //流程结束
             //流程结束回调

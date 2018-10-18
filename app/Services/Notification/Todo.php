@@ -36,7 +36,6 @@ trait Todo
             'url' => request()->get('host') . '/' . $stepRun->id,
             'formItemList' => $topThreeFormData,
             'step_run_id' => $stepRun->id,
-            'callback' => route('todo'),
         ];
         try {
             $oaApiService = new OaApiService();
@@ -45,5 +44,25 @@ trait Todo
         } catch (\Exception $e) {
 
         }
+    }
+
+    /**
+     * 更新待办信息
+     * @param $stepRun
+     */
+    public function updateTodo($stepRun)
+    {
+        $recordId = $stepRun->recorid_id;
+        $data = [
+            'userid' => $stepRun->approver_sn,
+            'record_id'=>$recordId,
+        ];
+        try{
+            $oaApiService = new OaApiService();
+            $result = $oaApiService->updateTodo($data);
+        }catch(\Exception $e){
+
+        }
+
     }
 }

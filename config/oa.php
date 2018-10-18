@@ -34,6 +34,8 @@ return [
         'todo' => [
             //发起待办
             'add' => $host . '/dingtalk/todo/add',
+            //更新待办
+            'update'=>$host . '/dingtalk/todo/update',
         ]
     ],
     /**
