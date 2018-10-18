@@ -15,38 +15,26 @@ trait Todo
 {
     /**
      * 发送待办消息
-     * @param $currentStepRun
      * @param $nextStepRunData
+     * @param $formData
      */
-    public function sendTodoMessage($currentStepRun, $nextStepRunData)
+    public function sendTodoMessage($nextStepRunData,$formData)
     {
-        $nextStepRunData->each(function ($stepRun) use ($currentStepRun) {
-            $this->sendTodoMessageToDingTalk($stepRun, $currentStepRun);
+        $nextStepRunData->each(function ($stepRun) use ($formData) {
+            $this->sendTodoMessageToDingTalk($stepRun,$formData);
         });
     }
 
-    protected function sendTodoMessageToDingTalk($stepRun, $currentStepRun)
+    protected function sendTodoMessageToDingTalk($stepRun,array $formData)
     {
-        $createName = $currentStepRun->flowRun->creator_name;
+        //前三表单data
+        $topThreeFormData = $this->getTopThreeFormData($formData,$stepRun->form_id);
         $data = [
             'userid' => $stepRun->approver_sn,
             'create_time' => strtotime($stepRun->created_at) . '000',
-            'title' => $createName . '发起的' . $stepRun->flow_name . '流程需要你审批',
+            'title' => $stepRun->flowRun->creator_name . '发起的' . $stepRun->flow_name . '流程需要你审批',
             'url' => request()->get('host') . '/' . $stepRun->id,
-            'formItemList' => [
-                [
-                    'title' => '发起时间',
-                    'content' => $currentStepRun->flowRun->created_at->format('Y-m-d H:i:s')
-                ],
-                [
-                    'title' => '审批人',
-                    'content' => $currentStepRun->approver_name
-                ],
-                [
-                    'title' => '提交时间',
-                    'content' => $stepRun->created_at->format('Y-m-d H:i:s')
-                ]
-            ],
+            'formItemList' => $topThreeFormData,
             'step_run_id' => $stepRun->id,
             'callback' => route('todo'),
         ];

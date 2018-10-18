@@ -61,7 +61,9 @@ class StartService
             SendCallback::dispatch($stepRun->id, 'step_start');
         });
         //发送钉钉待办消息
-        $this->dingTalkMessage->sendTodoMessage($stepRunData['current_step_run_data'],$stepRunData['next_step_run_data']);
+        //表单Data
+        $formData = $this->presetService->formRepository->getFormData($stepRunData['flow_run']);
+        $this->dingTalkMessage->sendTodoMessage($stepRunData['next_step_run_data'],$formData);
         return $stepRunData;
     }
 
@@ -93,13 +95,14 @@ class StartService
      */
     protected function startSave($request, $formData)
     {
-        DB::transaction(function () use ($request, $formData, &$currentStepRunData, &$nextStepRunData) {
+        DB::transaction(function () use ($request, $formData, &$currentStepRunData, &$nextStepRunData,&$flowRunData) {
             $flowRunData = $this->createFlowRun();//创建流程运行数据
             $dataId = $this->createFormData($formData, $flowRunData);//创建表单data数据（表单与控件）
             $currentStepRunData = $this->createStartStepRunData($flowRunData, $dataId);//创建开始步骤运行数据
             $nextStepRunData = $this->createNextStepRunData($flowRunData, $dataId, $request->input('next_step'));
         });
         return [
+            'flow_run'=>$flowRunData,
             'current_step_run_data' => $currentStepRunData,//创建开始步骤数据
             'next_step_run_data' => $nextStepRunData//下一步骤运行数据
         ];
