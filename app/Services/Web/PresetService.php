@@ -25,7 +25,7 @@ class PresetService
 
 
     protected $formData;
-    protected $formRepository;
+    public $formRepository;
 
     public function __construct(FormDataService $formDataService, FormRepository $formRepository)
     {
