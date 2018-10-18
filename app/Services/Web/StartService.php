@@ -61,9 +61,12 @@ class StartService
             SendCallback::dispatch($stepRun->id, 'step_start');
         });
         //发送钉钉待办消息
-        //表单Data
-        $formData = $this->presetService->formRepository->getFormData($stepRunData['flow_run']);
-        $this->dingTalkMessage->sendTodoMessage($stepRunData['next_step_run_data'],$formData);
+        if(config('oa.is_send_message.todo')){
+            //运行发送待办通知
+            //表单Data
+            $formData = $this->presetService->formRepository->getFormData($stepRunData['flow_run']);
+            $this->dingTalkMessage->sendTodoMessage($stepRunData['next_step_run_data'],$formData);
+        }
         return $stepRunData;
     }
 

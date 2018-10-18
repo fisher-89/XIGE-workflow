@@ -36,4 +36,13 @@ return [
             'add' => $host . '/dingtalk/todo/add',
         ]
     ],
+    /**
+     * 是否发送钉钉消息
+     */
+    'is_send_message'=>[
+        //发送待办信息
+        'todo'=>true,
+        //工作消息通知
+        'message'=>true,
+    ]
 ];
