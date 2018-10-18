@@ -231,7 +231,7 @@ class CreateWorkflowTable extends Migration
             $table->char('remark', 200)->comment('操作备注')->default('');
             $table->unsignedTinyInteger('is_rejected')->default(0)->comment('上一步为驳回 1是 0否');
             $table->char('next_id',20)->default('')->comment('下一步id');
-            $table->string('record_id')->nullable()->comment('钉钉 待办事项唯一id，更新待办事项的时候需要用到');
+            $table->unsignedTinyInteger('is_send_todo')->default(0)->comment('是否发送待办通知 0否，1是');
             $table->timestamps();
             $table->softDeletes();
             $table->index('step_key');
