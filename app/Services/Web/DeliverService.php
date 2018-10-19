@@ -12,6 +12,7 @@ namespace App\Services\Web;
 
 use App\Jobs\SendCallback;
 use App\Models\StepRun;
+use App\Services\Notification\MessageNotification;
 use Illuminate\Support\Facades\DB;
 
 class DeliverService
@@ -36,6 +37,10 @@ class DeliverService
         });
         //触发转交回调
         SendCallback::dispatch($deliverData->id, 'step_deliver');
+
+        //更新待办
+        $dingTalkMessage = new MessageNotification();
+        $dingTalkMessage->updateTodo($stepRun->id);
         return $deliverData;
     }
 }

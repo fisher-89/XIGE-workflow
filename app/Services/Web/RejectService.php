@@ -11,6 +11,7 @@ namespace App\Services\Web;
 
 use App\Models\StepRun;
 use App\Jobs\SendCallback;
+use App\Services\Notification\MessageNotification;
 
 class RejectService
 {
@@ -37,6 +38,10 @@ class RejectService
 
         //步骤驳回回调
         SendCallback::dispatch($stepRunData->id, 'step_reject');
+        //更新待办
+        $dingTalkMessage = new MessageNotification();
+        $dingTalkMessage->updateTodo($stepRunData->id);
+
         return $stepRunData;
     }
 }
