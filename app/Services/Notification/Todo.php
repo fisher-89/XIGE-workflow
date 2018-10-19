@@ -41,6 +41,8 @@ trait Todo
             $oaApiService = new OaApiService();
             //result 1发送成功 0发送失败
             $result = $oaApiService->sendAddTodoMessage($data);
+            $stepRun->is_send_todo = $result;
+            $stepRun->save();
         } catch (\Exception $e) {
 
         }
