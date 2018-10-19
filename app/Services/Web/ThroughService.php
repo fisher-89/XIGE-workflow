@@ -59,7 +59,7 @@ class ThroughService
         SendCallback::dispatch($this->stepRun->id, 'step_finish');
 
         //更新待办
-//        $this->message->updateTodo($this->stepRun);
+        $this->message->updateTodo($this->stepRun->id);
 
         if (empty($nextStepRunData) && $cacheFormData['step_end'] == 1) {
             //流程结束

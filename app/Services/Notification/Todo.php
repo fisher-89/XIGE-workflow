@@ -52,12 +52,10 @@ trait Todo
      * 更新待办信息
      * @param $stepRun
      */
-    public function updateTodo($stepRun)
+    public function updateTodo($stepRunId)
     {
-        $recordId = $stepRun->recorid_id;
         $data = [
-            'userid' => $stepRun->approver_sn,
-            'record_id'=>$recordId,
+            'step_run_id' => $stepRunId,
         ];
         try{
             $oaApiService = new OaApiService();
