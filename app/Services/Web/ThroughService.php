@@ -22,7 +22,7 @@ class ThroughService
     protected $stepRun;
     protected $formData;
     protected $tablePrefix = 'form_data_';//表名前缀
-    protected $message;
+    protected $dingTalkMessage;
     //预提交
     protected $presetService;
     //发起
@@ -30,7 +30,7 @@ class ThroughService
 
     public function __construct(PresetService $presetService, StartService $startService)
     {
-        $this->message = new MessageNotification();
+        $this->dingTalkMessage = new MessageNotification();
         $this->presetService = $presetService;
         $this->startService = $startService;
     }
@@ -59,7 +59,7 @@ class ThroughService
         SendCallback::dispatch($this->stepRun->id, 'step_finish');
 
         //更新待办
-        $this->message->updateTodo($this->stepRun->id);
+        $this->dingTalkMessage->updateTodo($this->stepRun->id);
 
         if (empty($nextStepRunData) && $cacheFormData['step_end'] == 1) {
             //流程结束
@@ -74,8 +74,13 @@ class ThroughService
             });
             //发送消息给流程发起人
 
-            //发送消息给下一步审批人
-//            $this->message->sendPendingApprovalMessage($this->stepRun,$nextStepRunData);
+            //发送钉钉待办消息（发送给下一步审批人）
+            if(config('oa.is_send_message.todo')){
+                //允许发送待办通知
+                //表单Data
+                $formData = $this->presetService->formRepository->getFormData($this->stepRun->flow_run_id);
+                $this->dingTalkMessage->sendTodoMessage($nextStepRunData,$formData);
+            }
 
         }
         return $this->stepRun;
