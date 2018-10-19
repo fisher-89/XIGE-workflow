@@ -12,11 +12,21 @@ namespace App\Services\Web;
 
 use App\Jobs\SendCallback;
 use App\Models\StepRun;
+use App\Repository\Web\FormRepository;
 use App\Services\Notification\MessageNotification;
 use Illuminate\Support\Facades\DB;
 
 class DeliverService
 {
+    protected  $formRepository;
+    protected $dingTalkMessage;
+
+    public function __construct(FormRepository $formRepository,MessageNotification $messageNotification)
+    {
+        $this->formRepository = $formRepository;
+        $this->dingTalkMessage = $messageNotification;
+    }
+
     /**
      * 转交处理
      * @param $request
@@ -41,6 +51,14 @@ class DeliverService
         //更新待办
         $dingTalkMessage = new MessageNotification();
         $dingTalkMessage->updateTodo($stepRun->id);
+
+        //发送钉钉待办消息（发送给下一步审批人）
+        if(config('oa.is_send_message.todo')){
+            //允许发送待办通知
+            //表单Data
+            $formData = $this->formRepository->getFormData($stepRun->flow_run_id);
+            $this->dingTalkMessage->sendTodoMessage(collect([$deliverData]),$formData);
+        }
         return $deliverData;
     }
 }
