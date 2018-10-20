@@ -79,7 +79,9 @@ class ThroughService
                 //允许发送待办通知
                 //表单Data
                 $formData = $this->presetService->formRepository->getFormData($this->stepRun->flow_run_id);
-                $this->dingTalkMessage->sendTodoMessage($nextStepRunData,$formData);
+                $nextStepRunData->each(function ($stepRun) use ($formData) {
+                    $this->dingTalkMessage->sendTodoMessage($stepRun, $formData);
+                });
             }
 
         }

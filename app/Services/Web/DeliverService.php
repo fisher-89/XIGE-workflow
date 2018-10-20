@@ -57,7 +57,7 @@ class DeliverService
             //允许发送待办通知
             //表单Data
             $formData = $this->formRepository->getFormData($stepRun->flow_run_id);
-            $this->dingTalkMessage->sendTodoMessage(collect([$deliverData]),$formData);
+            $this->dingTalkMessage->sendTodoMessage($deliverData,$formData);
         }
         return $deliverData;
     }

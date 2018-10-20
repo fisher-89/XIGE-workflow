@@ -403,7 +403,9 @@ class StartService
         //发送待办通知
         if (config('oa.is_send_message.todo')) {
             //允许发送待办通知
-            $this->dingTalkMessage->sendTodoMessage($stepRunData['next_step_run_data'], $formData);
+            $stepRunData['next_step_run_data']->each(function ($stepRun) use ($formData) {
+                $this->dingTalkMessage->sendTodoMessage($stepRun, $formData);
+            });
         }
 
         //发送工作通知OA消息

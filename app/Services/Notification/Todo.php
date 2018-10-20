@@ -18,14 +18,7 @@ trait Todo
      * @param $nextStepRunData
      * @param $formData
      */
-    public function sendTodoMessage($nextStepRunData,$formData)
-    {
-        $nextStepRunData->each(function ($stepRun) use ($formData) {
-            $this->sendTodoMessageToDingTalk($stepRun,$formData);
-        });
-    }
-
-    protected function sendTodoMessageToDingTalk($stepRun,array $formData)
+    public function sendTodoMessage($stepRun,array $formData)
     {
         //前三表单data
         $topThreeFormData = $this->getTopThreeFormData($formData,$stepRun->form_id);
