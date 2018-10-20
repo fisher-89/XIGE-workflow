@@ -38,9 +38,15 @@ class RejectService
 
         //步骤驳回回调
         SendCallback::dispatch($stepRunData->id, 'step_reject');
+        //流程结束回调
+        SendCallback::dispatch($stepRunData->id, 'finish');
         //更新待办
         $dingTalkMessage = new MessageNotification();
         $dingTalkMessage->updateTodo($stepRunData->id);
+
+        //发送text 工作通知
+        $content = '你发起的'.$stepRunData->flow_name.'的流程被'.$stepRunData->approver_name.'驳回了';
+        $dingTalkMessage->sendJobTextMessage($stepRunData->flowRun->creator_sn,$content);
 
         return $stepRunData;
     }
