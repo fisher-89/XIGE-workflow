@@ -24,7 +24,7 @@ trait Message
         $topThreeFormData = $this->getTopThreeFormData($formData, $stepRun->form_id);
         $data = [
             'oa_client_id' => config('oa.client_id'),
-            'userid_list' => $stepRun->approver_sn,
+            'userid_list' => [$stepRun->approver_sn],
             'msg' => [
                 'msgtype' => 'oa',
                 'oa' => [
@@ -50,9 +50,12 @@ trait Message
      */
     public function sendJobTextMessage($staffSn, $content = '')
     {
+        if(!is_array($staffSn))
+            $staffSn = [$staffSn];
         $data = [
             'oa_client_id' => config('oa.client_id'),
             'userid_list' => $staffSn,
+            'to_all_user'=>false,
             'msg' => [
                 'msgtype' => 'text',
                 'text' => [
