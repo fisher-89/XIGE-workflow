@@ -60,13 +60,8 @@ class StartService
         $stepRunData['next_step_run_data']->each(function ($stepRun) {
             SendCallback::dispatch($stepRun->id, 'step_start');
         });
-        //发送钉钉待办消息
-        if(config('oa.is_send_message.todo')){
-            //允许发送待办通知
-            //表单Data
-            $formData = $this->presetService->formRepository->getFormData($stepRunData['flow_run']);
-            $this->dingTalkMessage->sendTodoMessage($stepRunData['next_step_run_data'],$formData);
-        }
+        //发送钉钉消息
+        $this->sendMessage($stepRunData);
         return $stepRunData;
     }
 
@@ -98,14 +93,14 @@ class StartService
      */
     protected function startSave($request, $formData)
     {
-        DB::transaction(function () use ($request, $formData, &$currentStepRunData, &$nextStepRunData,&$flowRunData) {
+        DB::transaction(function () use ($request, $formData, &$currentStepRunData, &$nextStepRunData, &$flowRunData) {
             $flowRunData = $this->createFlowRun();//创建流程运行数据
             $dataId = $this->createFormData($formData, $flowRunData);//创建表单data数据（表单与控件）
             $currentStepRunData = $this->createStartStepRunData($flowRunData, $dataId);//创建开始步骤运行数据
             $nextStepRunData = $this->createNextStepRunData($flowRunData, $dataId, $request->input('next_step'));
         });
         return [
-            'flow_run'=>$flowRunData,
+            'flow_run' => $flowRunData,
             'current_step_run_data' => $currentStepRunData,//创建开始步骤数据
             'next_step_run_data' => $nextStepRunData//下一步骤运行数据
         ];
@@ -119,7 +114,7 @@ class StartService
         $flowData = Flow::select('id', 'id as flow_id', 'name', 'form_id', 'flow_type_id')->find($this->flowId);
         $flowData->creator_sn = Auth::id();
         $flowData->creator_name = Auth::user()->realname;
-        $flowData->process_instance_id = date('YmdHis').'-'.$flowData->id;;
+        $flowData->process_instance_id = date('YmdHis') . '-' . $flowData->id;;
         $data = FlowRun::create($flowData->toArray());
         return $data;
     }
@@ -394,5 +389,24 @@ class StartService
             $nextStepRunData[] = $stepRunData;
         }
         return collect($nextStepRunData);
+    }
+
+    protected function sendMessage($stepRunData)
+    {
+        //表单Data
+        $formData = $this->presetService->formRepository->getFormData($stepRunData['flow_run']);
+
+        //发送待办通知
+        if (config('oa.is_send_message.todo')) {
+            //允许发送待办通知
+            $this->dingTalkMessage->sendTodoMessage($stepRunData['next_step_run_data'], $formData);
+        }
+
+        //发送工作通知
+        if (config('oa.is_send_message.message')) {
+            $stepRunData['next_step_run_data']->each(function ($stepRun) use ($formData) {
+                $this->dingTalkMessage->sendJobMessage($stepRun, $formData);
+            });
+        }
     }
 }

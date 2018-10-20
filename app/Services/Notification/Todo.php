@@ -29,6 +29,11 @@ trait Todo
     {
         //前三表单data
         $topThreeFormData = $this->getTopThreeFormData($formData,$stepRun->form_id);
+        $topThreeFormData = array_map(function($item){
+            $arr['title'] = $item['key'];
+            $arr['content'] = $item['value'];
+            return $arr;
+        },$topThreeFormData);
         $data = [
             'userid' => $stepRun->approver_sn,
             'create_time' => strtotime($stepRun->created_at) . '000',
