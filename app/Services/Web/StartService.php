@@ -391,6 +391,10 @@ class StartService
         return collect($nextStepRunData);
     }
 
+    /**
+     * 发送钉钉消息
+     * @param $stepRunData
+     */
     protected function sendMessage($stepRunData)
     {
         //表单Data
@@ -402,10 +406,10 @@ class StartService
             $this->dingTalkMessage->sendTodoMessage($stepRunData['next_step_run_data'], $formData);
         }
 
-        //发送工作通知
+        //发送工作通知OA消息
         if (config('oa.is_send_message.message')) {
             $stepRunData['next_step_run_data']->each(function ($stepRun) use ($formData) {
-                $this->dingTalkMessage->sendJobMessage($stepRun, $formData);
+                $this->dingTalkMessage->sendJobOaMessage($stepRun, $formData);
             });
         }
     }

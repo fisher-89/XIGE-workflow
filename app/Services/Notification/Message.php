@@ -14,11 +14,11 @@ use App\Services\OA\OaApiService;
 trait Message
 {
     /**
-     * 发送工作通知
+     * 发送工作通知OA消息
      * @param $stepRun
      * @param $formData
      */
-    public function sendJobMessage($stepRun, $formData)
+    public function sendJobOaMessage($stepRun, $formData)
     {
         //前三表单data
         $topThreeFormData = $this->getTopThreeFormData($formData, $stepRun->form_id);
