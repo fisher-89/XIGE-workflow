@@ -30,7 +30,7 @@ trait Message
                 'oa' => [
                     'message_url' => request()->get('host') . '/' . $stepRun->id,
                     'head' => [
-                        'bgcolor' => '10#ff9800',
+                        'bgcolor' => 'FFF44336',
                         'text' => '工作流'
                     ],
                     'body' => [
