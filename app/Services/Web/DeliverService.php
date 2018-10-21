@@ -18,10 +18,10 @@ use Illuminate\Support\Facades\DB;
 
 class DeliverService
 {
-    protected  $formRepository;
+    protected $formRepository;
     protected $dingTalkMessage;
 
-    public function __construct(FormRepository $formRepository,MessageNotification $messageNotification)
+    public function __construct(FormRepository $formRepository, MessageNotification $messageNotification)
     {
         $this->formRepository = $formRepository;
         $this->dingTalkMessage = $messageNotification;
@@ -52,13 +52,27 @@ class DeliverService
         $dingTalkMessage = new MessageNotification();
         $dingTalkMessage->updateTodo($stepRun->id);
 
-        //发送钉钉待办消息（发送给下一步审批人）
-        if(config('oa.is_send_message.todo')){
-            //允许发送待办通知
-            //表单Data
-            $formData = $this->formRepository->getFormData($stepRun->flow_run_id);
-            $this->dingTalkMessage->sendTodoMessage($deliverData,$formData);
-        }
+        //发送钉钉消息（发送给下一步审批人）
+        $this->sendMessage($deliverData);
         return $deliverData;
+    }
+
+    /**
+     * 发送消息
+     * @param $stepRun
+     */
+    protected function sendMessage($stepRun)
+    {
+        //表单Data
+        $formData = $this->formRepository->getFormData($stepRun->flow_run_id);
+        //发送待办通知
+        if (config('oa.is_send_message.todo')) {
+            //允许发送待办通知
+            $this->dingTalkMessage->sendTodoMessage($stepRun, $formData);
+        }
+        //发送工作通知OA消息
+        if (config('oa.is_send_message.message')) {
+            $this->dingTalkMessage->sendJobOaMessage($stepRun, $formData);
+        }
     }
 }
