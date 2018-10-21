@@ -24,7 +24,7 @@ trait Message
         $topThreeFormData = $this->getTopThreeFormData($formData, $stepRun->form_id);
 
         $url = request()->get('host');
-        if(str_is('approval?source=dingtalk',$url)){
+        if(str_is('approve?source=dingtalk',$url)){
             $arr = explode('?',$url);
             $url = $arr[0].'/'.$stepRun->id.'?'.$arr[1];
         }else{
