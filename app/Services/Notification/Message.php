@@ -31,6 +31,7 @@ trait Message
             $url = $url.'/'.$stepRun->id;
         }
         $data = [
+            'step_run_id'=>$stepRun->id,
             'oa_client_id' => config('oa.client_id'),
             'userid_list' => [$stepRun->approver_sn],
             'msg' => [
@@ -53,16 +54,15 @@ trait Message
 
     /**
      * text 工作通知
-     * @param $staffSn
+     * @param $stepRun
      * @param string $content
      */
-    public function sendJobTextMessage($staffSn, $content = '')
+    public function sendJobTextMessage($stepRun, $content = '')
     {
-        if(!is_array($staffSn))
-            $staffSn = [$staffSn];
         $data = [
+            'step_run_id'=>$stepRun->id,
             'oa_client_id' => config('oa.client_id'),
-            'userid_list' => $staffSn,
+            'userid_list' => [$stepRun->flowRun->creator_sn],
             'to_all_user'=>false,
             'msg' => [
                 'msgtype' => 'text',

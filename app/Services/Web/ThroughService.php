@@ -67,7 +67,7 @@ class ThroughService
             SendCallback::dispatch($this->stepRun->id, 'finish');
             //发送流程结束 text工作通知
             $content = '你发起的'.$this->stepRun->flow_name.'流程审批已结束';
-            $this->dingTalkMessage->sendJobTextMessage($this->stepRun->flowRun->creator_sn,$content);
+            $this->dingTalkMessage->sendJobTextMessage($this->stepRun,$content);
         } else {
             //流程未结束
 
