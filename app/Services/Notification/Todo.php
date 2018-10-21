@@ -27,11 +27,18 @@ trait Todo
             $arr['content'] = $item['value'];
             return $arr;
         },$topThreeFormData);
+        $url = request()->get('host');
+        if(str_is('approval?source=dingtalk',$url)){
+            $arr = explode('?',$url);
+            $url = $arr[0].'/'.$stepRun->id.'?'.$arr[1];
+        }else{
+            $url = $url.'/'.$stepRun->id;
+        }
         $data = [
             'userid' => $stepRun->approver_sn,
             'create_time' => strtotime($stepRun->created_at) . '000',
             'title' => '工作流:'.$stepRun->flowRun->creator_name . '发起的' . $stepRun->flow_name,
-            'url' => request()->get('host') . '/' . $stepRun->id,
+            'url' => $url,
             'formItemList' => $topThreeFormData,
             'step_run_id' => $stepRun->id,
         ];

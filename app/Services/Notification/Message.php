@@ -22,13 +22,21 @@ trait Message
     {
         //前三表单data
         $topThreeFormData = $this->getTopThreeFormData($formData, $stepRun->form_id);
+
+        $url = request()->get('host');
+        if(str_is('approval?source=dingtalk',$url)){
+            $arr = explode('?',$url);
+            $url = $arr[0].'/'.$stepRun->id.'?'.$arr[1];
+        }else{
+            $url = $url.'/'.$stepRun->id;
+        }
         $data = [
             'oa_client_id' => config('oa.client_id'),
             'userid_list' => [$stepRun->approver_sn],
             'msg' => [
                 'msgtype' => 'oa',
                 'oa' => [
-                    'message_url' => request()->get('host') . '/' . $stepRun->id,
+                    'message_url' => $url,
                     'head' => [
                         'bgcolor' => 'FFF44336',
                         'text' => '工作流'
