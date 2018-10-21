@@ -28,7 +28,7 @@ trait Todo
             return $arr;
         },$topThreeFormData);
         $url = request()->get('host');
-        if(str_is('approve?source=dingtalk',$url)){
+        if(str_is('*approve?source=dingtalk',$url)){
             $arr = explode('?',$url);
             $url = $arr[0].'/'.$stepRun->id.'?'.$arr[1];
         }else{
