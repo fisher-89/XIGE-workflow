@@ -12,6 +12,7 @@ namespace App\Services\Web;
 
 use App\Jobs\SendCallback;
 use App\Models\FlowRun;
+use App\Services\Notification\MessageNotification;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
 
@@ -19,9 +20,13 @@ class WithdrawService
 {
     protected $staffSn;
 
-    public function __construct()
+    //钉钉消息
+    protected $dingTalkMessage;
+
+    public function __construct(MessageNotification $messageNotification)
     {
         $this->staffSn = Auth::id();
+        $this->dingTalkMessage = $messageNotification;
     }
 
     /**
@@ -50,6 +55,27 @@ class WithdrawService
         $flowRunData->stepRun->each(function ($stepRun) {
             SendCallback::dispatch($stepRun->id, 'step_withdraw');
         });
+        $this->sendMessage($flowRunData);
         return $flowRunData;
+    }
+
+    /**
+     * 发送钉钉通知
+     * @param $flowRunData
+     */
+    protected function sendMessage($flowRunData)
+    {
+        //更新待办
+        $flowRunData->stepRun->each(function ($stepRun) {
+            $this->dingTalkMessage->updateTodo($stepRun->id);
+        });
+        //发送text工作通知
+        if (config('oa.is_send_message.message')) {
+            $content = '你审批' . $flowRunData->name . '的流程被' . $flowRunData->creator_name . '撤回了';
+            $flowRunData->stepRun->each(function ($stepRun) use ($content) {
+                $this->dingTalkMessage->sendJobTextMessage($stepRun, $content);
+            });
+        }
+
     }
 }
