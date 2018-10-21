@@ -65,6 +65,9 @@ class ThroughService
             //流程结束
             //流程结束回调
             SendCallback::dispatch($this->stepRun->id, 'finish');
+            //发送流程结束 text工作通知
+            $content = '你发起的'.$this->stepRun->flow_name.'流程审批已结束';
+            $this->dingTalkMessage->sendJobTextMessage($this->stepRun->flowRun->creator_sn,$content);
         } else {
             //流程未结束
 
@@ -72,21 +75,36 @@ class ThroughService
             $nextStepRunData->each(function ($stepRun) {
                 SendCallback::dispatch($stepRun->id, 'step_start');
             });
-            //发送消息给流程发起人
 
-            //发送钉钉待办消息（发送给下一步审批人）
-            if(config('oa.is_send_message.todo')){
-                //允许发送待办通知
-                //表单Data
-                $formData = $this->presetService->formRepository->getFormData($this->stepRun->flow_run_id);
-                $nextStepRunData->each(function ($stepRun) use ($formData) {
-                    $this->dingTalkMessage->sendTodoMessage($stepRun, $formData);
-                });
-            }
-
+            //发送钉钉消息（发送给下一步审批人）
+            $this->sendMessage($nextStepRunData);
         }
         return $this->stepRun;
     }
+
+    /**
+     * 发送钉钉通知
+     * @param $nextStepRunData
+     */
+     protected function sendMessage($nextStepRunData)
+     {
+         //表单Data
+         $formData = $this->presetService->formRepository->getFormData($this->stepRun->flow_run_id);
+
+         //发送待办通知
+         if(config('oa.is_send_message.todo')){
+             //允许发送待办通知
+             $nextStepRunData->each(function ($stepRun) use ($formData) {
+                 $this->dingTalkMessage->sendTodoMessage($stepRun, $formData);
+             });
+         }
+         //发送工作通知OA消息
+         if (config('oa.is_send_message.message')) {
+             $nextStepRunData->each(function ($stepRun) use ($formData) {
+                 $this->dingTalkMessage->sendJobOaMessage($stepRun, $formData);
+             });
+         }
+     }
 
     /**
      * 通过保存
