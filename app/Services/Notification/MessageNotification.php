@@ -23,7 +23,7 @@ class MessageNotification
      * 获取表单前三字段数据
      * @param array $formData
      */
-    protected function getTopThreeFormData(array $formData,int $formId)
+    protected function getTopThreeFormData(array $formData, int $formId)
     {
         $formRepository = new FormRepository();
         $fields = $formRepository->getFields($formId);
@@ -39,12 +39,17 @@ class MessageNotification
             $value = $formData[$field->key];
             if (!empty($value)) {
                 $count = $count + 1;
-                $newValue = json_decode($value, true);
-                if (is_array($newValue) && $newValue && !is_null($newValue)) {
-                    $value = $newValue['text'];
+                if (is_string($value)) {
+                    $newValue = json_decode($value, true);
+                    if (is_array($newValue) && $newValue && !is_null($newValue)) {
+                        $value = $newValue['text'];
+                    }
+                } else if (is_array($value) && array_has($value, 'text')) {
+                    $value = $value['text'];
                 }
+
                 if ($count < 4) {
-                    $newFormData[] = ['key'=>$key,'value'=>$value];
+                    $newFormData[] = ['key' => $key, 'value' => $value];
                 }
             }
         })->all();
