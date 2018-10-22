@@ -67,11 +67,11 @@ class ThroughService
             //流程结束回调
             SendCallback::dispatch($this->stepRun->id, 'finish');
             //发送流程结束 text工作通知
-            $content = '你发起的'.$this->stepRun->flow_name.'流程审批已结束';
-            $this->dingTalkMessage->sendJobTextMessage($this->stepRun,$content);
+            $content = '你发起的' . $this->stepRun->flow_name . '流程审批已结束';
+            $this->dingTalkMessage->sendJobTextMessage($this->stepRun, $content);
         } else {
             //流程未结束
-            if(count($request->input('next_step'))>0){
+            if (count($request->input('next_step')) > 0) {
                 //步骤开始回调
                 $nextStepRunData->each(function ($stepRun) {
                     SendCallback::dispatch($stepRun->id, 'step_start');
@@ -88,25 +88,25 @@ class ThroughService
      * 发送钉钉通知
      * @param $nextStepRunData
      */
-     protected function sendMessage($nextStepRunData)
-     {
-         //表单Data
-         $formData = $this->presetService->formRepository->getFormData($this->stepRun->flow_run_id);
+    protected function sendMessage($nextStepRunData)
+    {
+        //表单Data
+        $formData = $this->presetService->formRepository->getFormData($this->stepRun->flow_run_id);
 
-         //发送待办通知
-         if(config('oa.is_send_message.todo')){
-             //允许发送待办通知
-             $nextStepRunData->each(function ($stepRun) use ($formData) {
-                 $this->dingTalkMessage->sendTodoMessage($stepRun, $formData);
-             });
-         }
-         //发送工作通知OA消息
-         if (config('oa.is_send_message.message')) {
-             $nextStepRunData->each(function ($stepRun) use ($formData) {
-                 $this->dingTalkMessage->sendJobOaMessage($stepRun, $formData);
-             });
-         }
-     }
+        //发送待办通知
+        if (config('oa.is_send_message.todo')) {
+            //允许发送待办通知
+            $nextStepRunData->each(function ($stepRun) use ($formData) {
+                $this->dingTalkMessage->sendTodoMessage($stepRun, $formData);
+            });
+        }
+        //发送工作通知OA消息
+        if (config('oa.is_send_message.message')) {
+            $nextStepRunData->each(function ($stepRun) use ($formData) {
+                $this->dingTalkMessage->sendJobOaMessage($stepRun, $formData);
+            });
+        }
+    }
 
     /**
      * 通过保存
@@ -128,25 +128,24 @@ class ThroughService
                 //结束步骤(流程结束处理)
                 $this->endFlow();
             } else {
-                //下一步骤审批没数据
-                if(count($request->input('next_step')) == 0){
-                    $nextMergeType = 0;
-                    $nextPrevStepKeyCount = 0;
-                    $pendingCount = 0;
-                    $subStepKey = [];
-                    if(count($this->stepRun->steps->next_step_key) == 1){
-                        $nextStepData = Step::where(['flow_id'=>$this->stepRun->flow_id,'step_key'=>$this->stepRun->steps->next_step_key[0]])->first();
-                        $nextMergeType = $nextStepData->merge_type;
-                        $nextPrevStepKeyCount = count($nextStepData->prev_step_key);
-                        $subStepKey = SubStep::where('parent_key', $nextStepData->step_key)->where('flow_id', $this->stepRun->flow_id)->pluck('step_key')->all();
-                        $pendingCount = StepRun::where(['flow_id' => $this->stepRun->flow_id, 'flow_run_id' => $this->stepRun->flow_run_id, 'action_type' => 0])->whereIn('step_key', $subStepKey)->count();
-                    }
-                    if ($nextPrevStepKeyCount > 0 && $nextMergeType == 0 && $pendingCount > 0) {
-                        //下一步骤合并类型为非必须 其它步骤未操作的数据为取消状态
-                        $this->stepMergeTypeSave($subStepKey);
-                    }
+                $nextMergeType = 0;
+                $nextPrevStepKeyCount = 0;
+                $pendingCount = 0;
+                $subStepKey = [];
+                if (count($this->stepRun->steps->next_step_key) == 1) {
+                    $nextStepData = Step::where(['flow_id' => $this->stepRun->flow_id, 'step_key' => $this->stepRun->steps->next_step_key[0]])->first();
+                    $nextMergeType = $nextStepData->merge_type;
+                    $nextPrevStepKeyCount = count($nextStepData->prev_step_key);
+                    $subStepKey = SubStep::where('parent_key', $nextStepData->step_key)->where('flow_id', $this->stepRun->flow_id)->pluck('step_key')->all();
+                    $pendingCount = StepRun::where(['flow_id' => $this->stepRun->flow_id, 'flow_run_id' => $this->stepRun->flow_run_id, 'action_type' => 0])->whereIn('step_key', $subStepKey)->count();
+                }
+                if ($nextPrevStepKeyCount > 0 && $nextMergeType == 0 && $pendingCount > 0) {
+                    //下一步骤合并类型为非必须 其它步骤未操作的数据为取消状态
+                    $this->stepMergeTypeSave($subStepKey);
+                }
 
-                }else{
+
+                if (count($request->input('next_step')) > 0) {
                     $nextStepRunData = $this->createNextStepRunData($request->input('next_step'));
                     $this->stepRun->next_id = json_encode($nextStepRunData->pluck('id')->all());
                     $this->stepRun->save();
@@ -187,7 +186,7 @@ class ThroughService
             'flow_id' => $this->stepRun->flow_id,
             'flow_run_id' => $this->stepRun->flow_run_id,
             'action_type' => 0
-        ])->whereIn('step_key',$subStepKey)->update(['action_type' => -3]);
+        ])->whereIn('step_key', $subStepKey)->update(['action_type' => -3]);
     }
 
     /**
@@ -323,7 +322,7 @@ class ThroughService
                         //无控件data  删除表单控件data
                         $this->deleteFormGridData($gridKey, $gridFieldsDataKeyBy);
                     } else {
-                        $this->updateGridFormData($v,$gridKey,$gridFieldsDataKeyBy);
+                        $this->updateGridFormData($v, $gridKey, $gridFieldsDataKeyBy);
                     }
                 }
             }
@@ -338,7 +337,7 @@ class ThroughService
     protected function deleteFormGridData($gridKey, $gridFieldsDataKeyBy)
     {
         $tableName = $this->tablePrefix . $this->stepRun->form_id . '_' . $gridKey;
-        foreach($gridFieldsDataKeyBy as $field){
+        foreach ($gridFieldsDataKeyBy as $field) {
             $gridWidgetTableName = $tableName . '_fieldType_' . $field->key;
             switch ($field->type) {
                 case 'staff':
@@ -355,13 +354,13 @@ class ThroughService
         DB::table($tableName)->where('data_id', $this->stepRun->data_id)->delete();
     }
 
-    protected function updateGridFormData($gridFormData,$gridKey,$gridFieldsDataKeyBy)
+    protected function updateGridFormData($gridFormData, $gridKey, $gridFieldsDataKeyBy)
     {
         //删除表单控件数据
-        $this->deleteFormGridData($gridKey,$gridFieldsDataKeyBy);
+        $this->deleteFormGridData($gridKey, $gridFieldsDataKeyBy);
         //获取新增表单控件数据
-        foreach ($gridFormData as $k=>$v){
-            foreach ($v as $fieldKey=>$value){
+        foreach ($gridFormData as $k => $v) {
+            foreach ($v as $fieldKey => $value) {
                 $gridFormData[$k]['run_id'] = $this->stepRun->flow_run_id;
                 $gridFormData[$k]['data_id'] = $this->stepRun->data_id;
                 if (is_array($value)) {
@@ -400,9 +399,10 @@ class ThroughService
             }
         }
         //新增表单data控件数据
-        $tableName = $this->tablePrefix.$this->stepRun->form_id.'_'.$gridKey;
+        $tableName = $this->tablePrefix . $this->stepRun->form_id . '_' . $gridKey;
         DB::table($tableName)->insert($gridFormData);
     }
+
     /**
      * 流程结束处理
      * @param $id
