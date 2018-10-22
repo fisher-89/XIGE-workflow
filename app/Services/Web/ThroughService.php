@@ -71,14 +71,15 @@ class ThroughService
             $this->dingTalkMessage->sendJobTextMessage($this->stepRun,$content);
         } else {
             //流程未结束
+            if(count($request->input('next_step'))>0){
+                //步骤开始回调
+                $nextStepRunData->each(function ($stepRun) {
+                    SendCallback::dispatch($stepRun->id, 'step_start');
+                });
 
-            //步骤开始回调
-            $nextStepRunData->each(function ($stepRun) {
-                SendCallback::dispatch($stepRun->id, 'step_start');
-            });
-
-            //发送钉钉消息（发送给下一步审批人）
-            $this->sendMessage($nextStepRunData);
+                //发送钉钉消息（发送给下一步审批人）
+                $this->sendMessage($nextStepRunData);
+            }
         }
         return $this->stepRun;
     }
