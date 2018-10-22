@@ -13,6 +13,7 @@ namespace App\Services\Web;
 use App\Models\Flow;
 use App\Models\Step;
 use App\Models\StepRun;
+use App\Models\SubStep;
 use App\Repository\Web\FlowRepository;
 use App\Repository\Web\FormRepository;
 use App\Services\OA\OaApiService;
@@ -57,23 +58,75 @@ class PresetService
         $editableFields = $step->editable_fields;
         //只包含 包含编辑字段
         $formData = array_only($formData, $editableFields);
-
         $nextStep = [];
-        if (empty($step->next_step_key)) {
-            //结束流程
-            $step_end = 1;
+        $step_end = 0;
+        $message = '';
+
+        if ($request->has('step_run_id') && intval($request->input('step_run_id'))) {
+            //通过预提交
+            $stepRun = StepRun::find($request->input('step_run_id'));
+
+            if (count($step->next_step_key) == 0) {
+                //结束流程
+                $step_end = 1;
+            } else {
+                //流程未结束  获取下一步骤数据
+
+                //下一步骤合并类型
+                $nextMergeType = 0;
+                $nextPrevStepKeyCount = 0;//下一步骤的上一步骤key的个数
+                $pendingCount = 1;
+                if (count($step->next_step_key) == 1) {
+                    $nextStepData = Step::where(['flow_id' => $step->flow_id, 'step_key' => $step->next_step_key[0]])->first();
+                    $nextMergeType = $nextStepData->merge_type;
+                    $nextPrevStepKeyCount = count($nextStepData->prev_step_key);
+                    $subStepKey = SubStep::where('parent_key', $nextStepData->step_key)->where('flow_id', $stepRun->flow_id)->pluck('step_key')->all();
+                    $pendingCount = StepRun::where(['flow_id' => $step->flow_id, 'flow_run_id' => $stepRun->flow_run_id, 'action_type' => 0])->whereIn('step_key', $subStepKey)->count();
+                }
+                if ($nextPrevStepKeyCount > 0 && $nextMergeType == 1 && $pendingCount > 1) {
+                    //下一步骤合并类型为必须 等待其它步骤完成才能进行下一步提交
+                    $message = '下一步骤合并为必须，请等待其它步骤审批完成';
+                } else {
+                    $nextStep = $this->getNextSteps($step, $newDbFormData);
+                    if (empty($nextStep)) {
+                        abort(400, '该步骤为合并类型，后台配置错误，只能有一个审批步骤');
+                    }
+
+                    $nextStep = $nextStep->map(function ($field) {
+                        return $field->only(['id', 'name', 'approver_type', 'approvers']);
+                    })->all();
+                }
+
+            }
         } else {
-            //流程未结束  获取下一步骤数据
-            $step_end = 0;
+            //发起预提交
             $nextStep = $this->getNextSteps($step, $newDbFormData);
             if (empty($nextStep)) {
                 abort(400, '该步骤为合并类型，后台配置错误，只能有一个审批步骤');
             }
 
             $nextStep = $nextStep->map(function ($field) {
-                return $field->only(['id', 'name','approver_type', 'approvers']);
+                return $field->only(['id', 'name', 'approver_type', 'approvers']);
             })->all();
         }
+
+
+//        $nextStep = [];
+//        if (empty($step->next_step_key)) {
+//            //结束流程
+//            $step_end = 1;
+//        } else {
+//            //流程未结束  获取下一步骤数据
+//            $step_end = 0;
+//            $nextStep = $this->getNextSteps($step, $newDbFormData);
+//            if (empty($nextStep)) {
+//                abort(400, '该步骤为合并类型，后台配置错误，只能有一个审批步骤');
+//            }
+//
+//            $nextStep = $nextStep->map(function ($field) {
+//                return $field->only(['id', 'name','approver_type', 'approvers']);
+//            })->all();
+//        }
         $cacheData = [
             'form_data' => $formData,//表单data数据
             'available_steps' => $nextStep,//下一步骤数据
@@ -88,7 +141,8 @@ class PresetService
             'timestamp' => $timestamp,
             'concurrent_type' => $step->concurrent_type,
             'flow_id' => $flow->id,
-            'step_run_id' => $request->input('step_run_id')//步骤运行ID
+            'step_run_id' => $request->input('step_run_id'),//步骤运行ID
+            'message' => $message
         ];
         return $responseData;
     }

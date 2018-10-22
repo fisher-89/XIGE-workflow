@@ -14,6 +14,7 @@ use App\Models\Field;
 use App\Models\FormGrid;
 use App\Models\Step;
 use App\Models\StepRun;
+use App\Models\SubStep;
 use App\Services\Notification\MessageNotification;
 use Illuminate\Support\Facades\DB;
 
@@ -118,17 +119,38 @@ class ThroughService
             //当前步骤运行数据状态操作
             $this->saveCurrentStep($request->input('remark'));
             //合并类型未操作的数据为取消状态
-            if ($this->stepRun->steps->merge_type == 1)
-                $this->stepMergeTypeSave();
+//            if ($this->stepRun->steps->merge_type == 1)
+//                $this->stepMergeTypeSave();
             //更新formData
             $this->updateFormData();
             if ($isStepEnd == 1) {
                 //结束步骤(流程结束处理)
                 $this->endFlow();
             } else {
-                $nextStepRunData = $this->createNextStepRunData($request->input('next_step'));
-                $this->stepRun->next_id = json_encode($nextStepRunData->pluck('id')->all());
-                $this->stepRun->save();
+                //下一步骤审批没数据
+                if(count($request->input('next_step')) == 0){
+                    $nextMergeType = 0;
+                    $nextPrevStepKeyCount = 0;
+                    $pendingCount = 0;
+                    $subStepKey = [];
+                    if(count($this->stepRun->steps->next_step_key) == 1){
+                        $nextStepData = Step::where(['flow_id'=>$this->stepRun->flow_id,'step_key'=>$this->stepRun->steps->next_step_key[0]])->first();
+                        $nextMergeType = $nextStepData->merge_type;
+                        $nextPrevStepKeyCount = count($nextStepData->prev_step_key);
+                        $subStepKey = SubStep::where('parent_key', $nextStepData->step_key)->where('flow_id', $this->stepRun->flow_id)->pluck('step_key')->all();
+                        $pendingCount = StepRun::where(['flow_id' => $this->stepRun->flow_id, 'flow_run_id' => $this->stepRun->flow_run_id, 'action_type' => 0])->whereIn('step_key', $subStepKey)->count();
+                    }
+                    if ($nextPrevStepKeyCount > 0 && $nextMergeType == 0 && $pendingCount > 0) {
+                        //下一步骤合并类型为非必须 其它步骤未操作的数据为取消状态
+                        $this->stepMergeTypeSave($subStepKey);
+                    }
+
+                }else{
+                    $nextStepRunData = $this->createNextStepRunData($request->input('next_step'));
+                    $this->stepRun->next_id = json_encode($nextStepRunData->pluck('id')->all());
+                    $this->stepRun->save();
+                }
+
             }
         });
         return $nextStepRunData;
@@ -158,14 +180,13 @@ class ThroughService
     /**
      * 步骤合并类型为1时 其它步骤修改为取消状态
      */
-    protected function stepMergeTypeSave()
+    protected function stepMergeTypeSave($subStepKey)
     {
         StepRun::where([
             'flow_id' => $this->stepRun->flow_id,
-            'step_id' => $this->stepRun->step_id,
             'flow_run_id' => $this->stepRun->flow_run_id,
             'action_type' => 0
-        ])->update(['action_type' => -3]);
+        ])->whereIn('step_key',$subStepKey)->update(['action_type' => -3]);
     }
 
     /**
