@@ -10,6 +10,7 @@ namespace App\Repository\Admin\FlowRun;
 
 
 use App\Models\FlowRun;
+use App\Models\Region;
 use App\Repository\Web\FormRepository;
 use Illuminate\Support\Facades\DB;
 
@@ -34,6 +35,10 @@ class FlowRunRepository
         return $data;
     }
 
+    /**
+     * 导出数据
+     * @return array
+     */
     public function getExportData()
     {
         $flowRun = FlowRun::filterByQueryString()
@@ -50,12 +55,23 @@ class FlowRunRepository
                     $newValue = json_decode($value,true);
                     if(is_array($newValue) && $newValue && !is_null($value)){
                         if(count($newValue) == count($newValue,1)){
+                            //一维数组
                             if(array_has($newValue,'text')){
                                 $value = $newValue['text'];
+                            }elseif(array_has($newValue,['province_id','city_id','county_id','address'])){
+                                $regionFullName = $this->getRegionName($newValue['county_id']);
+                                $value = $regionFullName.$newValue['address'];
+                            }elseif(array_has($newValue,['province_id','city_id','county_id'])){
+                                $value = $this->getRegionName($newValue['county_id']);
+                            }elseif(array_has($newValue,['province_id','city_id'])){
+                                $value = $this->getRegionName($newValue['city_id']);
+                            }elseif(array_has($newValue,['province_id'])){
+                                $value = $this->getRegionName($newValue['province_id']);
                             }else{
                                 $value = implode(',',$newValue);
                             }
                         }else{
+                            //二维数组
                             $value = implode(',',array_pluck($newValue,'text'));
                         }
                     }elseif(is_array($newValue) && count($newValue)==0){
@@ -67,18 +83,27 @@ class FlowRunRepository
                 $newFormData[$k][$field] = $value;
             }
         }
-        dd($newFormData);
+
         //表单字段
         $fields = $this->formRepository->getFields($formId);
-        $headers = $fields['form']->map(function ($field) use ($formData) {
+        $headers = $fields['form']->map(function ($field) {
             $index = $field->key;
             $title = $field->name;
             return ['dataIndex' => $index, 'title' => $title];
-
         })->all();
         return [
             'data' => $formData,
             'headers' => $headers
         ];
+    }
+
+    /**
+     * 获取地区长字段名称
+     * @param $id
+     * @return mixed
+     */
+    protected function getRegionName($id)
+    {
+        return Region::find($id)->full_name;
     }
 }
