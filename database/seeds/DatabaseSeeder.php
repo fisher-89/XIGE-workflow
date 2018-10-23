@@ -14,5 +14,6 @@ class DatabaseSeeder extends Seeder
         // $this->call(UsersTableSeeder::class);
         $this->call(DefaultValueCalculationsSeeder::class);//运算值
         $this->call(DefaultValueVariatesSeeder::class);//系统变量
+        $this->call(RegionSeeder::class);//地区
     }
 }
