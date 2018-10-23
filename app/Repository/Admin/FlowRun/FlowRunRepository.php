@@ -51,7 +51,7 @@ class FlowRunRepository
         $newFormData = [];
         foreach($formData as $k=>$v){
             foreach($v as $field=>$value){
-                if(!in_array($field,['id','run_id','created_at','updated_at','deleted_at'])){
+                if(!in_array($field,['id','run_id','province_id','city_id','county_id','address','created_at','updated_at','deleted_at'])){
                     if($value){
                         $newValue = json_decode($value,true);
                         if(is_array($newValue) && $newValue && !is_null($value)){
@@ -81,16 +81,20 @@ class FlowRunRepository
                     }else{
                         $value = '';
                     }
+//                    $newFormData[$k][$field] = $value;
                     $newFormData[$k][] = $value;
                 }
+
             }
         }
 
         //表单字段
         $fields = $this->formRepository->getFields($formId);
         $headers = $fields['form']->map(function ($field) {
+//            $index = $field->key;
             $title = $field->name;
-            return  $title;
+//            return ['dataIndex' => $index, 'title' => $title];
+            return $title;
         })->all();
         return [
             'data' => $newFormData,
