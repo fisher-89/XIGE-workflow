@@ -9,7 +9,7 @@ class Form extends Model
 {
     use SoftDeletes;
 
-    protected $fillable = ['name','description','form_type_id','sort'];
+    protected $fillable = ['name','description','form_type_id','number','sort'];
     protected $hidden = ['deleted_at'];
 
     public function fields()

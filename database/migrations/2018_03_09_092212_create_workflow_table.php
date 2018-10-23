@@ -31,6 +31,7 @@ class CreateWorkflowTable extends Migration
             $table->char('name', 20)->comment('表单名称');
             $table->char('description', 200)->comment('表单描述')->default('');
             $table->unsignedSmallInteger('form_type_id')->comment('分类ID');
+            $table->unsignedInteger('number')->nullable()->index()->comment('表单编号');
             $table->unsignedTinyInteger('sort')->comment('排序')->default(0);
             $table->timestamps();
             $table->softDeletes();

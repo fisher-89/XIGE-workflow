@@ -25,6 +25,9 @@ class FormService
     {
         DB::transaction(function() use($request, &$data){
             $data = $this->create($request);
+            //表单编号添加
+            $data->number = $data->id;
+            $data->save();
         });
         return $data;
     }
