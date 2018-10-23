@@ -33,5 +33,14 @@ Route::namespace('Api\Admin')->middleware('auth:api')->group(function(){
     Route::apiResource('step-department-approver','StepDepartmentApproverController');
 
     Route::get('variate-calculation','VariateController@index');//获取默认值的变量数据与计算公式数据
+    /**
+     * 流程运行
+     */
+    Route::prefix('flow-run')->group(function(){
+        //获取列表
+        Route::get('/','FlowRunController@index');
+        //获取导出数据
+        Route::get('/get-export','FlowRunController@getExport');
+    });
 
 });
