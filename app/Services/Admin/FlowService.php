@@ -72,9 +72,7 @@ class FlowService
      */
     protected function editSave($request)
     {
-        $flow = Flow::find($request->id);
-        if (empty($flow))
-            abort(404, '当前流程不存在');
+        $flow = Flow::findOrFail($request->id);
         $flowNum = FlowRun::where('flow_id', $request->id)->count();
         if ($flowNum > 0) {
             $oldFlow = $flow;
