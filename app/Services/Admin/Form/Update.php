@@ -20,13 +20,15 @@ trait Update
     public function updateForm($request)
     {
         $formDataTable = new FormDataTableService($request->id);
-        $form = Form::find($request->id);
-        if (empty($form))
-            abort(404, '该表单不存在');
+        $form = Form::findOrFail($request->id);
         if ($formDataTable->getFormDataCount() > 0) {
             //表单数据表含有数据
+            $oldForm = $form;
             $form->delete();
             $form = $this->create($request);//重新插入新数据
+            //表单编号添加
+            $form->number = $oldForm->id;
+            $form->save();
             Flow::where('form_id', $request->id)->update(['form_id' => $form->id]);//修改流程表的表单id
         } else {
             //表单数据表无数据
