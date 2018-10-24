@@ -12,10 +12,7 @@ namespace App\Services\Admin;
 use App\Models\Flow;
 use App\Models\FlowRun;
 use App\Models\Step;
-use App\Models\StepChooseApprover;
-use App\Models\StepManagerApprover;
 use App\Models\SubStep;
-use App\Repository\Admin\Flow\FlowRepository;
 use Illuminate\Support\Facades\DB;
 
 class FlowService
@@ -29,6 +26,9 @@ class FlowService
     {
         DB::transaction(function () use ($request, &$data) {
             $data = $this->addSave($request);
+            //保存流程编号
+            $data->number = $data->id;
+            $data->save();
         });
         return $data;
     }
@@ -77,8 +77,12 @@ class FlowService
             abort(404, '当前流程不存在');
         $flowNum = FlowRun::where('flow_id', $request->id)->count();
         if ($flowNum > 0) {
+            $oldFlow = $flow;
             $flow->delete();
             $flow = $this->addSave($request);
+            //保存流程编号
+            $flow->number = $oldFlow->number;
+            $flow->save();
         } else {
             $this->updateFlowData($flow, $request);
         }

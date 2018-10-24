@@ -122,6 +122,7 @@ class CreateWorkflowTable extends Migration
             $table->unsignedSmallInteger('flow_type_id')->comment('分类ID');
             $table->unsignedInteger('form_id')->comment('表单ID');
             $table->unsignedTinyInteger('sort')->comment('排序')->default(0);
+            $table->unsignedInteger('number')->nullable()->index()->comment('流程编号');
             $table->unsignedTinyInteger('is_active')->comment('是否启用')->default(0);
             $table->string('start_callback_uri')->comment('发起回调地址')->default('');
             $table->string('end_callback_uri')->comment('结束回调地址')->default('');

@@ -8,7 +8,7 @@ use Illuminate\Database\Eloquent\SoftDeletes;
 class Flow extends Model
 {
     use SoftDeletes;
-    protected $fillable = ['name', 'description', 'flow_type_id', 'form_id', 'sort', 'is_active', 'start_callback_uri', 'end_callback_uri'];
+    protected $fillable = ['name', 'description', 'flow_type_id', 'form_id', 'sort','number', 'is_active', 'start_callback_uri', 'end_callback_uri'];
     protected $hidden = ['deleted_at'];
     protected $appends = ['flows_has_staff', 'flows_has_roles', 'flows_has_departments'];
 
