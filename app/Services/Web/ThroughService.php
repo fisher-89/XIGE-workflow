@@ -207,24 +207,26 @@ class ThroughService
                     if ($fieldType == 'region') {
                         //地区级数
                         $regionLevel = $formFieldsDataKeyBy[$k]->region_level;
+                        //地区的key
+                        $regionKey = $formFieldsDataKeyBy[$k]->key;
                         switch ($regionLevel) {
                             case 1;
-                                $formData['province_id'] = $v ? $v['province_id'] : null;
+                                $formData[$regionKey.'_province_id'] = $v ? $v['province_id'] : null;
                                 break;
                             case 2;
-                                $formData['province_id'] = $v ? $v['province_id'] : null;
-                                $formData['city_id'] = $v ? $v['city_id'] : null;
+                                $formData[$regionKey.'_province_id'] = $v ? $v['province_id'] : null;
+                                $formData[$regionKey.'_city_id'] = $v ? $v['city_id'] : null;
                                 break;
                             case 3;
-                                $formData['province_id'] = $v ? $v['province_id'] : null;
-                                $formData['city_id'] = $v ? $v['city_id'] : null;
-                                $formData['county_id'] = $v ? $v['county_id'] : null;
+                                $formData[$regionKey.'_province_id'] = $v ? $v['province_id'] : null;
+                                $formData[$regionKey.'_city_id'] = $v ? $v['city_id'] : null;
+                                $formData[$regionKey.'_county_id'] = $v ? $v['county_id'] : null;
                                 break;
                             case 4;
-                                $formData['province_id'] = $v ? $v['province_id'] : null;
-                                $formData['city_id'] = $v ? $v['city_id'] : null;
-                                $formData['county_id'] = $v ? $v['county_id'] : null;
-                                $formData['address'] = $v ? $v['address'] : null;
+                                $formData[$regionKey.'_province_id'] = $v ? $v['province_id'] : null;
+                                $formData[$regionKey.'_city_id'] = $v ? $v['city_id'] : null;
+                                $formData[$regionKey.'_county_id'] = $v ? $v['county_id'] : null;
+                                $formData[$regionKey.'_address'] = $v ? $v['address'] : null;
                                 break;
                         }
                     } elseif ($fieldType == 'file') {
@@ -370,24 +372,25 @@ class ThroughService
                         if ($fieldType == 'region') {
                             //地区级数
                             $regionLevel = $gridFieldsDataKeyBy[$fieldKey]->region_level;
+                            $regionKey = $gridFieldsDataKeyBy[$fieldKey]->key;
                             switch ($regionLevel) {
                                 case 1;
-                                    $gridFormData[$k]['province_id'] = $value['province_id'];
+                                    $gridFormData[$k][$regionKey.'_province_id'] = $value['province_id'];
                                     break;
                                 case 2;
-                                    $gridFormData[$k]['province_id'] = $value['province_id'];
-                                    $gridFormData[$k]['city_id'] = $value['city_id'];
+                                    $gridFormData[$k][$regionKey.'_province_id'] = $value['province_id'];
+                                    $gridFormData[$k][$regionKey.'_city_id'] = $value['city_id'];
                                     break;
                                 case 3;
-                                    $gridFormData[$k]['province_id'] = $value['province_id'];
-                                    $gridFormData[$k]['city_id'] = $value['city_id'];
-                                    $gridFormData[$k]['county_id'] = $value['county_id'];
+                                    $gridFormData[$k][$regionKey.'_province_id'] = $value['province_id'];
+                                    $gridFormData[$k][$regionKey.'_city_id'] = $value['city_id'];
+                                    $gridFormData[$k][$regionKey.'_county_id'] = $value['county_id'];
                                     break;
                                 case 4;
-                                    $gridFormData[$k]['province_id'] = $value['province_id'];
-                                    $gridFormData[$k]['city_id'] = $value['city_id'];
-                                    $gridFormData[$k]['county_id'] = $value['county_id'];
-                                    $gridFormData[$k]['address'] = $value['address'];
+                                    $gridFormData[$k][$regionKey.'_province_id'] = $value['province_id'];
+                                    $gridFormData[$k][$regionKey.'_city_id'] = $value['city_id'];
+                                    $gridFormData[$k][$regionKey.'_county_id'] = $value['county_id'];
+                                    $gridFormData[$k][$regionKey.'_address'] = $value['address'];
                                     break;
                             }
                         } elseif ($fieldType == 'file') {

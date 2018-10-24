@@ -51,7 +51,7 @@ class FlowRunRepository
         $newFormData = [];
         foreach($formData as $k=>$v){
             foreach($v as $field=>$value){
-                if(!in_array($field,['id','run_id','province_id','city_id','county_id','address','created_at','updated_at','deleted_at'])){
+                if(!in_array($field,['id','run_id',$field.'_province_id',$field.'_city_id',$field.'_county_id',$field.'_address','created_at','updated_at','deleted_at'])){
                     if($value){
                         $newValue = json_decode($value,true);
                         if(is_array($newValue) && $newValue && !is_null($value)){

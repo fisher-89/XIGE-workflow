@@ -114,7 +114,7 @@ class FormValidator
     protected function getFieldRule($request)
     {
         $fieldsType = ['int', 'text', 'date', 'datetime', 'time', 'file', 'array', 'select', 'department', 'staff', 'shop', 'region', 'api'];//字段type类型
-        $notInFields = ['id', 'run_id', 'address', 'province_id', 'city_id', 'county_id', 'created_at', 'updated_at', 'deleted_at'];//过滤字段
+        $notInFields = ['id', 'run_id', 'created_at', 'updated_at', 'deleted_at'];//过滤字段
         $rule = [
             'fields' => [
                 'required',
