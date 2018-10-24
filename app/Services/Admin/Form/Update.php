@@ -27,7 +27,7 @@ trait Update
             $form->delete();
             $form = $this->create($request);//重新插入新数据
             //表单编号添加
-            $form->number = $oldForm->id;
+            $form->number = $oldForm->number;
             $form->save();
             Flow::where('form_id', $request->id)->update(['form_id' => $form->id]);//修改流程表的表单id
         } else {
