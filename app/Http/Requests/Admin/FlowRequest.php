@@ -74,6 +74,10 @@ class FlowRequest extends FormRequest
                 'url',
                 'max:255',
             ],
+            'send_message' => [
+                'required',
+                Rule::in([0, 1])
+            ],
             /*--------流程验证end-------*/
 
             /*------流程权限start----*/
@@ -149,13 +153,13 @@ class FlowRequest extends FormRequest
             'steps.*.required_fields.*' => [
                 new FormFields($this->form_id)
             ],
-            'steps.*.approver_type'=>[
+            'steps.*.approver_type' => [
                 'required',
-                Rule::in([0,1,2,3])
+                Rule::in([0, 1, 2, 3])
             ],
-            'steps.*.step_approver_id'=>[
-              'nullable',
-              'required_if:steps.*.approver_type,2'
+            'steps.*.step_approver_id' => [
+                'nullable',
+                'required_if:steps.*.approver_type,2'
             ],
             'steps.*.approvers' => [
                 'array',
@@ -219,11 +223,23 @@ class FlowRequest extends FormRequest
                 'url',
                 'max:255'
             ],
-            'steps.*.x'=>[
+            'steps.*.x' => [
                 'max:50',
             ],
-            'steps.*.y'=>[
+            'steps.*.y' => [
                 'max:50',
+            ],
+            'steps.*.send_todo' => [
+                'required',
+                Rule::in([0, 1])
+            ],
+            'steps.*.send_start' => [
+                'required',
+                Rule::in([0, 1])
+            ],
+            'steps.*.cc_person' => [
+                'array',
+                'nullable'
             ],
             /*--------步骤验证end------*/
         ];
@@ -241,6 +257,7 @@ class FlowRequest extends FormRequest
             'is_active' => '是否启用',
             'start_callback_uri' => '发起回调地址',
             'end_callback_uri' => '结束回调地址',
+            'send_message'=>'发送消息',
             //权限
             'flows_has_staff' => '发起人',
             'flows_has_roles' => '发起角色',
@@ -277,6 +294,9 @@ class FlowRequest extends FormRequest
             'steps.*.withdraw_callback_uri' => '撤回回调地址',
             'steps.*.x' => '坐标X轴',
             'steps.*.y' => '坐标Y轴',
+            'steps.*.send_todo' => '发送待办',
+            'steps.*.send_start' => '发起人信息',
+            'steps.*.cc_person' => '抄送人',
         ];
     }
 }

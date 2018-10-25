@@ -126,6 +126,7 @@ class CreateWorkflowTable extends Migration
             $table->unsignedTinyInteger('is_active')->comment('是否启用')->default(0);
             $table->string('start_callback_uri')->comment('发起回调地址')->default('');
             $table->string('end_callback_uri')->comment('结束回调地址')->default('');
+            $table->enum('send_message',[1,0])->comment('发送消息 1是 0否')->default(1);
             $table->timestamps();
             $table->softDeletes();
             $table->foreign('flow_type_id')->references('id')->on('flow_types');
@@ -188,6 +189,9 @@ class CreateWorkflowTable extends Migration
             $table->string('withdraw_callback_uri')->comment('撤回回调地址')->default('');
             $table->char('x',50)->comment('步骤坐标X轴')->default('');
             $table->char('y',50)->comment('步骤坐标Y轴')->default('');
+            $table->enum('send_todo',[1,0])->comment('发送待办信息 1是 0否')->default(1);
+            $table->enum('send_start',[1,0])->comment('发送信息给发起人 1是 0否')->default(0);
+            $table->text('cc_person')->comment('抄送人')->nullable();
             $table->timestamps();
             $table->softDeletes();
             $table->unique(['flow_id', 'step_key','deleted_at']);

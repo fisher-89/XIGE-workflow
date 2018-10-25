@@ -9,7 +9,7 @@ class Step extends Model
 {
     use SoftDeletes;
 
-    protected $fillable = ['name', 'description', 'flow_id', 'step_key', 'prev_step_key', 'next_step_key', 'hidden_fields', 'editable_fields', 'required_fields','approver_type','step_approver_id', 'approvers', 'allow_condition', 'skip_condition', 'reject_type', 'concurrent_type', 'merge_type', 'start_callback_uri', 'checking_callback_uri', 'approved_callback_uri', 'reject_callback_uri', 'transfer_callback_uri', 'end_callback_uri','withdraw_callback_uri','x','y'];
+    protected $fillable = ['name', 'description', 'flow_id', 'step_key', 'prev_step_key', 'next_step_key', 'hidden_fields', 'editable_fields', 'required_fields','approver_type','step_approver_id', 'approvers', 'allow_condition', 'skip_condition', 'reject_type', 'concurrent_type', 'merge_type', 'start_callback_uri', 'checking_callback_uri', 'approved_callback_uri', 'reject_callback_uri', 'transfer_callback_uri', 'end_callback_uri','withdraw_callback_uri','x','y','send_todo','send_start','cc_person'];
 
     protected $casts = [
         'prev_step_key' => 'array',
@@ -18,6 +18,7 @@ class Step extends Model
         'editable_fields' => 'array',
         'required_fields' => 'array',
         'approvers' => 'array',
+        'cc_person'=>'array',
     ];
 
     protected $hidden = ['created_at','updated_at','deleted_at'];
