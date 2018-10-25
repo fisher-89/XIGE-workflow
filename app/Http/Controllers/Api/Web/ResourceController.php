@@ -36,6 +36,7 @@ class ResourceController extends Controller
      */
     public function getFlowList()
     {
+        abort(400,'测试报错');
         $flowId = FlowAuth::getCurrentUserFlowAuthorize();//获取当前用户有权限的流程
         $flow = FlowType::with(['flow' => function ($query) use ($flowId) {
             $query->whereIn('id', $flowId)
