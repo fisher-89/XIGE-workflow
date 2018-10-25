@@ -69,13 +69,5 @@ class WithdrawService
         $flowRunData->stepRun->each(function ($stepRun) {
             $this->dingTalkMessage->updateTodo($stepRun->id);
         });
-        //发送text工作通知
-        if (config('oa.is_send_message.message')) {
-            $content = '你审批' . $flowRunData->name . '的流程被' . $flowRunData->creator_name . '撤回了';
-            $flowRunData->stepRun->each(function ($stepRun) use ($content) {
-                $this->dingTalkMessage->sendJobTextMessage($stepRun, $content);
-            });
-        }
-
     }
 }

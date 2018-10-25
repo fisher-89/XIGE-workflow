@@ -66,9 +66,14 @@ class ThroughService
             //流程结束
             //流程结束回调
             SendCallback::dispatch($this->stepRun->id, 'finish');
-            //发送流程结束 text工作通知
-            $content = '你发起的' . $this->stepRun->flow_name . '流程审批已结束';
-            $this->dingTalkMessage->sendJobTextMessage($this->stepRun, $content);
+
+            //流程是否发送通知
+            $flowIsSendMessage = $this->stepRun->flow->send_message;
+            //发送流程结束 text工作通知 给发起人
+            if(config('oa.is_send_message') && $flowIsSendMessage && $this->stepRun->steps->send_start) {
+                $content = '你发起的' . $this->stepRun->flow_name . '流程审批已结束';
+                $this->dingTalkMessage->sendJobTextMessage($this->stepRun, $content);
+            }
         } else {
             //流程未结束
             if (count($request->input('next_step')) > 0) {
@@ -93,18 +98,27 @@ class ThroughService
         //表单Data
         $formData = $this->presetService->formRepository->getFormData($this->stepRun->flow_run_id);
 
-        //发送待办通知
-        if (config('oa.is_send_message.todo')) {
-            //允许发送待办通知
+        //流程是否发送通知
+        $flowIsSendMessage = $this->stepRun->flow->send_message;
+        //发送通知
+        if (config('oa.is_send_message') && $flowIsSendMessage) {
+            //允许流程发送通知
+
+            //发送通知给审批人
             $nextStepRunData->each(function ($stepRun) use ($formData) {
-                $this->dingTalkMessage->sendTodoMessage($stepRun, $formData);
+                if ($stepRun->steps->send_todo) {
+                    //发送待办通知
+                    $this->dingTalkMessage->sendTodoMessage($stepRun, $formData);
+                    //发送工作通知OA消息
+                    $this->dingTalkMessage->sendJobOaMessage($stepRun, $formData);
+                }
             });
-        }
-        //发送工作通知OA消息
-        if (config('oa.is_send_message.message')) {
-            $nextStepRunData->each(function ($stepRun) use ($formData) {
-                $this->dingTalkMessage->sendJobOaMessage($stepRun, $formData);
-            });
+
+            //发送工作通知text消息 给发起人
+            if($this->stepRun->steps->send_start){
+                $content = '你发起的'.$this->stepRun->flow_name.'流程已被'.$this->stepRun->approver_name.'审批通过了';
+                $this->dingTalkMessage->sendJobTextMessage($this->stepRun,$content);
+            }
         }
     }
 
@@ -211,22 +225,22 @@ class ThroughService
                         $regionKey = $formFieldsDataKeyBy[$k]->key;
                         switch ($regionLevel) {
                             case 1;
-                                $formData[$regionKey.'_province_id'] = $v ? $v['province_id'] : null;
+                                $formData[$regionKey . '_province_id'] = $v ? $v['province_id'] : null;
                                 break;
                             case 2;
-                                $formData[$regionKey.'_province_id'] = $v ? $v['province_id'] : null;
-                                $formData[$regionKey.'_city_id'] = $v ? $v['city_id'] : null;
+                                $formData[$regionKey . '_province_id'] = $v ? $v['province_id'] : null;
+                                $formData[$regionKey . '_city_id'] = $v ? $v['city_id'] : null;
                                 break;
                             case 3;
-                                $formData[$regionKey.'_province_id'] = $v ? $v['province_id'] : null;
-                                $formData[$regionKey.'_city_id'] = $v ? $v['city_id'] : null;
-                                $formData[$regionKey.'_county_id'] = $v ? $v['county_id'] : null;
+                                $formData[$regionKey . '_province_id'] = $v ? $v['province_id'] : null;
+                                $formData[$regionKey . '_city_id'] = $v ? $v['city_id'] : null;
+                                $formData[$regionKey . '_county_id'] = $v ? $v['county_id'] : null;
                                 break;
                             case 4;
-                                $formData[$regionKey.'_province_id'] = $v ? $v['province_id'] : null;
-                                $formData[$regionKey.'_city_id'] = $v ? $v['city_id'] : null;
-                                $formData[$regionKey.'_county_id'] = $v ? $v['county_id'] : null;
-                                $formData[$regionKey.'_address'] = $v ? $v['address'] : null;
+                                $formData[$regionKey . '_province_id'] = $v ? $v['province_id'] : null;
+                                $formData[$regionKey . '_city_id'] = $v ? $v['city_id'] : null;
+                                $formData[$regionKey . '_county_id'] = $v ? $v['county_id'] : null;
+                                $formData[$regionKey . '_address'] = $v ? $v['address'] : null;
                                 break;
                         }
                     } elseif ($fieldType == 'file') {
@@ -375,22 +389,22 @@ class ThroughService
                             $regionKey = $gridFieldsDataKeyBy[$fieldKey]->key;
                             switch ($regionLevel) {
                                 case 1;
-                                    $gridFormData[$k][$regionKey.'_province_id'] = $value['province_id'];
+                                    $gridFormData[$k][$regionKey . '_province_id'] = $value['province_id'];
                                     break;
                                 case 2;
-                                    $gridFormData[$k][$regionKey.'_province_id'] = $value['province_id'];
-                                    $gridFormData[$k][$regionKey.'_city_id'] = $value['city_id'];
+                                    $gridFormData[$k][$regionKey . '_province_id'] = $value['province_id'];
+                                    $gridFormData[$k][$regionKey . '_city_id'] = $value['city_id'];
                                     break;
                                 case 3;
-                                    $gridFormData[$k][$regionKey.'_province_id'] = $value['province_id'];
-                                    $gridFormData[$k][$regionKey.'_city_id'] = $value['city_id'];
-                                    $gridFormData[$k][$regionKey.'_county_id'] = $value['county_id'];
+                                    $gridFormData[$k][$regionKey . '_province_id'] = $value['province_id'];
+                                    $gridFormData[$k][$regionKey . '_city_id'] = $value['city_id'];
+                                    $gridFormData[$k][$regionKey . '_county_id'] = $value['county_id'];
                                     break;
                                 case 4;
-                                    $gridFormData[$k][$regionKey.'_province_id'] = $value['province_id'];
-                                    $gridFormData[$k][$regionKey.'_city_id'] = $value['city_id'];
-                                    $gridFormData[$k][$regionKey.'_county_id'] = $value['county_id'];
-                                    $gridFormData[$k][$regionKey.'_address'] = $value['address'];
+                                    $gridFormData[$k][$regionKey . '_province_id'] = $value['province_id'];
+                                    $gridFormData[$k][$regionKey . '_city_id'] = $value['city_id'];
+                                    $gridFormData[$k][$regionKey . '_county_id'] = $value['county_id'];
+                                    $gridFormData[$k][$regionKey . '_address'] = $value['address'];
                                     break;
                             }
                         } elseif ($fieldType == 'file') {

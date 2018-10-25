@@ -53,7 +53,7 @@ class DeliverService
         $dingTalkMessage->updateTodo($stepRun->id);
 
         //发送钉钉消息（发送给下一步审批人）
-        $this->sendMessage($deliverData);
+        $this->sendMessage($deliverData,$stepRun->approver_name);
         return $deliverData;
     }
 
@@ -61,18 +61,32 @@ class DeliverService
      * 发送消息
      * @param $stepRun
      */
-    protected function sendMessage($stepRun)
+    protected function sendMessage($stepRun,string $approverName)
     {
         //表单Data
         $formData = $this->formRepository->getFormData($stepRun->flow_run_id);
-        //发送待办通知
-        if (config('oa.is_send_message.todo')) {
-            //允许发送待办通知
-            $this->dingTalkMessage->sendTodoMessage($stepRun, $formData);
-        }
-        //发送工作通知OA消息
-        if (config('oa.is_send_message.message')) {
-            $this->dingTalkMessage->sendJobOaMessage($stepRun, $formData);
+
+        //流程是否发送通知
+        $flowIsSendMessage = $stepRun->flow->send_message;
+
+        //发送通知
+        if (config('oa.is_send_message') && $flowIsSendMessage) {
+            //流程允许发送通知
+
+            //发送通知给审批人
+            if($stepRun->steps->send_todo){
+                //允许发送待办通知
+                $this->dingTalkMessage->sendTodoMessage($stepRun, $formData);
+                //发送工作通知OA消息
+                $this->dingTalkMessage->sendJobOaMessage($stepRun, $formData);
+            }
+
+            //发送工作通知text消息 给发起人
+            if($stepRun->steps->send_start){
+                $content = '你发起的'.$stepRun->flow_name.'流程被'.$approverName.'转交给'.$stepRun->approver_name.'审批了';
+                $this->dingTalkMessage->sendJobTextMessage($stepRun,$content);
+            }
+
         }
     }
 }

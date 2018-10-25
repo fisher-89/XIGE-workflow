@@ -157,22 +157,22 @@ class StartService
                         $regionKey = $formFieldsDataKeyBy[$k]->key;
                         switch ($regionLevel) {
                             case 1;
-                                $formData[$regionKey.'_province_id'] = $v['province_id'];
+                                $formData[$regionKey . '_province_id'] = $v['province_id'];
                                 break;
                             case 2;
-                                $formData[$regionKey.'_province_id'] = $v['province_id'];
-                                $formData[$regionKey.'_city_id'] = $v['city_id'];
+                                $formData[$regionKey . '_province_id'] = $v['province_id'];
+                                $formData[$regionKey . '_city_id'] = $v['city_id'];
                                 break;
                             case 3;
-                                $formData[$regionKey.'_province_id'] = $v['province_id'];
-                                $formData[$regionKey.'_city_id'] = $v['city_id'];
-                                $formData[$regionKey.'_county_id'] = $v['county_id'];
+                                $formData[$regionKey . '_province_id'] = $v['province_id'];
+                                $formData[$regionKey . '_city_id'] = $v['city_id'];
+                                $formData[$regionKey . '_county_id'] = $v['county_id'];
                                 break;
                             case 4;
-                                $formData[$regionKey.'_province_id'] = $v['province_id'];
-                                $formData[$regionKey.'_city_id'] = $v['city_id'];
-                                $formData[$regionKey.'_county_id'] = $v['county_id'];
-                                $formData[$regionKey.'_address'] = $v['address'];
+                                $formData[$regionKey . '_province_id'] = $v['province_id'];
+                                $formData[$regionKey . '_city_id'] = $v['city_id'];
+                                $formData[$regionKey . '_county_id'] = $v['county_id'];
+                                $formData[$regionKey . '_address'] = $v['address'];
                                 break;
                         }
                     } elseif ($fieldType == 'file') {
@@ -306,22 +306,22 @@ class StartService
                             $regionKey = $gridFieldsDataKeyBy[$key]->key;
                             switch ($regionLevel) {
                                 case 1;
-                                    $gridFormData[$k][$regionKey.'_province_id'] = $value['province_id'];
+                                    $gridFormData[$k][$regionKey . '_province_id'] = $value['province_id'];
                                     break;
                                 case 2;
-                                    $gridFormData[$k][$regionKey.'_province_id'] = $value['province_id'];
-                                    $gridFormData[$k][$regionKey.'_city_id'] = $value['city_id'];
+                                    $gridFormData[$k][$regionKey . '_province_id'] = $value['province_id'];
+                                    $gridFormData[$k][$regionKey . '_city_id'] = $value['city_id'];
                                     break;
                                 case 3;
-                                    $gridFormData[$k][$regionKey.'_province_id'] = $value['province_id'];
-                                    $gridFormData[$k][$regionKey.'_city_id'] = $value['city_id'];
-                                    $gridFormData[$k][$regionKey.'_county_id'] = $value['county_id'];
+                                    $gridFormData[$k][$regionKey . '_province_id'] = $value['province_id'];
+                                    $gridFormData[$k][$regionKey . '_city_id'] = $value['city_id'];
+                                    $gridFormData[$k][$regionKey . '_county_id'] = $value['county_id'];
                                     break;
                                 case 4;
-                                    $gridFormData[$k][$regionKey.'_province_id'] = $value['province_id'];
-                                    $gridFormData[$k][$regionKey.'_city_id'] = $value['city_id'];
-                                    $gridFormData[$k][$regionKey.'_county_id'] = $value['county_id'];
-                                    $gridFormData[$k][$regionKey.'_address'] = $value['address'];
+                                    $gridFormData[$k][$regionKey . '_province_id'] = $value['province_id'];
+                                    $gridFormData[$k][$regionKey . '_city_id'] = $value['city_id'];
+                                    $gridFormData[$k][$regionKey . '_county_id'] = $value['county_id'];
+                                    $gridFormData[$k][$regionKey . '_address'] = $value['address'];
                                     break;
                             }
                         } elseif ($fieldType == 'file') {
@@ -402,19 +402,27 @@ class StartService
         //表单Data
         $formData = $this->presetService->formRepository->getFormData($stepRunData['flow_run']);
 
-        //发送待办通知
-        if (config('oa.is_send_message.todo')) {
-            //允许发送待办通知
-            $stepRunData['next_step_run_data']->each(function ($stepRun) use ($formData) {
-                $this->dingTalkMessage->sendTodoMessage($stepRun, $formData);
-            });
-        }
+        //流程是否发送通知
+        $flowIsSendMessage = $stepRunData['current_step_run_data']->flow->send_message;
+        //发送通知
+        if (config('oa.is_send_message') && $flowIsSendMessage) {
+            //允许流程发送通知
 
-        //发送工作通知OA消息
-        if (config('oa.is_send_message.message')) {
+            //发送通知给审批人
             $stepRunData['next_step_run_data']->each(function ($stepRun) use ($formData) {
-                $this->dingTalkMessage->sendJobOaMessage($stepRun, $formData);
+                if ($stepRun->steps->send_todo) {
+                    //发送待办通知、
+                    $this->dingTalkMessage->sendTodoMessage($stepRun, $formData);
+                    //发送工作通知OA消息
+                    $this->dingTalkMessage->sendJobOaMessage($stepRun, $formData);
+                }
             });
+
+            //发送工作通知text消息 给发起人
+            if($stepRunData['current_step_run_data']->steps->send_start){
+                $content = '你已发起了'.$stepRunData->flow_name.'的流程';
+                $this->dingTalkMessage->sendJobTextMessage($stepRunData,$content);
+            }
         }
     }
 }

@@ -44,10 +44,12 @@ class RejectService
         $dingTalkMessage = new MessageNotification();
         $dingTalkMessage->updateTodo($stepRunData->id);
 
-        //发送text 工作通知
-        $content = '你发起的'.$stepRunData->flow_name.'的流程被'.$stepRunData->approver_name.'驳回了';
-        $dingTalkMessage->sendJobTextMessage($stepRunData,$content);
-
+        //发送text 工作通知 给发起人
+        $flowIsSendMessage = $stepRunData->flow->send_message;
+        if (config('oa.is_send_message') && $flowIsSendMessage && $stepRunData->steps->send_start) {
+            $content = '你发起的' . $stepRunData->flow_name . '的流程被' . $stepRunData->approver_name . '驳回了';
+            $dingTalkMessage->sendJobTextMessage($stepRunData, $content);
+        }
         return $stepRunData;
     }
 }
