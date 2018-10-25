@@ -19,4 +19,9 @@ class FlowRun extends Model
     {
         return $this->hasMany('App\Models\StepRun', 'flow_run_id');
     }
+
+    public function flow()
+    {
+        return $this->belongsTo(Flow::class);
+    }
 }
