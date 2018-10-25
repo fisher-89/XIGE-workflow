@@ -45,47 +45,53 @@ class ThroughService
     public function through($request)
     {
         //步骤运行数据
-        $this->stepRun = StepRun::find($request->input('step_run_id'));
+        $this->stepRun = StepRun::findOrFail($request->input('step_run_id'));
 
         $cacheFormData = $this->presetService->getPresetData($request->input('timestamp'));
         if (!$cacheFormData)
             abort(404, '预提交数据已失效，请重新提交数据');
 //        $this->startService->checkStartRequest($request, $cacheFormData);//检测审批人数据与step_run_id是否正确、缓存是否失效
         $this->formData = $cacheFormData['form_data'];
-        $nextStepRunData = $this->saveThrough($request, $cacheFormData['step_end']);
 
-        //步骤通过回调
-        SendCallback::dispatch($this->stepRun->id, 'step_agree');
-        //步骤结束回调
-        SendCallback::dispatch($this->stepRun->id, 'step_finish');
+        DB::transaction(function () use ($request, $cacheFormData) {
+            //通过数据处理
+            $nextStepRunData = $this->saveThrough($request, $cacheFormData['step_end']);
 
-        //更新待办
-        $this->dingTalkMessage->updateTodo($this->stepRun->id);
+            //步骤通过回调
+            SendCallback::dispatch($this->stepRun->id, 'step_agree');
+            //步骤结束回调
+            SendCallback::dispatch($this->stepRun->id, 'step_finish');
 
-        if (empty($nextStepRunData) && $cacheFormData['step_end'] == 1) {
-            //流程结束
-            //流程结束回调
-            SendCallback::dispatch($this->stepRun->id, 'finish');
+            //更新待办
+            $updateTodoResult = $this->dingTalkMessage->updateTodo($this->stepRun->id);
+            abort_if($updateTodoResult==0,400,'发送更新待办通知失败');
 
-            //流程是否发送通知
-            $flowIsSendMessage = $this->stepRun->flow->send_message;
-            //发送流程结束 text工作通知 给发起人
-            if(config('oa.is_send_message') && $flowIsSendMessage && $this->stepRun->steps->send_start) {
-                $content = '你发起的' . $this->stepRun->flow_name . '流程审批已结束';
-                $this->dingTalkMessage->sendJobTextMessage($this->stepRun, $content);
+            if (empty($nextStepRunData) && $cacheFormData['step_end'] == 1) {
+                //流程结束
+                //流程结束回调
+                SendCallback::dispatch($this->stepRun->id, 'finish');
+
+                //流程是否发送通知
+                $flowIsSendMessage = $this->stepRun->flow->send_message;
+                //发送流程结束 text工作通知 给发起人
+                if (config('oa.is_send_message') && $flowIsSendMessage && $this->stepRun->steps->send_start) {
+                    $content = '你发起的' . $this->stepRun->flow_name . '流程审批已结束';
+                    $result = $this->dingTalkMessage->sendJobTextMessage($this->stepRun, $content);
+                    abort_if($result==0,400,'发送工作通知失败');
+                }
+            } else {
+                //流程未结束
+                if (count($request->input('next_step')) > 0) {
+                    //步骤开始回调
+                    $nextStepRunData->each(function ($stepRun) {
+                        SendCallback::dispatch($stepRun->id, 'step_start');
+                    });
+
+                    //发送钉钉消息（发送给下一步审批人）
+                    $this->sendMessage($nextStepRunData);
+                }
             }
-        } else {
-            //流程未结束
-            if (count($request->input('next_step')) > 0) {
-                //步骤开始回调
-                $nextStepRunData->each(function ($stepRun) {
-                    SendCallback::dispatch($stepRun->id, 'step_start');
-                });
-
-                //发送钉钉消息（发送给下一步审批人）
-                $this->sendMessage($nextStepRunData);
-            }
-        }
+        });
         return $this->stepRun;
     }
 
@@ -108,16 +114,19 @@ class ThroughService
             $nextStepRunData->each(function ($stepRun) use ($formData) {
                 if ($stepRun->steps->send_todo) {
                     //发送待办通知
-                    $this->dingTalkMessage->sendTodoMessage($stepRun, $formData);
+                    $todoResult = $this->dingTalkMessage->sendTodoMessage($stepRun, $formData);
+                    abort_if($todoResult == 0, 400, '发送待办通知失败');
                     //发送工作通知OA消息
-                    $this->dingTalkMessage->sendJobOaMessage($stepRun, $formData);
+                    $oaMsgResult = $this->dingTalkMessage->sendJobOaMessage($stepRun, $formData);
+                    abort_if($oaMsgResult == 0, 400, '发送工作通知失败');
                 }
             });
 
             //发送工作通知text消息 给发起人
-            if($this->stepRun->steps->send_start){
-                $content = '你发起的'.$this->stepRun->flow_name.'流程已被'.$this->stepRun->approver_name.'审批通过了';
-                $this->dingTalkMessage->sendJobTextMessage($this->stepRun,$content);
+            if ($this->stepRun->steps->send_start) {
+                $content = '你发起的' . $this->stepRun->flow_name . '流程已被' . $this->stepRun->approver_name . '审批通过了';
+                $result = $this->dingTalkMessage->sendJobTextMessage($this->stepRun, $content);
+                abort_if($result == 0, 400, '发送工作通知失败');
             }
         }
     }
@@ -130,43 +139,38 @@ class ThroughService
     protected function saveThrough($request, $isStepEnd)
     {
         $nextStepRunData = [];//下一步骤运行数据
-        DB::transaction(function () use ($request, $isStepEnd, &$nextStepRunData) {
-            //当前步骤运行数据状态操作
-            $this->saveCurrentStep($request->input('remark'));
-            //合并类型未操作的数据为取消状态
-//            if ($this->stepRun->steps->merge_type == 1)
-//                $this->stepMergeTypeSave();
-            //更新formData
-            $this->updateFormData();
-            if ($isStepEnd == 1) {
-                //结束步骤(流程结束处理)
-                $this->endFlow();
-            } else {
-                $nextMergeType = 0;
-                $nextPrevStepKeyCount = 0;
-                $pendingCount = 0;
-                $subStepKey = [];
-                if (count($this->stepRun->steps->next_step_key) == 1) {
-                    $nextStepData = Step::where(['flow_id' => $this->stepRun->flow_id, 'step_key' => $this->stepRun->steps->next_step_key[0]])->first();
-                    $nextMergeType = $nextStepData->merge_type;
-                    $nextPrevStepKeyCount = count($nextStepData->prev_step_key);
-                    $subStepKey = SubStep::where('parent_key', $nextStepData->step_key)->where('flow_id', $this->stepRun->flow_id)->pluck('step_key')->all();
-                    $pendingCount = StepRun::where(['flow_id' => $this->stepRun->flow_id, 'flow_run_id' => $this->stepRun->flow_run_id, 'action_type' => 0])->whereIn('step_key', $subStepKey)->count();
-                }
-                if ($nextPrevStepKeyCount > 0 && $nextMergeType == 0 && $pendingCount > 0) {
-                    //下一步骤合并类型为非必须 其它步骤未操作的数据为取消状态
-                    $this->stepMergeTypeSave($subStepKey);
-                }
-
-
-                if (count($request->input('next_step')) > 0) {
-                    $nextStepRunData = $this->createNextStepRunData($request->input('next_step'));
-                    $this->stepRun->next_id = json_encode($nextStepRunData->pluck('id')->all());
-                    $this->stepRun->save();
-                }
-
+        //当前步骤运行数据状态操作
+        $this->saveCurrentStep($request->input('remark'));
+        //更新formData
+        $this->updateFormData();
+        if ($isStepEnd == 1) {
+            //结束步骤(流程结束处理)
+            $this->endFlow();
+        } else {
+            $nextMergeType = 0;
+            $nextPrevStepKeyCount = 0;
+            $pendingCount = 0;
+            $subStepKey = [];
+            if (count($this->stepRun->steps->next_step_key) == 1) {
+                $nextStepData = Step::where(['flow_id' => $this->stepRun->flow_id, 'step_key' => $this->stepRun->steps->next_step_key[0]])->first();
+                $nextMergeType = $nextStepData->merge_type;
+                $nextPrevStepKeyCount = count($nextStepData->prev_step_key);
+                $subStepKey = SubStep::where('parent_key', $nextStepData->step_key)->where('flow_id', $this->stepRun->flow_id)->pluck('step_key')->all();
+                $pendingCount = StepRun::where(['flow_id' => $this->stepRun->flow_id, 'flow_run_id' => $this->stepRun->flow_run_id, 'action_type' => 0])->whereIn('step_key', $subStepKey)->count();
             }
-        });
+            if ($nextPrevStepKeyCount > 0 && $nextMergeType == 0 && $pendingCount > 0) {
+                //下一步骤合并类型为非必须 其它步骤未操作的数据为取消状态
+                $this->stepMergeTypeSave($subStepKey);
+            }
+
+
+            if (count($request->input('next_step')) > 0) {
+                $nextStepRunData = $this->createNextStepRunData($request->input('next_step'));
+                $this->stepRun->next_id = json_encode($nextStepRunData->pluck('id')->all());
+                $this->stepRun->save();
+            }
+
+        }
         return $nextStepRunData;
     }
 

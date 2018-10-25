@@ -24,14 +24,14 @@ trait Message
         $topThreeFormData = $this->getTopThreeFormData($formData, $stepRun->form_id);
 
         $url = request()->get('host');
-        if(str_is('*approve?source=dingtalk',$url)){
-            $arr = explode('?',$url);
-            $url = $arr[0].'/'.$stepRun->id.'?'.$arr[1];
-        }else{
-            $url = $url.'/'.$stepRun->id;
+        if (str_is('*approve?source=dingtalk', $url)) {
+            $arr = explode('?', $url);
+            $url = $arr[0] . '/' . $stepRun->id . '?' . $arr[1];
+        } else {
+            $url = $url . '/' . $stepRun->id;
         }
         $data = [
-            'step_run_id'=>$stepRun->id,
+            'step_run_id' => $stepRun->id,
             'oa_client_id' => config('oa.client_id'),
             'userid_list' => [$stepRun->approver_sn],
             'msg' => [
@@ -49,7 +49,7 @@ trait Message
                 ]
             ]
         ];
-        $this->sendToOaApi($data);
+        return $this->sendToOaApi($data);
     }
 
     /**
@@ -60,29 +60,25 @@ trait Message
     public function sendJobTextMessage($stepRun, $content = '')
     {
         $data = [
-            'step_run_id'=>$stepRun->id,
+            'step_run_id' => $stepRun->id,
             'oa_client_id' => config('oa.client_id'),
             'userid_list' => [$stepRun->flowRun->creator_sn],
-            'to_all_user'=>false,
+            'to_all_user' => false,
             'msg' => [
                 'msgtype' => 'text',
                 'text' => [
-                    'content'=>$content
+                    'content' => $content
                 ]
             ]
         ];
-        $this->sendToOaApi($data);
+        return $this->sendToOaApi($data);
     }
 
     protected function sendToOaApi($data)
     {
         $oaApiService = new OaApiService();
-        try {
-            //result 1发送成功 0发送失败
-            $result = $oaApiService->sendDingtalkJobNotificationMessage($data);
-            return $result;
-        } catch (\Exception $e) {
-
-        }
+        //result 1发送成功 0发送失败
+        $result = $oaApiService->sendDingtalkJobNotificationMessage($data);
+        return $result;
     }
 }

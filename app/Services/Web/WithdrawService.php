@@ -38,7 +38,7 @@ class WithdrawService
         $flowRunId = $request->input('flow_run_id');
         $flowRunData = FlowRun::with(['stepRun' => function ($query) {
             $query->whereActionType(0);
-        }])->find($flowRunId);
+        }])->findOrFail($flowRunId);
         DB::transaction(function () use (&$flowRunData) {
             //修改发起状态
             $flowRunData->status = -2;
@@ -50,12 +50,14 @@ class WithdrawService
                 $stepRun->acted_at = date('Y-m-d H:i:s');
                 $stepRun->save();
             });
+
+            //撤回回调
+            $flowRunData->stepRun->each(function ($stepRun) {
+                SendCallback::dispatch($stepRun->id, 'step_withdraw');
+            });
+            $this->sendMessage($flowRunData);
         });
-        //撤回回调
-        $flowRunData->stepRun->each(function ($stepRun) {
-            SendCallback::dispatch($stepRun->id, 'step_withdraw');
-        });
-        $this->sendMessage($flowRunData);
+
         return $flowRunData;
     }
 
@@ -67,7 +69,8 @@ class WithdrawService
     {
         //更新待办
         $flowRunData->stepRun->each(function ($stepRun) {
-            $this->dingTalkMessage->updateTodo($stepRun->id);
+            $updateTodoResult = $this->dingTalkMessage->updateTodo($stepRun->id);
+            abort_if($updateTodoResult == 0,400,'发送更新待办通知失败');
         });
     }
 }

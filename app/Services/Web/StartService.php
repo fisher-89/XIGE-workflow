@@ -52,16 +52,20 @@ class StartService
         if (is_null($cacheFormData))
             abort(404, '预提交数据已失效，请重新提交数据');
 //        $this->checkStartRequest($request, $cacheFormData);//检测审批人数据与step_run_id是否正确、缓存是否失效
-        //发起处理
-        $stepRunData = $this->startSave($request, $cacheFormData['form_data']);
-        //流程开始回调
-        SendCallback::dispatch($stepRunData['current_step_run_data']->id, 'start');
-        //步骤开始回调
-        $stepRunData['next_step_run_data']->each(function ($stepRun) {
-            SendCallback::dispatch($stepRun->id, 'step_start');
+
+        DB::transaction(function () use ($request, $cacheFormData, &$stepRunData) {
+            //发起处理
+            $stepRunData = $this->startSave($request, $cacheFormData['form_data']);
+            //流程开始回调
+            SendCallback::dispatch($stepRunData['current_step_run_data']->id, 'start');
+            //步骤开始回调
+            $stepRunData['next_step_run_data']->each(function ($stepRun) {
+                SendCallback::dispatch($stepRun->id, 'step_start');
+            });
+            //发送钉钉消息
+            $this->sendMessage($stepRunData);
         });
-        //发送钉钉消息
-        $this->sendMessage($stepRunData);
+
         return $stepRunData;
     }
 
@@ -93,12 +97,10 @@ class StartService
      */
     protected function startSave($request, $formData)
     {
-        DB::transaction(function () use ($request, $formData, &$currentStepRunData, &$nextStepRunData, &$flowRunData) {
-            $flowRunData = $this->createFlowRun();//创建流程运行数据
-            $dataId = $this->createFormData($formData, $flowRunData);//创建表单data数据（表单与控件）
-            $currentStepRunData = $this->createStartStepRunData($flowRunData, $dataId);//创建开始步骤运行数据
-            $nextStepRunData = $this->createNextStepRunData($flowRunData, $dataId, $request->input('next_step'));
-        });
+        $flowRunData = $this->createFlowRun();//创建流程运行数据
+        $dataId = $this->createFormData($formData, $flowRunData);//创建表单data数据（表单与控件）
+        $currentStepRunData = $this->createStartStepRunData($flowRunData, $dataId);//创建开始步骤运行数据
+        $nextStepRunData = $this->createNextStepRunData($flowRunData, $dataId, $request->input('next_step'));
         return [
             'flow_run' => $flowRunData,
             'current_step_run_data' => $currentStepRunData,//创建开始步骤数据
@@ -411,17 +413,23 @@ class StartService
             //发送通知给审批人
             $stepRunData['next_step_run_data']->each(function ($stepRun) use ($formData) {
                 if ($stepRun->steps->send_todo) {
-                    //发送待办通知、
-                    $this->dingTalkMessage->sendTodoMessage($stepRun, $formData);
+                    //发送待办通知
+                    $todoResult = $this->dingTalkMessage->sendTodoMessage($stepRun, $formData);
+                    abort_if($todoResult == 0, 400, '发送待办通知失败');
+
                     //发送工作通知OA消息
-                    $this->dingTalkMessage->sendJobOaMessage($stepRun, $formData);
+                    $oaMsgResult = $this->dingTalkMessage->sendJobOaMessage($stepRun, $formData);
+                    abort_if($oaMsgResult == 0, 400, '发送工作通知失败');
+                    $stepRun->is_send_todo = 1;
+                    $stepRun->save();
                 }
             });
 
             //发送工作通知text消息 给发起人
-            if($stepRunData['current_step_run_data']->steps->send_start){
-                $content = '你已发起了'.$stepRunData->flow_name.'的流程';
-                $this->dingTalkMessage->sendJobTextMessage($stepRunData,$content);
+            if ($stepRunData['current_step_run_data']->steps->send_start) {
+                $content = '你已发起了' . $stepRunData->flow_name . '的流程';
+                $result = $this->dingTalkMessage->sendJobTextMessage($stepRunData, $content);
+                abort_if($result == 0, 400, '发送工作通知失败');
             }
         }
     }

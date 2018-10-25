@@ -18,39 +18,35 @@ trait Todo
      * @param $nextStepRunData
      * @param $formData
      */
-    public function sendTodoMessage($stepRun,array $formData)
+    public function sendTodoMessage($stepRun, array $formData)
     {
         //前三表单data
-        $topThreeFormData = $this->getTopThreeFormData($formData,$stepRun->form_id);
-        $topThreeFormData = array_map(function($item){
+        $topThreeFormData = $this->getTopThreeFormData($formData, $stepRun->form_id);
+        $topThreeFormData = array_map(function ($item) {
             $arr['title'] = $item['key'];
             $arr['content'] = $item['value'];
             return $arr;
-        },$topThreeFormData);
+        }, $topThreeFormData);
         $url = request()->get('host');
-        if(str_is('*approve?source=dingtalk',$url)){
-            $arr = explode('?',$url);
-            $url = $arr[0].'/'.$stepRun->id.'?'.$arr[1];
-        }else{
-            $url = $url.'/'.$stepRun->id;
+        if (str_is('*approve?source=dingtalk', $url)) {
+            $arr = explode('?', $url);
+            $url = $arr[0] . '/' . $stepRun->id . '?' . $arr[1];
+        } else {
+            $url = $url . '/' . $stepRun->id;
         }
         $data = [
             'userid' => $stepRun->approver_sn,
             'create_time' => strtotime($stepRun->created_at) . '000',
-            'title' => '工作流:'.$stepRun->flowRun->creator_name . '发起的' . $stepRun->flow_name,
+            'title' => '工作流:' . $stepRun->flowRun->creator_name . '发起的' . $stepRun->flow_name,
             'url' => $url,
             'formItemList' => $topThreeFormData,
             'step_run_id' => $stepRun->id,
         ];
-        try {
-            $oaApiService = new OaApiService();
-            //result 1发送成功 0发送失败
-            $result = $oaApiService->sendAddTodoMessage($data);
-            $stepRun->is_send_todo = $result;
-            $stepRun->save();
-        } catch (\Exception $e) {
+        $oaApiService = new OaApiService();
+        //result 1发送成功 0发送失败
+        $result = $oaApiService->sendAddTodoMessage($data);
+        return $result;
 
-        }
     }
 
     /**
@@ -62,12 +58,9 @@ trait Todo
         $data = [
             'step_run_id' => $stepRunId,
         ];
-        try{
-            $oaApiService = new OaApiService();
-            $result = $oaApiService->updateTodo($data);
-        }catch(\Exception $e){
-
-        }
-
+        $oaApiService = new OaApiService();
+        //result 1发送成功 0发送失败
+        $result = $oaApiService->updateTodo($data);
+        return $result;
     }
 }

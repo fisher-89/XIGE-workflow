@@ -22,34 +22,45 @@ class RejectService
      */
     public function reject($request)
     {
-        $stepRunData = StepRun::find($request->input('step_run_id'));
-        $rejectType = (int)$stepRunData->steps->reject_type;//退回类型
-        //检测是否可以退回
-        if ($rejectType == 0)
-            abort(400, '当前步骤不能进行驳回处理');
-        $stepRunData->action_type = -1;
-        $stepRunData->acted_at = date('Y-m-d H:i:s');
-        $stepRunData->remark = trim($request->input('remark'));
-        $stepRunData->save();
+        DB::transaction(function () use ($request, &$stepRunData) {
+            $stepRunData = StepRun::find($request->input('step_run_id'));
+            $rejectType = (int)$stepRunData->steps->reject_type;//退回类型
+            //检测是否可以退回
+            if ($rejectType == 0)
+                abort(400, '当前步骤不能进行驳回处理');
+            $stepRunData->action_type = -1;
+            $stepRunData->acted_at = date('Y-m-d H:i:s');
+            $stepRunData->remark = trim($request->input('remark'));
+            $stepRunData->save();
 
-        $stepRunData->flowRun->status = -1;
-        $stepRunData->flowRun->end_at = date('Y-m-d H:i:s');
-        $stepRunData->flowRun->save();
+            $stepRunData->flowRun->status = -1;
+            $stepRunData->flowRun->end_at = date('Y-m-d H:i:s');
+            $stepRunData->flowRun->save();
 
-        //步骤驳回回调
-        SendCallback::dispatch($stepRunData->id, 'step_reject');
-        //流程结束回调
-        SendCallback::dispatch($stepRunData->id, 'finish');
+            //步骤驳回回调
+            SendCallback::dispatch($stepRunData->id, 'step_reject');
+            //流程结束回调
+            SendCallback::dispatch($stepRunData->id, 'finish');
+
+            //发送通知
+            $this->sendMessage($stepRunData);
+        });
+        return $stepRunData;
+    }
+
+    protected function sendMessage($stepRunData)
+    {
         //更新待办
         $dingTalkMessage = new MessageNotification();
-        $dingTalkMessage->updateTodo($stepRunData->id);
+        $updateTodoResult = $dingTalkMessage->updateTodo($stepRunData->id);
+        abort_if($updateTodoResult == 0,400,'发送更新待办通知失败');
 
         //发送text 工作通知 给发起人
         $flowIsSendMessage = $stepRunData->flow->send_message;
         if (config('oa.is_send_message') && $flowIsSendMessage && $stepRunData->steps->send_start) {
             $content = '你发起的' . $stepRunData->flow_name . '的流程被' . $stepRunData->approver_name . '驳回了';
-            $dingTalkMessage->sendJobTextMessage($stepRunData, $content);
+            $result = $dingTalkMessage->sendJobTextMessage($stepRunData, $content);
+            abort_if($result == 0, 400, '发送工作通知失败');
         }
-        return $stepRunData;
     }
 }
