@@ -24,18 +24,35 @@ class FlowStepChartRepository
             ->where('action_type','<>',-3)
             ->orderBy('acted_at','asc')
             ->get();
-        $data = $allStepRun->map(function($stepRun)use($allStepRun){
-            $step = $stepRun->steps;
-            $nextStepIds = $this->getNextAndPrevStepId($step)['next'];
-            $prevStepIds = $this->getNextAndPrevStepId($step)['prev'];
-            $nextId = $allStepRun->whereIn('step_id',$nextStepIds)->pluck('id')->all();
-            $prevId = $allStepRun->whereIn('step_id',$prevStepIds)->pluck('id')->all();
-            $stepRun->next = $nextId;
-            $stepRun->prev = $prevId;
-            $stepRun = $stepRun->only(['id','step_id','step_key','approver_sn','approver_name','action_type','next','prev','acted_at']);
+        //未处理的
+        $pendingData = $allStepRun->where('acted_at',null)->pluck([]);
+        //已处理完成的
+        $finishedData = $allStepRun->whereNotIn('acted_at',[null])->pluck([]);
+
+        $finishedData = $finishedData->map(function($stepRun)use($allStepRun){
+            $stepRun = $this->getStepRunData($stepRun,$allStepRun);
             return $stepRun;
         });
-        return $data;
+
+        $pendingData = $pendingData->map(function($stepRun)use($allStepRun){
+            $stepRun = $this->getStepRunData($stepRun,$allStepRun);
+            return $stepRun;
+        });
+
+        return array_collapse([$finishedData,$pendingData]);
+    }
+
+    protected function getStepRunData($stepRun,$allStepRun)
+    {
+        $step = $stepRun->steps;
+        $nextStepIds = $this->getNextAndPrevStepId($step)['next'];
+        $prevStepIds = $this->getNextAndPrevStepId($step)['prev'];
+        $nextId = $allStepRun->whereIn('step_id',$nextStepIds)->pluck('id')->all();
+        $prevId = $allStepRun->whereIn('step_id',$prevStepIds)->pluck('id')->all();
+        $stepRun->next = $nextId;
+        $stepRun->prev = $prevId;
+        $stepRun = $stepRun->only(['id','step_id','step_key','approver_sn','approver_name','action_type','next','prev','acted_at']);
+        return $stepRun;
     }
 
     protected function getNextAndPrevStepId($step)
