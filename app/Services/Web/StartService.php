@@ -360,6 +360,7 @@ class StartService
         $column['approver_sn'] = Auth::id();
         $column['approver_name'] = Auth::user()->realname;
         $column['action_type'] = 1;
+        $column['acted_at'] = date('Y-m-d H:i:s');
         $stepRunData = StepRun::create($column);
         return $stepRunData;
     }
