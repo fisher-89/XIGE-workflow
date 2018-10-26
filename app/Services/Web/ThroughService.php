@@ -64,7 +64,7 @@ class ThroughService
 
             //更新待办
             $updateTodoResult = $this->dingTalkMessage->updateTodo($this->stepRun->id);
-            abort_if($updateTodoResult==0,400,'发送更新待办通知失败');
+            abort_if($updateTodoResult == 0, 400, '发送更新待办通知失败');
 
             if (empty($nextStepRunData) && $cacheFormData['step_end'] == 1) {
                 //流程结束
@@ -77,7 +77,7 @@ class ThroughService
                 if (config('oa.is_send_message') && $flowIsSendMessage && $this->stepRun->steps->send_start) {
                     $content = '你发起的' . $this->stepRun->flow_name . '流程审批已结束';
                     $result = $this->dingTalkMessage->sendJobTextMessage($this->stepRun, $content);
-                    abort_if($result==0,400,'发送工作通知失败');
+                    abort_if($result == 0, 400, '发送工作通知失败');
                 }
             } else {
                 //流程未结束
@@ -149,18 +149,30 @@ class ThroughService
         } else {
             $nextMergeType = 0;
             $nextPrevStepKeyCount = 0;
+            //并发 合并类型非必须 待办的个数
             $pendingCount = 0;
             $subStepKey = [];
+            //待办的ID
+            $pendingId = [];
             if (count($this->stepRun->steps->next_step_key) == 1) {
                 $nextStepData = Step::where(['flow_id' => $this->stepRun->flow_id, 'step_key' => $this->stepRun->steps->next_step_key[0]])->first();
                 $nextMergeType = $nextStepData->merge_type;
                 $nextPrevStepKeyCount = count($nextStepData->prev_step_key);
                 $subStepKey = SubStep::where('parent_key', $nextStepData->step_key)->where('flow_id', $this->stepRun->flow_id)->pluck('step_key')->all();
-                $pendingCount = StepRun::where(['flow_id' => $this->stepRun->flow_id, 'flow_run_id' => $this->stepRun->flow_run_id, 'action_type' => 0])->whereIn('step_key', $subStepKey)->count();
+                $pendingStepRun = StepRun::where(['flow_id' => $this->stepRun->flow_id, 'flow_run_id' => $this->stepRun->flow_run_id, 'action_type' => 0])->whereIn('step_key', $subStepKey)->get();
+                $pendingCount = $pendingStepRun->count();
+                $pendingId = $pendingStepRun->pluck('id')->all();
             }
             if ($nextPrevStepKeyCount > 0 && $nextMergeType == 0 && $pendingCount > 0) {
                 //下一步骤合并类型为非必须 其它步骤未操作的数据为取消状态
                 $this->stepMergeTypeSave($subStepKey);
+
+                //更新待办
+                array_map(function ($stepRunId) {
+                    $updateTodoResult = $this->dingTalkMessage->updateTodo($stepRunId);
+                    abort_if($updateTodoResult == 0, 400, '发送更新待办通知失败');
+                }, $pendingId);
+
             }
 
 
@@ -196,7 +208,7 @@ class ThroughService
     }
 
     /**
-     * 步骤合并类型为1时 其它步骤修改为取消状态
+     * 步骤合并类型为非必须时 其它步骤修改为取消状态
      */
     protected function stepMergeTypeSave($subStepKey)
     {
