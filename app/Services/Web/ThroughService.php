@@ -178,7 +178,7 @@ class ThroughService
 
             if (count($request->input('next_step')) > 0) {
                 $nextStepRunData = $this->createNextStepRunData($request->input('next_step'));
-                $this->stepRun->next_id = json_encode($nextStepRunData->pluck('id')->all());
+                $this->stepRun->next_id = $nextStepRunData->pluck('id')->all();
                 $this->stepRun->save();
             }
 
@@ -465,6 +465,8 @@ class ThroughService
             $v['form_id'] = $this->stepRun->form_id;
             $v['data_id'] = $this->stepRun->data_id;
             $v['action_type'] = 0;
+            $v['prev_id'] = [$this->stepRun->id];
+            $v['next_id'] = [];
             $stepRunData = StepRun::create($v);
             $nextData[] = $stepRunData;
         }

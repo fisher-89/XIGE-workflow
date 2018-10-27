@@ -100,7 +100,7 @@ class StartService
         $flowRunData = $this->createFlowRun();//创建流程运行数据
         $dataId = $this->createFormData($formData, $flowRunData);//创建表单data数据（表单与控件）
         $currentStepRunData = $this->createStartStepRunData($flowRunData, $dataId);//创建开始步骤运行数据
-        $nextStepRunData = $this->createNextStepRunData($flowRunData, $dataId, $request->input('next_step'));
+        $nextStepRunData = $this->createNextStepRunData($flowRunData, $dataId,$currentStepRunData, $request->input('next_step'));
         return [
             'flow_run' => $flowRunData,
             'current_step_run_data' => $currentStepRunData,//创建开始步骤数据
@@ -361,6 +361,7 @@ class StartService
         $column['approver_name'] = Auth::user()->realname;
         $column['action_type'] = 1;
         $column['acted_at'] = date('Y-m-d H:i:s');
+        $column['prev_id'] = [];
         $stepRunData = StepRun::create($column);
         return $stepRunData;
     }
@@ -370,9 +371,10 @@ class StartService
      * @param $flow
      * @param $flowRun
      * @param $dataId
+     * @param $currentStepRunData
      * @param $nextStep
      */
-    protected function createNextStepRunData($flowRun, int $dataId, array $nextStep)
+    protected function createNextStepRunData($flowRun, int $dataId, $currentStepRunData,array $nextStep)
     {
         $flow = Flow::find($this->flowId);
         $nextStepRunData = [];//下一步骤运行数据
@@ -390,10 +392,16 @@ class StartService
             $column['approver_sn'] = $v['approver_sn'];
             $column['approver_name'] = $v['approver_name'];
             $column['action_type'] = 0;
+            $column['prev_id'] = [$currentStepRunData->id];
+            $column['next_id'] = [];
             $stepRunData = StepRun::create($column);
             $nextStepRunData[] = $stepRunData;
         }
-        return collect($nextStepRunData);
+        $nextStepRunData = collect($nextStepRunData);
+        //下一步骤运行ID保存
+        $currentStepRunData->next_id = $nextStepRunData->pluck('id')->all();
+        $currentStepRunData->save();
+        return $nextStepRunData;
     }
 
     /**
