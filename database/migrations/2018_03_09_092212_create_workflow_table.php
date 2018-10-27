@@ -167,6 +167,7 @@ class CreateWorkflowTable extends Migration
             $table->unsignedInteger('step_key')->comment('步骤标识');
             $table->string('prev_step_key', 50)->comment('上一步标识')->default('');
             $table->string('next_step_key', 50)->comment('下一步标识')->default('');
+            $table->text('available_fields')->nullable()->comment('可用字段');
             $table->text('hidden_fields')->comment('隐藏字段')->nullable();
             $table->text('editable_fields')->comment('可编辑字段')->nullable();
             $table->text('required_fields')->comment('必填字段')->nullable();

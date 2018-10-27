@@ -135,6 +135,12 @@ class FlowRequest extends FormRequest
                 Rule::in($stepKeys),
                 'not_in_array:steps.*.prev_step_key',
             ],
+            'steps.*.available_fields' => [
+                'array'
+            ],
+            'steps.*.available_fields.*' => [
+                new FormFields($this->form_id)
+            ],
             'steps.*.hidden_fields' => [
                 'array'
             ],
@@ -271,6 +277,8 @@ class FlowRequest extends FormRequest
             'steps.*.prev_step_key.*' => '上一步标识key',
             'steps.*.next_step_key' => '下一步标识',
             'steps.*.next_step_key.*' => '下一步标识key',
+            'steps.*.available_fields' => '可用字段',
+            'steps.*.available_fields.*' => '可用字段key',
             'steps.*.hidden_fields' => '隐藏字段',
             'steps.*.hidden_fields.*' => '隐藏字段key',
             'steps.*.editable_fields' => '可编辑字段',
