@@ -25,6 +25,7 @@ class StepResource extends Resource
             'step_key' => $this->step_key,
             'prev_step_key'=>$this->prev_step_key,
             'next_step_key'=>$this->next_step_key,
+            'available_fields'=>$this->available_fields,
             'hidden_fields' => $this->hidden_fields,
             'editable_fields' => $this->editable_fields,
             'required_fields' => $this->required_fields,
