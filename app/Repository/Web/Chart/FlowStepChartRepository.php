@@ -28,7 +28,6 @@ class FlowStepChartRepository
         $pendingData = $allStepRun->where('acted_at',null)->pluck([]);
         //已处理完成的
         $finishedData = $allStepRun->whereNotIn('acted_at',[null])->pluck([]);
-
         $finishedData = $finishedData->map(function($stepRun)use($allStepRun){
             $stepRun = $this->getStepRunData($stepRun,$allStepRun);
             return $stepRun;
@@ -45,8 +44,8 @@ class FlowStepChartRepository
     protected function getStepRunData($stepRun,$allStepRun)
     {
         $step = $stepRun->steps;
-        $nextStepIds = $this->getNextAndPrevStepId($step)['next'];
-        $prevStepIds = $this->getNextAndPrevStepId($step)['prev'];
+        $prevStepIds = $this->getPrevStepId($step,$allStepRun);
+        $nextStepIds = $this->getNextStepId($step,$allStepRun);
         $nextId = $allStepRun->whereIn('step_id',$nextStepIds)->pluck('id')->all();
         $prevId = $allStepRun->whereIn('step_id',$prevStepIds)->pluck('id')->all();
         $stepRun->next = $nextId;
@@ -55,15 +54,53 @@ class FlowStepChartRepository
         return $stepRun;
     }
 
-    protected function getNextAndPrevStepId($step)
+
+    /**
+     * 获取上一步骤ID
+     * @param $step
+     * @param $allStepRun
+     * @return array
+     */
+    protected function getPrevStepId($step,$allStepRun)
     {
-        $nextStepKey = $step->next_step_key;
-        $prevStepKey = $step->prev_step_key;
-        $prevStepId = Step::where('flow_id',$step->flow_id)->whereIn('step_key',$prevStepKey)->pluck('id')->all();
-        $nextStepId = Step::where('flow_id',$step->flow_id)->whereIn('step_key',$nextStepKey)->pluck('id')->all();
-        return [
-            'prev'=>$prevStepId,
-            'next'=>$nextStepId
-        ];
+        $prevStepId = [];
+        if(count($step->prev_step_key) >0){
+            $stepData = Step::where('flow_id',$step->flow_id)->whereIn('step_key',$step->prev_step_key)->get();
+            $prevStepId = $stepData->pluck('id')->all();
+            $allStepId = $allStepRun->pluck('step_id')->all();
+            if(!array_has(array_unique($allStepId),$prevStepId)){
+                foreach($stepData as $v){
+                    if(count(array_diff($prevStepId,$allStepId))>0){
+                        $prevStepId = $this->getPrevStepId($v,$allStepRun);
+                    }
+                }
+            }
+        }
+        return $prevStepId;
+    }
+
+    /**
+     * 获取下一步骤ID
+     * @param $step
+     * @param $allStepRun
+     * @return array
+     */
+    protected function getNextStepId($step,$allStepRun)
+    {
+        $nextStepId = [];
+        if(count($step->next_step_key) >0){
+            $stepData = Step::where('flow_id',$step->flow_id)->whereIn('step_key',$step->next_step_key)->get();
+            $nextStepId = $stepData->pluck('id')->all();
+            $allStepId = $allStepRun->pluck('step_id')->all();
+            //下一步骤ID不在步骤运行表里
+            if(!array_has(array_unique($allStepId),$nextStepId)){
+                foreach ($stepData as $v){
+                    if(count(array_diff($nextStepId,$allStepId))>0){
+                        $nextStepId = $this->getNextStepId($v,$allStepRun);
+                    }
+                }
+            }
+        }
+        return $nextStepId;
     }
 }
