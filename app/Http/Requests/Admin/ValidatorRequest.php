@@ -2,6 +2,7 @@
 
 namespace App\Http\Requests\Admin;
 
+use App\Rules\Admin\Validator\Params;
 use Illuminate\Foundation\Http\FormRequest;
 use Illuminate\Validation\Rule;
 
@@ -24,23 +25,7 @@ class ValidatorRequest extends FormRequest
      */
     public function rules()
     {
-        $paramsRules = [
-            'string',
-            'required',
-            'max:255',
-        ];
-        switch ($this->type) {
-            case 'regex':
-                $paramsRules[] = 'regex:/^\/.*\/$/';
-                break;
-            case 'in':
-//                $paramsRules[] = 'regex:/^([\w\-]+\,)*[\w\-]+$/';
-                $paramsRules[] = 'regex:/^.*$/';
-                break;
-            case 'mimes':
-                $paramsRules[] = 'regex:/^(\w+\,)*\w+$/';
-                break;
-        }
+
         return [
             'name' => [
                 'required',
@@ -56,7 +41,12 @@ class ValidatorRequest extends FormRequest
                 'required',
                 Rule::in(['regex', 'in', 'mimes']),
             ],
-            'params' => $paramsRules,
+            'params' => [
+                'string',
+                'required',
+                'max:255',
+                new Params($this->type)
+            ],
         ];
     }
 
