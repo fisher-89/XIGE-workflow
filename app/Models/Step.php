@@ -9,20 +9,20 @@ class Step extends Model
 {
     use SoftDeletes;
 
-    protected $fillable = ['name', 'description', 'flow_id', 'step_key', 'prev_step_key', 'next_step_key','available_fields', 'hidden_fields', 'editable_fields', 'required_fields','approver_type','step_approver_id', 'approvers', 'allow_condition', 'skip_condition', 'reject_type', 'concurrent_type', 'merge_type', 'start_callback_uri', 'checking_callback_uri', 'approved_callback_uri', 'reject_callback_uri', 'transfer_callback_uri', 'end_callback_uri','withdraw_callback_uri','x','y','send_todo','send_start','cc_person'];
+    protected $fillable = ['name', 'description', 'flow_id', 'step_key', 'prev_step_key', 'next_step_key', 'available_fields', 'hidden_fields', 'editable_fields', 'required_fields', 'approver_type', 'step_approver_id', 'approvers', 'allow_condition', 'skip_condition', 'reject_type', 'concurrent_type', 'merge_type', 'start_callback_uri', 'checking_callback_uri', 'approved_callback_uri', 'reject_callback_uri', 'transfer_callback_uri', 'end_callback_uri', 'withdraw_callback_uri', 'x', 'y', 'send_todo', 'send_start', 'is_cc', 'cc_person'];
 
     protected $casts = [
         'prev_step_key' => 'array',
         'next_step_key' => 'array',
-        'available_fields'=>'array',
+        'available_fields' => 'array',
         'hidden_fields' => 'array',
         'editable_fields' => 'array',
         'required_fields' => 'array',
         'approvers' => 'array',
-        'cc_person'=>'array',
+        'cc_person' => 'array',
     ];
 
-    protected $hidden = ['created_at','updated_at','deleted_at'];
+    protected $hidden = ['created_at', 'updated_at', 'deleted_at'];
 
 
     public function flow()
@@ -30,7 +30,8 @@ class Step extends Model
         return $this->belongsTo(Flow::class, 'flow_id');
     }
 
-    public function stepRun(){
+    public function stepRun()
+    {
         return $this->hasMany(StepRun::class);
     }
 
@@ -49,7 +50,7 @@ class Step extends Model
      */
     public function stepDepartmentApprover()
     {
-        return $this->hasMany(StepDepartmentApprover::class,'step_approver_id','step_approver_id');
+        return $this->hasMany(StepDepartmentApprover::class, 'step_approver_id', 'step_approver_id');
     }
 
     /**

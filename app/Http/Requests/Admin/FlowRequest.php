@@ -243,6 +243,10 @@ class FlowRequest extends FormRequest
                 'required',
                 Rule::in([0, 1])
             ],
+            'steps.*.is_cc' => [
+                'required',
+                Rule::in([0, 1])
+            ],
             'steps.*.cc_person' => [
                 'array',
                 'nullable'
@@ -263,7 +267,7 @@ class FlowRequest extends FormRequest
             'is_active' => '是否启用',
             'start_callback_uri' => '发起回调地址',
             'end_callback_uri' => '结束回调地址',
-            'send_message'=>'发送消息',
+            'send_message' => '发送消息',
             //权限
             'flows_has_staff' => '发起人',
             'flows_has_roles' => '发起角色',
@@ -304,6 +308,7 @@ class FlowRequest extends FormRequest
             'steps.*.y' => '坐标Y轴',
             'steps.*.send_todo' => '发送待办',
             'steps.*.send_start' => '发起人信息',
+            'steps.*.is_cc'=>'是否抄送',
             'steps.*.cc_person' => '抄送人',
         ];
     }

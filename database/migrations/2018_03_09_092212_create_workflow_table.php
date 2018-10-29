@@ -192,6 +192,7 @@ class CreateWorkflowTable extends Migration
             $table->char('y',50)->comment('步骤坐标Y轴')->default('');
             $table->enum('send_todo',[1,0])->comment('发送待办信息 1是 0否')->default(1);
             $table->enum('send_start',[1,0])->comment('发送信息给发起人 1是 0否')->default(0);
+            $table->enum('is_cc',[0,1])->comment('是否抄送 1是，0否')->default(0);
             $table->text('cc_person')->comment('抄送人')->nullable();
             $table->timestamps();
             $table->softDeletes();
