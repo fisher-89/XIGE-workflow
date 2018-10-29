@@ -23,7 +23,6 @@ class ValidatorController extends Controller
      */
     public function store(ValidatorRequest $request)
     {
-        dd(23);
         $data = Validator::create($request->input());
         return $this->response->post($data);
     }
