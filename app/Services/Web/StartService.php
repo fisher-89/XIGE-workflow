@@ -33,11 +33,15 @@ class StartService
     //消息通知
     protected $dingTalkMessage;
 
+    //抄送人
+    protected $cc;
+
     public function __construct(PresetService $presetService, Images $images)
     {
         $this->presetService = $presetService;
         $this->images = $images;
         $this->dingTalkMessage = new MessageNotification();
+        $this->cc = new StepCcService();
     }
 
 
@@ -56,6 +60,8 @@ class StartService
         DB::transaction(function () use ($request, $cacheFormData, &$stepRunData) {
             //发起处理
             $stepRunData = $this->startSave($request, $cacheFormData['form_data']);
+            //抄送人处理
+            $this->cc->makeStepCc($cacheFormData,$stepRunData['current_step_run_data']);
             //流程开始回调
             SendCallback::dispatch($stepRunData['current_step_run_data']->id, 'start');
             //步骤开始回调

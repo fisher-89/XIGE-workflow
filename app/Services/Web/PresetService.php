@@ -110,29 +110,16 @@ class PresetService
             })->all();
         }
 
-
-//        $nextStep = [];
-//        if (empty($step->next_step_key)) {
-//            //结束流程
-//            $step_end = 1;
-//        } else {
-//            //流程未结束  获取下一步骤数据
-//            $step_end = 0;
-//            $nextStep = $this->getNextSteps($step, $newDbFormData);
-//            if (empty($nextStep)) {
-//                abort(400, '该步骤为合并类型，后台配置错误，只能有一个审批步骤');
-//            }
-//
-//            $nextStep = $nextStep->map(function ($field) {
-//                return $field->only(['id', 'name','approver_type', 'approvers']);
-//            })->all();
-//        }
         $cacheData = [
             'form_data' => $formData,//表单data数据
             'available_steps' => $nextStep,//下一步骤数据
             'step_end' => $step_end,//是否结束步骤
             'concurrent_type' => $step->concurrent_type,//步骤并发类型
-            'step_run_id' => $request->input('step_run_id')//步骤运行ID
+            'step_run_id' => $request->input('step_run_id'),//步骤运行ID
+            //是否抄送
+            'is_cc' => $step->is_cc,
+            //抄送人
+            'cc_person' => $step->cc_person ?: [],
         ];
         $timestamp = $this->setPresetDataToCache($cacheData);//预提交数据存入cache
         $responseData = [
@@ -142,7 +129,11 @@ class PresetService
             'concurrent_type' => $step->concurrent_type,
             'flow_id' => $flow->id,
             'step_run_id' => $request->input('step_run_id'),//步骤运行ID
-            'message' => $message
+            'message' => $message,
+            //是否抄送
+            'is_cc' => $step->is_cc,
+            //抄送人
+            'cc_person' => $step->cc_person ?: [],
         ];
         return $responseData;
     }

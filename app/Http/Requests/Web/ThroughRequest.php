@@ -50,6 +50,18 @@ class ThroughRequest extends FormRequest
             'host'=>[
                 'required',
                 'url'
+            ],
+            //抄送人
+            'cc_person'=>[
+                'array'
+            ],
+            'cc_person.*.staff_sn'=>[
+                'numeric',
+                'between:100000,999999'
+            ],
+            'cc_person.*.staff_name'=>[
+                'string',
+                'max:20'
             ]
         ];
     }
@@ -61,7 +73,10 @@ class ThroughRequest extends FormRequest
             'timestamp' => '预提交时间戳',
             'next_step' => '下一步骤审批',
             'remark'=>'备注',
-            'host'=>'审批详情地址'
+            'host'=>'审批详情地址',
+            'cc_person'=>'抄送人',
+            'cc_person.*.staff_sn'=>'抄送人工号',
+            'cc_person.*.staff_name'=>'抄送人名字',
         ];
     }
 }

@@ -28,12 +28,15 @@ class ThroughService
     protected $presetService;
     //发起
     protected $startService;
+    //抄送人
+    protected $cc;
 
     public function __construct(PresetService $presetService, StartService $startService)
     {
         $this->dingTalkMessage = new MessageNotification();
         $this->presetService = $presetService;
         $this->startService = $startService;
+        $this->cc = new StepCcService();
     }
 
     /**
@@ -56,7 +59,8 @@ class ThroughService
         DB::transaction(function () use ($request, $cacheFormData) {
             //通过数据处理
             $nextStepRunData = $this->saveThrough($request, $cacheFormData['step_end']);
-
+            //抄送人数据
+            $this->cc->makeStepCc($cacheFormData,$this->stepRun);
             //步骤通过回调
             SendCallback::dispatch($this->stepRun->id, 'step_agree');
             //步骤结束回调

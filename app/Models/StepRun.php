@@ -28,4 +28,9 @@ class StepRun extends Model
     public function flow(){
         return $this->belongsTo(Flow::class);
     }
+
+    public function stepCc()
+    {
+        return $this->hasMany(StepCc::class);
+    }
 }
