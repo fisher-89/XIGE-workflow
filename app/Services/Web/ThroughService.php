@@ -184,18 +184,24 @@ class ThroughService
                 $nextStepRunData = $this->createNextStepRunData($request->input('next_step'));
                 $this->stepRun->next_id = $nextStepRunData->pluck('id')->all();
                 $this->stepRun->save();
-
-                //并发合并必须时，修改并发步骤的的next_id 为最后提交的
-                if($this->stepRun->steps->merge_type == 1 && $this->stepRun->action_type == 2){
-                    $prevStepKeys = $this->stepRun->steps->prev_step_key;
-                    $prevStepIds= Step::where('flow_id' , $this->stepRun->flow_id)->whereIn('step_key',$prevStepKeys)->pluck('id')->all();
-                    StepRun::where(['flow_id'=>$this->stepRun->flow_id,'flow_run_id'=>$this->stepRun->flow_run_id,'next_id'=>'[]'])
-                        ->whereIn('step_id',$prevStepIds)
-                        ->update(['next_id'=>json_encode([$this->stepRun->id])]);
-                }
             }
 
         }
+
+        //并发合并必须时，修改并发步骤的的next_id 为最后提交的
+        if($this->stepRun->steps->merge_type == 1 && $this->stepRun->action_type == 2){
+            $prevStepKeys = $this->stepRun->steps->prev_step_key;
+            $prevStepIds= Step::where('flow_id' , $this->stepRun->flow_id)->whereIn('step_key',$prevStepKeys)->pluck('id')->all();
+            $prevStepRun = StepRun::where(['flow_id'=>$this->stepRun->flow_id,'flow_run_id'=>$this->stepRun->flow_run_id,'next_id'=>'[]'])
+                ->whereIn('step_id',$prevStepIds)
+                ->get();
+            $prevStepRun->update(['next_id'=>json_encode([$this->stepRun->id])]);
+            $prevId = $this->stepRun->prev_id;
+            $prevId = array_collapse([$prevId,$prevStepRun->pluck('id')->all()]);
+            $this->stepRun->prev_id = $prevId;
+            $this->stepRun->save();
+        }
+
         return $nextStepRunData;
     }
 
