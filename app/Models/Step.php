@@ -9,7 +9,46 @@ class Step extends Model
 {
     use SoftDeletes;
 
-    protected $fillable = ['name', 'description', 'flow_id', 'step_key', 'prev_step_key', 'next_step_key', 'available_fields', 'hidden_fields', 'editable_fields', 'required_fields', 'approver_type', 'step_approver_id', 'approvers', 'allow_condition', 'skip_condition', 'reject_type', 'concurrent_type', 'merge_type', 'start_callback_uri', 'checking_callback_uri', 'approved_callback_uri', 'reject_callback_uri', 'transfer_callback_uri', 'end_callback_uri', 'withdraw_callback_uri', 'x', 'y', 'send_todo', 'send_start', 'is_cc', 'cc_person'];
+    protected $fillable = [
+        'name',
+        'description',
+        'flow_id',
+        'step_key',
+        'prev_step_key',
+        'next_step_key',
+        'available_fields',
+        'hidden_fields',
+        'editable_fields',
+        'required_fields',
+        'approver_type',
+        'step_approver_id',
+        'approvers',
+        'allow_condition',
+        'skip_condition',
+        'reject_type',
+        'concurrent_type',
+        'merge_type',
+        'start_callback_uri',
+        'accept_start_callback',
+        'checking_callback_uri',
+        'accept_check_callback',
+        'approved_callback_uri',
+        'accept_approve_callback',
+        'reject_callback_uri',
+        'accept_reject_callback',
+        'transfer_callback_uri',
+        'accept_transfer_callback',
+        'end_callback_uri',
+        'accept_end_callback',
+        'withdraw_callback_uri',
+        'accept_withdraw_callback',
+        'x',
+        'y',
+        'send_todo',
+        'send_start',
+        'is_cc',
+        'cc_person'
+    ];
 
     protected $casts = [
         'prev_step_key' => 'array',
