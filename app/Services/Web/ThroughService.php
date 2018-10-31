@@ -200,7 +200,7 @@ class ThroughService
             $prevStepRunId = StepRun::where(['flow_id'=>$this->stepRun->flow_id,'flow_run_id'=>$this->stepRun->flow_run_id,'next_id'=>'[]'])
                 ->whereIn('step_id',$prevStepIds)->pluck('id')->all();
             $prevId = $this->stepRun->prev_id;
-            $prevId = array_collapse([$prevId,$prevStepRunId]);
+            $prevId = array_unique(array_merge($prevId,$prevStepRunId));
             $this->stepRun->prev_id = $prevId;
             $this->stepRun->save();
         }
