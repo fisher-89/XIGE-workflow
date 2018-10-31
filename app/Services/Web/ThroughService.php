@@ -193,8 +193,7 @@ class ThroughService
             $prevStepKeys = $this->stepRun->steps->prev_step_key;
             $prevStepIds= Step::where('flow_id' , $this->stepRun->flow_id)->whereIn('step_key',$prevStepKeys)->pluck('id')->all();
             $prevStepRun = StepRun::where(['flow_id'=>$this->stepRun->flow_id,'flow_run_id'=>$this->stepRun->flow_run_id,'next_id'=>'[]'])
-                ->whereIn('step_id',$prevStepIds)
-                ->get();
+                ->whereIn('step_id',$prevStepIds);
             $prevStepRun->update(['next_id'=>json_encode([$this->stepRun->id])]);
             $prevId = $this->stepRun->prev_id;
             $prevId = array_collapse([$prevId,$prevStepRun->pluck('id')->all()]);
