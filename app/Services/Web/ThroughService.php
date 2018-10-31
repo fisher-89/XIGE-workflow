@@ -192,11 +192,15 @@ class ThroughService
         if($this->stepRun->steps->merge_type == 1 && $this->stepRun->action_type == 2){
             $prevStepKeys = $this->stepRun->steps->prev_step_key;
             $prevStepIds= Step::where('flow_id' , $this->stepRun->flow_id)->whereIn('step_key',$prevStepKeys)->pluck('id')->all();
-            $prevStepRun = StepRun::where(['flow_id'=>$this->stepRun->flow_id,'flow_run_id'=>$this->stepRun->flow_run_id,'next_id'=>'[]'])
-                ->whereIn('step_id',$prevStepIds);
-            $prevStepRun->update(['next_id'=>json_encode([$this->stepRun->id])]);
+
+            StepRun::where(['flow_id'=>$this->stepRun->flow_id,'flow_run_id'=>$this->stepRun->flow_run_id,'next_id'=>'[]'])
+                ->whereIn('step_id',$prevStepIds)
+                ->update(['next_id'=>json_encode([$this->stepRun->id])]);
+
+            $prevStepRunId = StepRun::where(['flow_id'=>$this->stepRun->flow_id,'flow_run_id'=>$this->stepRun->flow_run_id,'next_id'=>'[]'])
+                ->whereIn('step_id',$prevStepIds)->pluck('id')->all();
             $prevId = $this->stepRun->prev_id;
-            $prevId = array_collapse([$prevId,$prevStepRun->pluck('id')->all()]);
+            $prevId = array_collapse([$prevId,$prevStepRunId]);
             $this->stepRun->prev_id = $prevId;
             $this->stepRun->save();
         }
