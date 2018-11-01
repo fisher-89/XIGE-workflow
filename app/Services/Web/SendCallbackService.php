@@ -9,6 +9,7 @@
 namespace App\Services\Web;
 
 
+use App\Jobs\SendCallback;
 use App\Models\StepRun;
 use App\Repository\Web\FormRepository;
 use Illuminate\Support\Facades\Auth;
@@ -80,12 +81,25 @@ class SendCallbackService
     {
         $flowData = $stepRunData->flow()->withTrashed()->first();
         $url = $flowData->start_callback_uri;
+        //是否接收回调返回值
+        $isAcceptCallback = $flowData->accept_start_callback;
         if ($url && is_string($url)) {
             $data = $this->getCallbackData($stepRunData);
             $data['type'] = 'start';//回调类型
             $data['time'] = strtotime($stepRunData->flowRun->created_at);
-            $result = app('curl')->sendMessageByPost($url, $data);
-            //todo 是否处理返回值
+            if ($isAcceptCallback) {
+                //接收返回值
+                $result = $this->send($data, $url);
+                if (
+                    (array_has($result, 'status') && $result['status'] == 0)
+                    || (!array_has($result, 'status'))
+                ) {
+                    abort(400, array_get($result, 'msg', '流程回调接收的返回值错误'));
+                }
+            } else {
+                //不接收返回值
+                SendCallback::dispatch($this->send($data, $url));
+            }
         }
     }
 
@@ -97,13 +111,25 @@ class SendCallbackService
     {
         $flowData = $stepRunData->flow()->withTrashed()->first();
         $url = $flowData->end_callback_uri;
+        //是否接收回调返回值
+        $isAcceptCallback = $flowData->accept_end_callback;
         if ($url) {
             $data = $this->getCallbackData($stepRunData);
             $data['type'] = 'finish';
             $data['time'] = strtotime($stepRunData->flowRun->end_at);
             $data['result'] = $stepRunData->flowRun->status == 1 ? 'agree' : 'refuse';
-            $result = app('curl')->sendMessageByPost($url, $data);
-            //todo 是否处理返回值
+            if ($isAcceptCallback) {
+                //接收返回值
+                $result = $this->send($data, $url);
+                if (
+                    (array_has($result, 'status') && $result['status'] == 0)
+                    || (!array_has($result, 'status'))
+                ) {
+                    abort(400, array_get($result, 'msg', '流程回调接收的返回值错误'));
+                }
+            } else {
+                SendCallback::dispatch($this->send($data, $url));
+            }
         }
     }
 
@@ -115,11 +141,23 @@ class SendCallbackService
     {
         $stepData = $stepRunData->steps()->withTrashed()->first();
         $url = $stepData->start_callback_uri;
+        //是否接收回调返回值
+        $isAcceptCallback = $stepData->accept_start_callback;
         if ($url) {
             $data = $this->getCallbackData($stepRunData);
             $data['type'] = 'step_start';
             $data['time'] = strtotime($stepRunData->created_at);
-            $result = app('curl')->sendMessageByPost($url, $data);
+            if ($isAcceptCallback) {
+                $result = $this->send($data, $url);
+                if (
+                    (array_has($result, 'status') && $result['status'] == 0)
+                    || (!array_has($result, 'status'))
+                ) {
+                    abort(400, array_get($result, 'msg', '流程回调接收的返回值错误'));
+                }
+            } else {
+                SendCallback::dispatch($this->send($data, $url));
+            }
         }
     }
 
@@ -131,11 +169,23 @@ class SendCallbackService
     {
         $stepData = $stepRunData->steps()->withTrashed()->first();
         $url = $stepData->check_callback_uri;
+        //是否接收回调返回值
+        $isAcceptCallback = $stepData->accept_check_callback;
         if ($url) {
             $data = $this->getCallbackData($stepRunData);
             $data['type'] = 'step_check';
             $data['time'] = strtotime($stepRunData->checked_at);
-            $result = app('curl')->sendMessageByPost($url, $data);
+            if ($isAcceptCallback) {
+                $result = $this->send($data, $url);
+                if (
+                    (array_has($result, 'status') && $result['status'] == 0)
+                    || (!array_has($result, 'status'))
+                ) {
+                    abort(400, array_get($result, 'msg', '流程回调接收的返回值错误'));
+                }
+            } else {
+                SendCallback::dispatch($this->send($data, $url));
+            }
         }
     }
 
@@ -147,11 +197,23 @@ class SendCallbackService
     {
         $stepData = $stepRunData->steps()->withTrashed()->first();
         $url = $stepData->approve_callback_uri;
+        //是否接收回调返回值
+        $isAcceptCallback = $stepData->accept_approve_callback;
         if ($url) {
             $data = $this->getCallbackData($stepRunData);
             $data['type'] = 'step_agree';
             $data['time'] = strtotime($stepRunData->acted_at);
-            $result = app('curl')->sendMessageByPost($url, $data);
+            if ($isAcceptCallback) {
+                $result = $this->send($data, $url);
+                if (
+                    (array_has($result, 'status') && $result['status'] == 0)
+                    || (!array_has($result, 'status'))
+                ) {
+                    abort(400, array_get($result, 'msg', '流程回调接收的返回值错误'));
+                }
+            } else {
+                SendCallback::dispatch($data, $url);
+            }
         }
     }
 
@@ -163,11 +225,23 @@ class SendCallbackService
     {
         $stepData = $stepRunData->steps()->withTrashed()->first();
         $url = $stepData->reject_callback_uri;
+        //是否接收回调返回值
+        $isAcceptCallback = $stepData->accept_reject_callback;
         if ($url) {
             $data = $this->getCallbackData($stepRunData);
             $data['type'] = 'step_reject';
             $data['time'] = strtotime($stepRunData->acted_at);
-            $result = app('curl')->sendMessageByPost($url, $data);
+            if ($isAcceptCallback) {
+                $result = $this->send($data, $url);
+                if (
+                    (array_has($result, 'status') && $result['status'] == 0)
+                    || (!array_has($result, 'status'))
+                ) {
+                    abort(400, array_get($result, 'msg', '流程回调接收的返回值错误'));
+                }
+            } else {
+                SendCallback::dispatch($this->send($data, $url));
+            }
         }
     }
 
@@ -179,11 +253,23 @@ class SendCallbackService
     {
         $stepData = $stepRunData->steps()->withTrashed()->first();
         $url = $stepData->transfer_callback_uri;
+        //是否接收回调返回值
+        $isAcceptCallback = $stepData->accept_transfer_callback;
         if ($url) {
             $data = $this->getCallbackData($stepRunData);
             $data['type'] = 'step_deliver';
             $data['time'] = strtotime($stepRunData->acted_at);
-            $result = app('curl')->sendMessageByPost($url, $data);
+            if ($isAcceptCallback) {
+                $result = $this->send($data, $url);
+                if (
+                    (array_has($result, 'status') && $result['status'] == 0)
+                    || (!array_has($result, 'status'))
+                ) {
+                    abort(400, array_get($result, 'msg', '流程回调接收的返回值错误'));
+                }
+            } else {
+                SendCallback::dispatch($this->send($data, $url));
+            }
         }
     }
 
@@ -195,11 +281,23 @@ class SendCallbackService
     {
         $stepData = $stepRunData->steps()->withTrashed()->first();
         $url = $stepData->end_callback_uri;
+        //是否接收回调返回值
+        $isAcceptCallback = $stepData->accept_end_callback;
         if ($url) {
             $data = $this->getCallbackData($stepRunData);
             $data['type'] = 'step_finish';
             $data['time'] = strtotime($stepRunData->acted_at);
-            $result = app('curl')->sendMessageByPost($url, $data);
+            if ($isAcceptCallback) {
+                $result = $this->send($data, $url);
+                if (
+                    (array_has($result, 'status') && $result['status'] == 0)
+                    || (!array_has($result, 'status'))
+                ) {
+                    abort(400, array_get($result, 'msg', '流程回调接收的返回值错误'));
+                }
+            } else {
+                SendCallback::dispatch($this->send($data, $url));
+            }
         }
     }
 
@@ -211,11 +309,23 @@ class SendCallbackService
     {
         $stepData = $stepRunData->steps()->withTrashed()->first();
         $url = $stepData->withdraw_callback_uri;
+        //是否接收回调返回值
+        $isAcceptCallback = $stepData->accept_withdraw_callback;
         if ($url) {
             $data = $this->getCallbackData($stepRunData);
             $data['type'] = 'step_withdraw';
             $data['time'] = strtotime($stepRunData->acted_at);
-            $result = app('curl')->sendMessageByPost($url, $data);
+            if ($isAcceptCallback) {
+                $result = $this->send($data, $url);
+                if (
+                    (array_has($result, 'status') && $result['status'] == 0)
+                    || (!array_has($result, 'status'))
+                ) {
+                    abort(400, array_get($result, 'msg', '流程回调接收的返回值错误'));
+                }
+            } else {
+                SendCallback::dispatch($this->send($data, $url));
+            }
         }
     }
 
@@ -242,24 +352,14 @@ class SendCallbackService
     }
 
     /**
-     * 获取表单数据
-     * @param $formId
-     * @param $dataId
-     * @return array
+     * 发起请求
+     * @param array $data
+     * @param string $url
+     * @return mixed
      */
-//    protected function getFormData($formId, $dataId)
-//    {
-//        $formGridKey = FormGrid::where('form_id', $formId)->pluck('key')->all();
-//        //表单数据
-//        $formData = DB::table('form_data_' . $formId)->find($dataId);
-//        $formData = collect($formData)->all();
-//        if (!empty($formGridKey)) {
-//            //表单控件数据
-//            array_map(function ($key) use (&$formData, $formId) {
-//                $gridData = DB::table('form_data_' . $formId . '_' . $key)->where('data_id', $formData['id'])->get();
-//                $formData[$key] = json_decode(json_encode($gridData), true);
-//            }, $formGridKey);
-//        }
-//        return $formData;
-//    }
+    protected function send(array $data, string $url)
+    {
+        $result = app('curl')->sendMessageByPost($url, $data);
+        return $result;
+    }
 }

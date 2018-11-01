@@ -9,7 +9,6 @@
 namespace App\Services\Web;
 
 
-use App\Jobs\SendCallback;
 use App\Models\Field;
 use App\Models\FormGrid;
 use App\Models\Step;
@@ -31,12 +30,16 @@ class ThroughService
     //抄送人
     protected $cc;
 
+    //发起回调
+    protected $sendCallback;
+
     public function __construct(PresetService $presetService, StartService $startService)
     {
         $this->dingTalkMessage = new MessageNotification();
         $this->presetService = $presetService;
         $this->startService = $startService;
         $this->cc = new StepCcService();
+        $this->sendCallback = new SendCallbackService();
     }
 
     /**
@@ -62,9 +65,9 @@ class ThroughService
             //抄送人数据
             $this->cc->makeStepCc($cacheFormData,$this->stepRun);
             //步骤通过回调
-            SendCallback::dispatch($this->stepRun->id, 'step_agree');
+            $this->sendCallback->sendCallback($this->stepRun->id,'step_agree');
             //步骤结束回调
-            SendCallback::dispatch($this->stepRun->id, 'step_finish');
+            $this->sendCallback->sendCallback($this->stepRun->id,'step_finish');
 
             //更新待办
             $updateTodoResult = $this->dingTalkMessage->updateTodo($this->stepRun->id);
@@ -73,7 +76,7 @@ class ThroughService
             if (empty($nextStepRunData) && $cacheFormData['step_end'] == 1) {
                 //流程结束
                 //流程结束回调
-                SendCallback::dispatch($this->stepRun->id, 'finish');
+                $this->sendCallback->sendCallback($this->stepRun->id,'finish');
 
                 //流程是否发送通知
                 $flowIsSendMessage = $this->stepRun->flow->send_message;
@@ -88,7 +91,7 @@ class ThroughService
                 if (count($request->input('next_step')) > 0) {
                     //步骤开始回调
                     $nextStepRunData->each(function ($stepRun) {
-                        SendCallback::dispatch($stepRun->id, 'step_start');
+                        $this->sendCallback->sendCallback($stepRun->id,'step_start');
                     });
 
                     //发送钉钉消息（发送给下一步审批人）

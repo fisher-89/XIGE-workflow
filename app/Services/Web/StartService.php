@@ -9,7 +9,6 @@
 namespace App\Services\Web;
 
 
-use App\Jobs\SendCallback;
 use App\Models\Field;
 use App\Models\Flow;
 use App\Models\FlowRun;
@@ -35,6 +34,8 @@ class StartService
 
     //抄送人
     protected $cc;
+    //发起回调
+    protected $sendCallback;
 
     public function __construct(PresetService $presetService, Images $images)
     {
@@ -42,6 +43,7 @@ class StartService
         $this->images = $images;
         $this->dingTalkMessage = new MessageNotification();
         $this->cc = new StepCcService();
+        $this->sendCallback = new SendCallbackService();
     }
 
 
@@ -63,10 +65,10 @@ class StartService
             //抄送人处理
             $this->cc->makeStepCc($cacheFormData,$stepRunData['current_step_run_data']);
             //流程开始回调
-            SendCallback::dispatch($stepRunData['current_step_run_data']->id, 'start');
+            $this->sendCallback->sendCallback($stepRunData['current_step_run_data']->id,'start');
             //步骤开始回调
             $stepRunData['next_step_run_data']->each(function ($stepRun) {
-                SendCallback::dispatch($stepRun->id, 'step_start');
+                $this->sendCallback->sendCallback($stepRun->id,'step_start');
             });
             //发送钉钉消息
             $this->sendMessage($stepRunData);

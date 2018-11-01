@@ -5,7 +5,6 @@ namespace App\Http\Controllers\Api\Web;
 
 use App\Http\Controllers\Controller;
 use App\Http\Resources\StepResource;
-use App\Jobs\SendCallback;
 use App\Models\Flow;
 use App\Models\FlowType;
 use App\Models\StepRun;
@@ -16,6 +15,7 @@ use App\Repository\Web\Auth\FlowAuth;
 use App\Repository\Web\FlowRepository;
 use App\Services\ResponseService;
 use App\Services\Web\FormDataService;
+use App\Services\Web\SendCallbackService;
 use Illuminate\Http\Request;
 
 class ResourceController extends Controller
@@ -109,7 +109,8 @@ class ResourceController extends Controller
         $stepRunRepository = new StepRunRepository();
         $data = $stepRunRepository->getDetail($stepRun);
         //步骤查看回调
-        SendCallback::dispatch($data['step_run']->id, 'step_check');
+        $sendCallback = new SendCallbackService();
+        $sendCallback->sendCallback($stepRun->id,'step_check');
         return $this->response->get($data);
     }
 

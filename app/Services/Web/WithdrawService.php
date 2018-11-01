@@ -10,23 +10,22 @@
 namespace App\Services\Web;
 
 
-use App\Jobs\SendCallback;
 use App\Models\FlowRun;
 use App\Services\Notification\MessageNotification;
-use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
 
 class WithdrawService
 {
-    protected $staffSn;
-
     //钉钉消息
     protected $dingTalkMessage;
 
-    public function __construct(MessageNotification $messageNotification)
+    //发起回调
+    protected $sendCallback;
+
+    public function __construct(MessageNotification $messageNotification,SendCallbackService $sendCallbackService)
     {
-        $this->staffSn = Auth::id();
         $this->dingTalkMessage = $messageNotification;
+        $this->sendCallback = $sendCallbackService;
     }
 
     /**
@@ -53,7 +52,7 @@ class WithdrawService
 
             //撤回回调
             $flowRunData->stepRun->each(function ($stepRun) {
-                SendCallback::dispatch($stepRun->id, 'step_withdraw');
+                $this->sendCallback->sendCallback($stepRun->id,'step_withdraw');
             });
             $this->sendMessage($flowRunData);
         });

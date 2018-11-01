@@ -10,11 +10,18 @@ namespace App\Services\Web;
 
 
 use App\Models\StepRun;
-use App\Jobs\SendCallback;
 use App\Services\Notification\MessageNotification;
 
 class RejectService
 {
+    //发起回调
+    protected $sendCallback;
+
+    public function __construct()
+    {
+        $this->sendCallback = new SendCallbackService();
+    }
+
     /**
      *驳回
      * @param $request
@@ -38,9 +45,9 @@ class RejectService
             $stepRunData->flowRun->save();
 
             //步骤驳回回调
-            SendCallback::dispatch($stepRunData->id, 'step_reject');
+            $this->sendCallback->sendCallback($stepRunData->id,'step_reject');
             //流程结束回调
-            SendCallback::dispatch($stepRunData->id, 'finish');
+            $this->sendCallback->sendCallback($stepRunData->id,'finish');
 
             //发送通知
             $this->sendMessage($stepRunData);

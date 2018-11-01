@@ -10,7 +10,6 @@
 namespace App\Services\Web;
 
 
-use App\Jobs\SendCallback;
 use App\Models\StepRun;
 use App\Repository\Web\FormRepository;
 use App\Services\Notification\MessageNotification;
@@ -20,11 +19,14 @@ class DeliverService
 {
     protected $formRepository;
     protected $dingTalkMessage;
+    //发起回调
+    protected $sendCallback;
 
     public function __construct(FormRepository $formRepository, MessageNotification $messageNotification)
     {
         $this->formRepository = $formRepository;
         $this->dingTalkMessage = $messageNotification;
+        $this->sendCallback = new SendCallbackService();
     }
 
     /**
@@ -51,7 +53,7 @@ class DeliverService
             $stepRun->save();
 
             //触发转交回调
-            SendCallback::dispatch($deliverData->id, 'step_deliver');
+            $this->sendCallback->sendCallback($deliverData->id,'step_deliver');
 
             //更新待办
             $dingTalkMessage = new MessageNotification();

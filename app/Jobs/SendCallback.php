@@ -2,31 +2,27 @@
 
 namespace App\Jobs;
 
-use App\Services\Web\SendCallbackService;
 use Illuminate\Bus\Queueable;
 use Illuminate\Queue\SerializesModels;
 use Illuminate\Queue\InteractsWithQueue;
 use Illuminate\Contracts\Queue\ShouldQueue;
 use Illuminate\Foundation\Bus\Dispatchable;
-use Illuminate\Support\Facades\Artisan;
 
 class SendCallback implements ShouldQueue
 {
     use Dispatchable, InteractsWithQueue, Queueable, SerializesModels;
 
     public $tries = 3;//最大尝试次数
-    private $stepRunId;//步骤运行ID
-    private $type;//回调类型
+    protected $sendFunction;//发起回调请求
 
     /**
      * Create a new job instance.
      *
      * @return void
      */
-    public function __construct(int $stepRunId, string $type)
+    public function __construct($sendFunction)
     {
-        $this->stepRunId = $stepRunId;
-        $this->type = $type;
+        $this->sendFunction= $sendFunction;
     }
 
     /**
@@ -34,9 +30,9 @@ class SendCallback implements ShouldQueue
      *
      * @return void
      */
-    public function handle(SendCallbackService $sendCallbackService)
+    public function handle()
     {
-        $sendCallbackService->sendCallback($this->stepRunId, $this->type);
+        $this->sendFunction;
     }
 
     public function failed(\Exception $exception)
