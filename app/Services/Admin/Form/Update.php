@@ -343,6 +343,11 @@ trait Update
     {
         foreach ($data as $v) {
             foreach ($v->steps as $item) {
+                if ($item->available_fields) {
+                    $newField = $this->checkFields($item->available_fields, $fields);
+                    $item->available_fields = $newField;
+                    $item->save();
+                }
                 if ($item->hidden_fields) {
                     $newField = $this->checkFields($item->hidden_fields, $fields);
                     $item->hidden_fields = $newField;
@@ -400,8 +405,7 @@ trait Update
     protected function getStepFields($formId)
     {
         $data = Flow::with(['steps' => function ($query) {
-            $query->whereNull('deleted_at')
-                ->select('id', 'flow_id', 'hidden_fields', 'editable_fields', 'required_fields');
+            $query->whereNull('deleted_at');
         }])
             ->where(['form_id' => $formId])
             ->whereNull('deleted_at')
