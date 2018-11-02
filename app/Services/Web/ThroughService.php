@@ -63,40 +63,58 @@ class ThroughService
             //通过数据处理
             $nextStepRunData = $this->saveThrough($request, $cacheFormData['step_end']);
             //抄送人数据
-            $this->cc->makeStepCc($cacheFormData,$this->stepRun);
+            $this->cc->makeStepCc($cacheFormData, $this->stepRun);
             //步骤通过回调
-            $this->sendCallback->sendCallback($this->stepRun->id,'step_agree');
+            $this->sendCallback->sendCallback($this->stepRun->id, 'step_agree');
             //步骤结束回调
-            $this->sendCallback->sendCallback($this->stepRun->id,'step_finish');
+            $this->sendCallback->sendCallback($this->stepRun->id, 'step_finish');
 
             //更新待办
-            $updateTodoResult = $this->dingTalkMessage->updateTodo($this->stepRun->id);
-            abort_if($updateTodoResult == 0, 400, '发送更新待办通知失败');
+            try {
+                $updateTodoResult = $this->dingTalkMessage->updateTodo($this->stepRun->id);
+                abort_if($updateTodoResult == 0, 400, '发送更新待办通知失败');
+            } catch (\Exception $e) {
 
+            }
+            //流程是否发送通知
+            $flowIsSendMessage = $this->stepRun->flow->send_message;
             if (empty($nextStepRunData) && $cacheFormData['step_end'] == 1) {
                 //流程结束
-                //流程结束回调
-                $this->sendCallback->sendCallback($this->stepRun->id,'finish');
 
-                //流程是否发送通知
-                $flowIsSendMessage = $this->stepRun->flow->send_message;
+                //流程结束回调
+                $this->sendCallback->sendCallback($this->stepRun->id, 'finish');
+
                 //发送流程结束 text工作通知 给发起人
                 if (config('oa.is_send_message') && $flowIsSendMessage && $this->stepRun->steps->send_start) {
-                    $content = '你发起的' . $this->stepRun->flow_name . '流程审批已结束';
-                    $result = $this->dingTalkMessage->sendJobTextMessage($this->stepRun, $content);
-                    abort_if($result == 0, 400, '发送工作通知失败');
+                    try {
+                        $content = '你发起的' . $this->stepRun->flow_name . '流程审批已结束';
+                        $result = $this->dingTalkMessage->sendJobTextMessage($this->stepRun, $content);
+                        abort_if($result == 0, 400, '发送工作通知失败');
+                    } catch (\Exception $e) {
+
+                    }
                 }
             } else {
                 //流程未结束
                 if (count($request->input('next_step')) > 0) {
                     //步骤开始回调
                     $nextStepRunData->each(function ($stepRun) {
-                        $this->sendCallback->sendCallback($stepRun->id,'step_start');
+                        $this->sendCallback->sendCallback($stepRun->id, 'step_start');
                     });
 
                     //发送钉钉消息（发送给下一步审批人）
-                    $this->sendMessage($nextStepRunData);
+                    try {
+                        $this->sendMessage($nextStepRunData);
+                    } catch (\Exception $e) {
+
+                    }
                 }
+            }
+            //发送抄送人通知
+            try{
+                $this->sendCcMessage($cacheFormData);
+            }catch(\Exception $e){
+
             }
         });
         return $this->stepRun;
@@ -138,6 +156,28 @@ class ThroughService
         }
     }
 
+    /**
+     * 抄送人发送通知
+     * @param $cacheFormData
+     */
+    protected function sendCcMessage($cacheFormData)
+    {
+        //发送抄送人通知
+        //是否抄送
+        $isCc = $cacheFormData['is_cc'];
+        //抄送人
+        $ccPersons = request()->get('cc_person', []);
+        //流程是否发送通知
+        $flowIsSendMessage = $this->stepRun->flow->send_message;
+        if(config('oa.is_send_message') && $flowIsSendMessage && $this->stepRun->steps->send_todo && $isCc && $ccPersons){
+            //表单Data
+            $formData = $this->presetService->formRepository->getFormData($this->stepRun->flow_run_id);
+            array_map(function($staff)use($formData){
+                $result = $this->dingTalkMessage->sendCcJobOaMessage($this->stepRun,$formData,$staff['staff_sn']);
+                abort_if($result == 0, 400, '发送抄送人工作通知失败');
+            },$ccPersons);
+        }
+    }
     /**
      * 通过保存
      * @param $request
@@ -192,19 +232,19 @@ class ThroughService
         }
 
         //并发合并必须时，修改并发步骤的的next_id 为最后提交的,和prev_id 追加
-        if($this->stepRun->steps->merge_type == 1 && $this->stepRun->action_type == 2){
+        if ($this->stepRun->steps->merge_type == 1 && $this->stepRun->action_type == 2) {
             $prevStepKeys = $this->stepRun->steps->prev_step_key;
-            $prevStepIds= Step::where('flow_id' , $this->stepRun->flow_id)->whereIn('step_key',$prevStepKeys)->pluck('id')->all();
+            $prevStepIds = Step::where('flow_id', $this->stepRun->flow_id)->whereIn('step_key', $prevStepKeys)->pluck('id')->all();
 
-            $prevStepRunId = StepRun::where(['flow_id'=>$this->stepRun->flow_id,'flow_run_id'=>$this->stepRun->flow_run_id,'next_id'=>'[]'])
-                ->whereIn('step_id',$prevStepIds)->pluck('id')->all();
+            $prevStepRunId = StepRun::where(['flow_id' => $this->stepRun->flow_id, 'flow_run_id' => $this->stepRun->flow_run_id, 'next_id' => '[]'])
+                ->whereIn('step_id', $prevStepIds)->pluck('id')->all();
 
-            StepRun::where(['flow_id'=>$this->stepRun->flow_id,'flow_run_id'=>$this->stepRun->flow_run_id,'next_id'=>'[]'])
-                ->whereIn('step_id',$prevStepIds)
-                ->update(['next_id'=>json_encode([$this->stepRun->id])]);
+            StepRun::where(['flow_id' => $this->stepRun->flow_id, 'flow_run_id' => $this->stepRun->flow_run_id, 'next_id' => '[]'])
+                ->whereIn('step_id', $prevStepIds)
+                ->update(['next_id' => json_encode([$this->stepRun->id])]);
 
             $prevId = $this->stepRun->prev_id;
-            $prevId = array_collapse([$prevId,$prevStepRunId]);
+            $prevId = array_collapse([$prevId, $prevStepRunId]);
             $this->stepRun->prev_id = $prevId;
             $this->stepRun->save();
         }
