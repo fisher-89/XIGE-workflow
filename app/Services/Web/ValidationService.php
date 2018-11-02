@@ -115,7 +115,7 @@ class ValidationService
                             ];
                         }
 
-                        $fieldRules[] = 'array';
+//                        $fieldRules[] = 'array';
                         break;
                     case 'staff':
                         if (count($field->widgets) > 0) {
