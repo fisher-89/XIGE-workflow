@@ -44,10 +44,9 @@ class CcRepository
         $formData = $formRepository->getFormData($data->flow_run_id);//获取表单data数据
         //表单字段
         $fields = $formRepository->getFields($data->form_id);
-        return [
-          'step'=>$currentStepData,
-          'form_data'=>$formData,
-          'fields'=>$fields
-        ];
+        $data->step = $currentStepData;
+        $data->form_data = $formData;
+        $data->fields = $fields;
+        return $data;
     }
 }
