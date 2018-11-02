@@ -57,7 +57,12 @@ class StartRequest extends FormRequest
             'cc_person.*.staff_name'=>[
                 'string',
                 'max:20'
-            ]
+            ],
+            //抄送人钉钉查看地址
+            'cc_host'=>[
+              'required',
+              'url',
+            ],
         ];
 
     }
@@ -72,6 +77,7 @@ class StartRequest extends FormRequest
             'cc_person'=>'抄送人',
             'cc_person.*.staff_sn'=>'抄送人工号',
             'cc_person.*.staff_name'=>'抄送人名字',
+            'cc_host'=>'抄送详情地址',
         ];
     }
 }
