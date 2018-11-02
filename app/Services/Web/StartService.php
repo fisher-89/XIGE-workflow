@@ -70,8 +70,13 @@ class StartService
             $stepRunData['next_step_run_data']->each(function ($stepRun) {
                 $this->sendCallback->sendCallback($stepRun->id,'step_start');
             });
-            //发送钉钉消息
-            $this->sendMessage($stepRunData, $cacheFormData['is_cc']);
+            try{
+                //发送钉钉消息
+                $this->sendMessage($stepRunData, $cacheFormData['is_cc']);
+            }catch (\Exception $e){
+
+            }
+
         });
 
         return $stepRunData;
