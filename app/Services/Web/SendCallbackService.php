@@ -147,17 +147,18 @@ class SendCallbackService
             $data = $this->getCallbackData($stepRunData);
             $data['type'] = 'step_start';
             $data['time'] = strtotime($stepRunData->created_at);
-            if ($isAcceptCallback) {
-                $result = $this->send($data, $url);
-                if (
-                    (array_has($result, 'status') && $result['status'] == 0)
-                    || (!array_has($result, 'status'))
-                ) {
-                    abort(400, array_get($result, 'msg', '流程回调接收的返回值错误'));
-                }
-            } else {
-                SendCallback::dispatch($this->send($data, $url));
-            }
+            SendCallback::dispatch($this->send($data, $url));
+//            if ($isAcceptCallback) {
+//                $result = $this->send($data, $url);
+//                if (
+//                    (array_has($result, 'status') && $result['status'] == 0)
+//                    || (!array_has($result, 'status'))
+//                ) {
+//                    abort(400, array_get($result, 'msg', '流程回调接收的返回值错误'));
+//                }
+//            } else {
+//                SendCallback::dispatch($this->send($data, $url));
+//            }
         }
     }
 
