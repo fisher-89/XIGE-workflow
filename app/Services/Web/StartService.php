@@ -71,7 +71,7 @@ class StartService
                 $this->sendCallback->sendCallback($stepRun->id,'step_start');
             });
             //发送钉钉消息
-            $this->sendMessage($stepRunData);
+            $this->sendMessage($stepRunData, $cacheFormData['is_cc']);
         });
 
         return $stepRunData;
@@ -415,8 +415,9 @@ class StartService
     /**
      * 发送钉钉消息
      * @param $stepRunData
+     * @param $isCc
      */
-    protected function sendMessage($stepRunData)
+    protected function sendMessage($stepRunData,int $isCc)
     {
         //表单Data
         $formData = $this->presetService->formRepository->getFormData($stepRunData['flow_run']);
@@ -447,6 +448,18 @@ class StartService
                 $content = '你已发起了' . $stepRunData['current_step_run_data']->flow_name . '的流程';
                 $result = $this->dingTalkMessage->sendJobTextMessage($stepRunData['current_step_run_data'], $content);
                 abort_if($result == 0, 400, '发送工作通知失败');
+            }
+
+            //发送抄送人通知
+            //抄送人
+            $ccPersons = request()->get('cc_person', []);
+            //是否允许发送通知
+            $isSend = $stepRunData['current_step_run_data']->steps->send_todo;
+            if($isCc && $ccPersons && $isSend){
+                array_map(function($staff)use($stepRunData,$formData){
+                    $result = $this->dingTalkMessage->sendCcJobOaMessage($stepRunData['current_step_run_data'],$formData,$staff['staff_sn']);
+                    abort_if($result == 0, 400, '发送抄送人工作通知失败');
+                },$ccPersons);
             }
         }
     }
