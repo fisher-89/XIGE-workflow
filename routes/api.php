@@ -50,4 +50,9 @@ Route::middleware('auth:api')->namespace('Api\Web')->group(function () {
 
     //获取全部审批人
     Route::get('/approve-staff','ApproveStaffController@getAllApproveStaff');
+
+    //抄送人
+    Route::apiResource('/cc','CcController',['only'=>[
+        'index','show'
+    ]])->parameter('cc','id');
 });
