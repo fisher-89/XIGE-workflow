@@ -44,7 +44,7 @@ class PresetService
         $requestFormData = $request->input('form_data');
         //获取预提交步骤数据
         $step = $this->getStep($request, $flow);
-        //过滤request表单data
+        //过滤request表单data ,获取request的可编辑字段数据
         $filterRequestFormData = $this->filterRequestFormData($requestFormData, $step);
         //获取数据库表单data
         $dbFormData = $this->getDbFormData($request, $flow->form_id);
@@ -54,9 +54,8 @@ class PresetService
         $fields = $this->formRepository->getFields($flow->form_id);
         //计算表单的值（运算符号、字段类型、系统变量）全部表单字段
         $formData = $this->formData->getFilterFormData($newDbFormData, $fields);
-
-        $editableFields = $step->editable_fields;
-        //只包含 包含编辑字段
+        $editableFields = $step->available_fields;
+        //只包含 可用字段
         $formData = array_only($formData, $editableFields);
         $nextStep = [];
         $step_end = 0;
