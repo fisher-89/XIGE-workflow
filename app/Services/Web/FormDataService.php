@@ -84,10 +84,22 @@ class FormDataService
             }
         } else {
             $defaultValue = $field->default_value;
-            if ($field->type == 'file')
-                $defaultValue = [];
-            if(in_array($field->type,['date','datetime','time']) || ($field->type== 'int' && $field->scale>0)){
-                $defaultValue = null;
+            switch($field->type){
+                case 'file':
+                    $defaultValue = [];
+                    break;
+                case 'date':
+                    $defaultValue = null;
+                    break;
+                case 'datetime':
+                    $defaultValue = null;
+                    break;
+                case 'time':
+                    $defaultValue = null;
+                    break;
+                case 'int':
+                    $defaultValue = null;
+                    break;
             }
         }
 
