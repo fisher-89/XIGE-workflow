@@ -61,7 +61,12 @@ class DeliverService
             abort_if($updateTodoResult == 0,400,'发送更新待办通知失败');
 
             //发送钉钉消息（发送给下一步审批人）
-            $this->sendMessage($deliverData,$stepRun->approver_name);
+            try{
+                $this->sendMessage($deliverData,$stepRun->approver_name);
+            }catch (\Exception $e){
+
+            }
+
         });
         return $deliverData;
     }
