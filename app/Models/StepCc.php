@@ -22,4 +22,9 @@ class StepCc extends Model
         'staff_sn',
         'staff_name'
     ];
+
+    public function step()
+    {
+        return $this->belongsTo(Step::class);
+    }
 }
