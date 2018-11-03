@@ -122,7 +122,7 @@ trait Message
         $topThreeFormData = $this->getTopThreeFormData($formData, $stepRun->form_id);
         $stepCc = StepCc::where(['step_run_id'=>$stepRun->id,'staff_sn'=>$staffSn])->first();
         $url = request()->get('cc_host');
-        if (str_is('*cclist?source=dingtalk', $url)) {
+        if (str_is('*cc_detail?source=dingtalk', $url)) {
             $arr = explode('?', $url);
             $url = $arr[0] . '/' . $stepCc->id . '?' . $arr[1];
         } else {
