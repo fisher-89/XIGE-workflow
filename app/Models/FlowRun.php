@@ -22,6 +22,6 @@ class FlowRun extends Model
 
     public function flow()
     {
-        return $this->belongsTo(Flow::class);
+        return $this->belongsTo(Flow::class)->withTrashed();
     }
 }
