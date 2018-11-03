@@ -54,7 +54,12 @@ class WithdrawService
             $flowRunData->stepRun->each(function ($stepRun) {
                 $this->sendCallback->sendCallback($stepRun->id,'step_withdraw');
             });
-            $this->sendMessage($flowRunData);
+            try{
+                $this->sendMessage($flowRunData);
+            }catch(\Exception $e){
+
+            }
+
         });
 
         return $flowRunData;
