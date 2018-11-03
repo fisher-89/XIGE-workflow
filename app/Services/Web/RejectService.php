@@ -51,7 +51,12 @@ class RejectService
             $this->sendCallback->sendCallback($stepRunData->id,'finish');
 
             //发送通知
-            $this->sendMessage($stepRunData);
+            try{
+                $this->sendMessage($stepRunData);
+            }catch(\Exception $e){
+
+            }
+
         });
         return $stepRunData;
     }
