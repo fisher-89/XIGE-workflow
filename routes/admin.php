@@ -43,4 +43,13 @@ Route::namespace('Api\Admin')->middleware('auth:api')->group(function(){
         Route::get('/get-export','FlowRunController@getExport');
     });
 
+    //待办通知
+    Route::apiResource('todo','Todo\TodoController',[
+        'only'=>['index','update'],
+    ])->parameter('todo','id');
+
+    //工作通知
+    Route::apiResource('job','Job\JobController',[
+        'only'=>['index','update'],
+    ])->parameter('job','id');
 });

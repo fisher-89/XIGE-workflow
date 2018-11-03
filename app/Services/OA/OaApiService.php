@@ -126,4 +126,48 @@ class OaApiService
         $result = app('curl')->sendMessageByPost($url,$data);
         return $result;
     }
+
+    /**
+     * 获取待办列表
+     * @param $query
+     * @return mixed
+     */
+    public function getTodo($query)
+    {
+        $url = config('oa.todo').'?'.$query;
+        return app('curl')->get($url);
+    }
+
+    /**
+     * 重发失败的待办通知
+     * @param $id
+     * @return mixed
+     */
+    public function retraceTodo($id)
+    {
+        $url = config('oa.todo').'/'.$id;
+        return app('curl')->sendMessageByPost($url,[]);
+    }
+
+    /**
+     * 获取工作通知列表
+     * @param $query
+     * @return mixed
+     */
+    public function getJob($query)
+    {
+        $url = config('oa.job').'?'.$query;
+        return app('curl')->get($url);
+    }
+
+    /**
+     * 重发失败的工作通知
+     * @param $id
+     * @return mixed
+     */
+    public function retraceJob($id)
+    {
+        $url = config('oa.job').'/'.$id;
+        return app('curl')->sendMessageByPost($url,[]);
+    }
 }

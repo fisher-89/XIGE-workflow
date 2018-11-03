@@ -35,11 +35,17 @@ return [
             //发起待办
             'add' => $host . '/dingtalk/todo/add',
             //更新待办
-            'update'=>$host . '/dingtalk/todo/update',
+            'update' => $host . '/dingtalk/todo/update',
         ]
     ],
     /**
      * 是否发送钉钉消息
      */
-    'is_send_message'=>true,
+    'is_send_message' => true,
+
+    //待办消息接口(OA 获取)
+    'todo' => $host . '/dingtalk/todo',
+
+    //工作通知消息接口(OA 获取)
+    'job' => $host . '/dingtalk/job',
 ];
