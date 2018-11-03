@@ -26,7 +26,7 @@ class StepRun extends Model
     }
 
     public function flow(){
-        return $this->belongsTo(Flow::class);
+        return $this->belongsTo(Flow::class)->withTrashed();
     }
 
     public function stepCc()
