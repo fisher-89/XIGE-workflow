@@ -12,7 +12,7 @@ Route::namespace('Api\Admin')->middleware('auth:api')->group(function(){
     //流程分类
     Route::apiResource('flow-type', 'FlowTypeController')->parameter('flow-type','id');
     //验证规则
-    Route::apiResource('validator', 'ValidatorController');
+    Route::apiResource('validator', 'ValidatorController')->parameter('validator','id');
     //表单
     Route::apiResource('form', 'FormController')->parameter('form', 'id');
 

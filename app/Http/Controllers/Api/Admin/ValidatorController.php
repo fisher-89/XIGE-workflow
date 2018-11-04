@@ -18,7 +18,7 @@ class ValidatorController extends Controller
     }
 
     /**
-     * 验证规则新增保存
+     * 新增
      * @param ValidatorRequest $request
      */
     public function store(ValidatorRequest $request)
@@ -28,23 +28,25 @@ class ValidatorController extends Controller
     }
 
     /**
-     * 验证规则编辑保存
+     * 编辑
      * @param ValidatorRequest $request
      * @return mixed
      */
-    public function update(ValidatorRequest $request, Validator $validator)
+    public function update(ValidatorRequest $request, $id)
     {
+        $validator = Validator::findOrFail($id);
         $validator->update($request->input());
         return $this->response->put($validator);
     }
 
     /**
-     * 验证规则删除
+     * 删除
      * @param Request $request
      * @return mixed
      */
-    public function destroy(Validator $validator)
+    public function destroy($id)
     {
+        $validator = Validator::findOrFail($id);
         if ($validator->fields->count() > 0)
             abort(400, '该验证规则已经被使用了,不能进行删除');
         $validator->delete();
@@ -52,7 +54,7 @@ class ValidatorController extends Controller
     }
 
     /**
-     * 规则列表
+     * 列表
      * @param Request $request
      */
     public function index()
@@ -62,11 +64,12 @@ class ValidatorController extends Controller
     }
 
     /**
-     * 规则编辑获取数据
+     * 详情
      * @param Request $request
      */
-    public function show(Validator $validator)
+    public function show($id)
     {
+        $validator = Validator::findOrFail($id);
         return $this->response->get($validator);
     }
 }

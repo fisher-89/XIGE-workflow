@@ -2,6 +2,7 @@
 
 namespace App\Http\Requests\Admin;
 
+use App\Models\Validator;
 use App\Rules\Admin\Validator\Params;
 use Illuminate\Foundation\Http\FormRequest;
 use Illuminate\Validation\Rule;
@@ -15,7 +16,12 @@ class ValidatorRequest extends FormRequest
      */
     public function authorize()
     {
-        return !$this->validator || $this->validator->is_locked == 0;
+        if($this->method() == 'PUT'){
+            $isLocked = Validator::findOrFail($this->route('id'))->value('is_locked');
+            if($isLocked)
+                return false;
+        }
+        return true;
     }
 
     /**
@@ -31,7 +37,7 @@ class ValidatorRequest extends FormRequest
                 'required',
                 'max:20',
                 'string',
-                Rule::unique('validators', 'name')->ignore($this->validator->id ?? null)->whereNull('deleted_at'),
+                Rule::unique('validators', 'name')->ignore($this->route('id'))->whereNull('deleted_at'),
             ],
             'description' => [
                 'string',
