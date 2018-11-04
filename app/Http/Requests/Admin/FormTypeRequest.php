@@ -5,7 +5,7 @@ namespace App\Http\Requests\Admin;
 use Illuminate\Foundation\Http\FormRequest;
 use Illuminate\Validation\Rule;
 
-class FormTypeReqeust extends FormRequest
+class FormTypeRequest extends FormRequest
 {
     /**
      * Determine if the user is authorized to make this request.
@@ -29,7 +29,7 @@ class FormTypeReqeust extends FormRequest
                 'required',
                 'max:20',
                 'string',
-                Rule::unique('form_types', 'name')->whereNull('deleted_at')->ignore($this->form_type->id ?? null),
+                Rule::unique('form_types', 'name')->whereNull('deleted_at')->ignore($this->route('id')),
             ],
             'sort' => [
                 'integer',
