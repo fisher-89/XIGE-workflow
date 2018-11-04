@@ -2,7 +2,7 @@
 
 namespace App\Http\Controllers\Api\Admin\Todo;
 
-use App\Services\Admin\Todo\JobService;
+use App\Services\Admin\Todo\TodoService;
 use App\Services\ResponseService;
 use Illuminate\Http\Request;
 use App\Http\Controllers\Controller;
@@ -12,7 +12,7 @@ class TodoController extends Controller
     protected $response;
     protected $todo;
 
-    public function __construct(ResponseService $responseService, JobService $todoService)
+    public function __construct(ResponseService $responseService, TodoService $todoService)
     {
         $this->response = $responseService;
         $this->todo = $todoService;
