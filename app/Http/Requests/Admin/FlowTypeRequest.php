@@ -29,7 +29,7 @@ class FlowTypeRequest extends FormRequest
                 'required',
                 'max:20',
                 'string',
-                Rule::unique('flow_types', 'name')->ignore($this->flow_type->id ?? null)->whereNull('deleted_at'),
+                Rule::unique('flow_types', 'name')->ignore($this->route('id'))->whereNull('deleted_at'),
             ],
             'sort' => [
                 'integer',

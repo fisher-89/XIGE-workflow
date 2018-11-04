@@ -19,7 +19,7 @@ class FlowTypeController extends Controller
     }
 
     /**
-     * 流程分类新增保存
+     * 新增
      * @param FlowTypeRequest $request
      */
     public function store(FlowTypeRequest $request)
@@ -29,11 +29,12 @@ class FlowTypeController extends Controller
     }
 
     /**
-     * 流程分类编辑保存
+     * 编辑
      * @param FlowTypeRequest $request
      */
-    public function update(FlowTypeRequest $request, FlowType $flowType)
+    public function update(FlowTypeRequest $request, $id)
     {
+        $flowType = FlowType::findOrFail($id);
         $flowType->update($request->input());
         return $this->response->put($flowType);
     }
@@ -42,9 +43,10 @@ class FlowTypeController extends Controller
      * 删除
      * @param Request $request
      */
-    public function destroy(FlowType $flowType)
+    public function destroy($id)
     {
-        if (count($flowType->flow) > 0)
+        $flowType = FlowType::findOrFail($id);
+        if ($flowType->flow->count() > 0)
             abort(400, '该分类已经有流程在使用了,不能进行删除');
         $flowType->delete();
         return $this->response->delete();
@@ -52,7 +54,7 @@ class FlowTypeController extends Controller
 
 
     /**
-     * 流程分类列表
+     * 列表
      * @param Request $request
      */
     public function index()
@@ -64,11 +66,12 @@ class FlowTypeController extends Controller
     }
 
     /**
-     * 流程分类编辑
+     * 详情
      * @param Request $reqeust
      */
-    public function show(FlowType $flowType)
+    public function show($id)
     {
+        $flowType = FlowType::findOrFail($id);
         return $this->response->get($flowType);
     }
 
