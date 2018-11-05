@@ -8,6 +8,7 @@ use App\Services\Admin\FlowService;
 use App\Services\ResponseService;
 use Illuminate\Http\Request;
 use App\Http\Controllers\Controller;
+use Illuminate\Validation\Rule;
 
 class FlowController extends Controller
 {
@@ -21,7 +22,7 @@ class FlowController extends Controller
     }
 
     /**
-     * 流程新增保存
+     * 新增
      * @param FlowRequest $request
      * @return mixed
      */
@@ -32,7 +33,7 @@ class FlowController extends Controller
     }
 
     /**
-     * 流程编辑保存
+     * 编辑
      * @param FlowRequest $request
      * @return mixed
      */
@@ -43,7 +44,7 @@ class FlowController extends Controller
     }
 
     /**
-     * 流程获取列表
+     * 列表
      * @param Request $request
      */
     public function index()
@@ -53,7 +54,7 @@ class FlowController extends Controller
     }
 
     /**
-     * 流程删除
+     * 删除
      * @param Request $request
      */
     public function destroy($id)
@@ -67,12 +68,27 @@ class FlowController extends Controller
 
 
     /**
-     * 流程获取编辑数据
+     * 详情
      * @param Request $request
      */
     public function show($id)
     {
         $flow = Flow::detail()->findOrFail($id);
         return $this->response->get($flow);
+    }
+
+    /**
+     * 克隆流程
+     * @param Request $request
+     */
+    public function flowClone(Request $request)
+    {
+        $this->validate($request,[
+            'flow_id'=>[
+                Rule::exists('flows','id')
+            ]
+        ],[],['flow_id'=>"流程ID"]);
+        $data = $this->flowService->flowClone();
+        return $this->response->post($data);
     }
 }

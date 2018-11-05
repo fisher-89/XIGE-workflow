@@ -17,6 +17,9 @@ use Illuminate\Support\Facades\DB;
 
 class FlowService
 {
+    //流程克隆
+    use FlowClone;
+
     /**
      * 新增
      * @param $request
@@ -25,7 +28,7 @@ class FlowService
     public function store($request)
     {
         DB::transaction(function () use ($request, &$data) {
-            $data = $this->addSave($request);
+            $data = $this->addSave($request->input());
             //保存流程编号
             $data->number = $data->id;
             $data->save();
@@ -51,18 +54,18 @@ class FlowService
      * @param $request
      * @return mixed
      */
-    protected function addSave($request)
+    protected function addSave(array $request)
     {
         //创建流程数据
-        $flow = Flow::create($request->input());//保存流程数据
+        $flow = Flow::create($request);//保存流程数据
         //流程发起人data
         $this->createFlowSponsor($flow, $request);
 
         //创建步骤
-        $this->createStepData($request->input('steps'), $flow);
+        $this->createStepData($request['steps'], $flow);
 
         //创建子步骤
-        $this->createSubSteps($flow, $request->input('steps'));//创建子步骤数据
+        $this->createSubSteps($flow, $request['steps']);//创建子步骤数据
         return $flow->withDetail();
     }
 
@@ -77,7 +80,7 @@ class FlowService
         if ($flowNum > 0) {
             $oldFlow = $flow;
             $flow->delete();
-            $flow = $this->addSave($request);
+            $flow = $this->addSave($request->input());
             //保存流程编号
             $flow->number = $oldFlow->number;
             $flow->save();
@@ -204,28 +207,28 @@ class FlowService
      * @param $flow
      * @param $request
      */
-    protected function createFlowSponsor($flow, $request)
+    protected function createFlowSponsor($flow, array $request)
     {
         //创建流程发起的员工
         $flow->staff()->createMany(array_map(function ($item) {
             return [
                 'staff_sn' => $item
             ];
-        }, $request->input('flows_has_staff', [])));
+        }, $request['flows_has_staff']));
 
         //创建流程发起的角色
         $flow->roles()->createMany(array_map(function ($item) {
             return [
                 'role_id' => $item
             ];
-        }, $request->input('flows_has_roles', [])));
+        }, $request['flows_has_roles']));
 
         //创建流程发起的部门
         $flow->departments()->createMany(array_map(function ($item) {
             return [
                 'department_id' => $item
             ];
-        }, $request->input('flows_has_departments', [])));
+        }, $request['flows_has_departments']));
     }
 
     /**

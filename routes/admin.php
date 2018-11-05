@@ -27,6 +27,10 @@ Route::namespace('Api\Admin')->middleware('auth:api')->group(function(){
 
     //流程
     Route::apiResource('flow', 'FlowController')->parameter('flow', 'id');
+
+    //流程克隆
+    Route::post('flow-clone','FlowController@flowClone');
+
     //步骤审批配置
     Route::apiResource('step-approver','StepApproverController');
     //步骤部门审批配置
