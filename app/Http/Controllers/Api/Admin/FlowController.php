@@ -91,4 +91,16 @@ class FlowController extends Controller
         $data = $this->flowService->flowClone();
         return $this->response->post($data);
     }
+
+    /**
+     * 获取旧流程列表
+     * @param $id
+     * @return \Illuminate\Contracts\Routing\ResponseFactory|\Symfony\Component\HttpFoundation\Response
+     */
+    public function getOldFlow($id)
+    {
+        $flow = Flow::findOrFail($id);
+        $oldFlow = Flow::onlyTrashed()->where('number', $flow->number)->orderBy('created_at','desc')->get();
+        return $this->response->get($oldFlow);
+    }
 }

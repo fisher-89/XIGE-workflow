@@ -16,7 +16,7 @@ Route::namespace('Api\Admin')->middleware('auth:api')->group(function(){
     //表单
     Route::apiResource('form', 'FormController')->parameter('form', 'id');
 
-    //老表单获取
+    //旧表单获取
     Route::get('form-old/{id}','FormController@getOldForm');
 
     //字段接口配置
@@ -33,6 +33,9 @@ Route::namespace('Api\Admin')->middleware('auth:api')->group(function(){
 
     //流程克隆
     Route::post('flow-clone','FlowController@flowClone');
+
+    //旧流程获取
+    Route::get('flow-old/{id}','FlowController@getOldFlow');
 
     //步骤审批配置
     Route::apiResource('step-approver','StepApproverController');
