@@ -371,11 +371,20 @@ trait Update
         });
     }
 
+    /**
+     * 获取新的字段
+     * @param $fieldData
+     * @param $allFields
+     * @return array
+     */
     protected function checkFields($fieldData, $allFields)
     {
-        $deletedFields = array_diff($fieldData,$allFields);
-        $newField = array_diff($fieldData,$deletedFields);
-        $newField = array_filter($newField);
+        $newField = [];
+        foreach($fieldData as $v){
+            if(in_array($v,$allFields)){
+                $newField[] = $v;
+            }
+        }
         return $newField;
     }
 
@@ -391,6 +400,8 @@ trait Update
         $gridData = FormGrid::with('fields')->where('form_id',$formId)->get();
         if ($gridData) {
             foreach ($gridData as $v) {
+                //添加控件的key进去
+                $formFieldsKeys[] = $v['key'];
                 foreach ($v->fields as $item) {
                     $formFieldsKeys[] = $v['key'] . '.*.' . $item['key'];
                 }
