@@ -48,7 +48,7 @@ trait Update
         $formData->update($request->input());
         $this->gridDataUpdate($request, $formData);//修改列表控件
         $this->formFieldsUpdate($request);//表单字段数据修改
-        $this->updateStepFieldsKey($request);//修改步骤字段
+//        $this->updateStepFieldsKey($request);//修改步骤字段
     }
 
     /**
@@ -339,42 +339,42 @@ trait Update
      * @param $data
      * @param $fields
      */
-    protected function updateStepFields($data, $fields)
+    protected function updateStepFields($data, array $fields)
     {
-        foreach ($data as $v) {
-            foreach ($v->steps as $item) {
-                if ($item->available_fields) {
-                    $newField = $this->checkFields($item->available_fields, $fields);
-                    $item->available_fields = $newField;
-                    $item->save();
+        $data->map(function($flow)use($fields){
+            $flow->steps->map(function($step)use($fields){
+                //可用字段处理
+                if ($step->available_fields) {
+                    $newField = $this->checkFields($step->available_fields, $fields);
+                    $step->available_fields = $newField;
+                    $step->save();
                 }
-                if ($item->hidden_fields) {
-                    $newField = $this->checkFields($item->hidden_fields, $fields);
-                    $item->hidden_fields = $newField;
-                    $item->save();
+                //隐藏字段处理
+                if ($step->hidden_fields) {
+                    $newField = $this->checkFields($step->hidden_fields, $fields);
+                    $step->hidden_fields = $newField;
+                    $step->save();
                 }
-                if ($item->editable_fields) {
-                    $newField = $this->checkFields($item->editable_fields, $fields);
-                    $item->editable_fields = $newField;
-                    $item->save();
+                //编辑字段处理
+                if ($step->editable_fields) {
+                    $newField = $this->checkFields($step->editable_fields, $fields);
+                    $step->editable_fields = $newField;
+                    $step->save();
                 }
-                if ($item->required_fields) {
-                    $newField = $this->checkFields($item->required_fields, $fields);
-                    $item->required_fields = $newField;
-                    $item->save();
+                //必填字段处理
+                if ($step->required_fields) {
+                    $newField = $this->checkFields($step->required_fields, $fields);
+                    $step->required_fields = $newField;
+                    $step->save();
                 }
-            }
-        }
+            });
+        });
     }
 
-    protected function checkFields($fieldData, $fields)
+    protected function checkFields($fieldData, $allFields)
     {
-        $newField = [];
-        foreach ($fieldData as $v) {
-            if (in_array($v, $fields)) {
-                $newField[] = $v;
-            }
-        }
+        $deletedFields = array_diff($fieldData,$allFields);
+        $newField = array_diff($fieldData,$deletedFields);
         return $newField;
     }
 
