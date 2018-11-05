@@ -85,7 +85,7 @@ class FlowService
             $flow->number = $oldFlow->number;
             $flow->save();
         } else {
-            $this->updateFlowData($flow, $request);
+            $this->updateFlowData($flow, $request->input());
         }
         return $flow->withDetail();
     }
@@ -123,17 +123,17 @@ class FlowService
      * @param $flow
      * @param $request
      */
-    protected function updateFlowData($flow, $request)
+    protected function updateFlowData($flow, array $request)
     {
         //保存流程数据
-        $flow->update($request->input());
+        $flow->update($request);
         //修改修改流程发起人数据
         $this->updateFlowSponsor($flow, $request);
         //修改步骤数据
-        $this->updateStepData($flow, $request->input('steps'));
+        $this->updateStepData($flow, $request['steps']);
         $flow->subSteps()->delete();//删除子步骤
         //创建子步骤
-        $this->createSubSteps($flow, $request->input('steps'));//创建子步骤数据
+        $this->createSubSteps($flow, $request['steps']);//创建子步骤数据
     }
 
     /**
@@ -141,7 +141,7 @@ class FlowService
      * @param $flow
      * @param $request
      */
-    protected function updateFlowSponsor($flow, $request)
+    protected function updateFlowSponsor($flow, array $request)
     {
         $flow->staff()->delete();
         $flow->roles()->delete();
