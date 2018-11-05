@@ -73,7 +73,7 @@ class FlowController extends Controller
      */
     public function show($id)
     {
-        $flow = Flow::detail()->findOrFail($id);
+        $flow = Flow::withTrashed()->detail()->findOrFail($id);
         return $this->response->get($flow);
     }
 
@@ -83,11 +83,11 @@ class FlowController extends Controller
      */
     public function flowClone(Request $request)
     {
-        $this->validate($request,[
-            'flow_id'=>[
-                Rule::exists('flows','id')
+        $this->validate($request, [
+            'flow_id' => [
+                Rule::exists('flows', 'id')
             ]
-        ],[],['flow_id'=>"流程ID"]);
+        ], [], ['flow_id' => "流程ID"]);
         $data = $this->flowService->flowClone();
         return $this->response->post($data);
     }
