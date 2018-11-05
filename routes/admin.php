@@ -16,6 +16,9 @@ Route::namespace('Api\Admin')->middleware('auth:api')->group(function(){
     //表单
     Route::apiResource('form', 'FormController')->parameter('form', 'id');
 
+    //老表单获取
+    Route::get('form-old/{id}','FormController@getOldForm');
+
     //字段接口配置
     Route::apiResource('field-api-configuration','FieldApiConfigurationController',[
         'only'=>['index','store','update','destroy','show']

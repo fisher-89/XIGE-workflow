@@ -94,4 +94,18 @@ class FormController extends Controller
         ])->findOrFail($id);
         return $this->response->get($data);
     }
+
+    /**
+     * 获取旧表单列表
+     * @param $id
+     */
+    public function getOldForm($id)
+    {
+        $form = Form::findOrFail($id);
+        $oldForm = Form::onlyTrashed()
+            ->where('number', $form->number)
+            ->orderBy('created_at', 'desc')
+            ->get();
+        return $this->response->get($oldForm);
+    }
 }
