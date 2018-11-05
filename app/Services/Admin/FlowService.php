@@ -100,16 +100,22 @@ class FlowService
     {
         array_map(function ($step) use ($flow) {
             $step['flow_id'] = $flow->id;
-            $stepData = Step::create($step);
-            switch ($step['approver_type']) {
-                case 1:
-                    $stepData->stepChooseApprover()->create(array_only($step['approvers'], ['staff', 'roles', 'departments']));
-                    break;
-                case 3:
-                    $stepData->stepManagerApprover()->create(['approver_manager' => $step['approvers']['manager']]);
-                    break;
-            }
+            $this->createStep($step);
         }, $steps);
+    }
+
+    protected function createStep(array $step)
+    {
+        $stepData = Step::create($step);
+        switch ($step['approver_type']) {
+            case 1:
+                $stepData->stepChooseApprover()->create(array_only($step['approvers'], ['staff', 'roles', 'departments']));
+                break;
+            case 3:
+                $stepData->stepManagerApprover()->create(['approver_manager' => $step['approvers']['manager']]);
+                break;
+        }
+        return $stepData;
     }
 
     /**
