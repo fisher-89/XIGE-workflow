@@ -3,7 +3,6 @@
 namespace App\Http\Controllers\Api\Admin;
 
 use App\Http\Requests\Admin\Form\FormValidator;
-use App\Models\Flow;
 use App\Models\Form;
 use App\Services\Admin\Form\FormService;
 use App\Services\ResponseService;
@@ -27,8 +26,8 @@ class FormController extends Controller
     }
 
     /**
-     * 表单新增保存
-     * @param FormsRequest $request
+     * 新增
+     * @param Request $request
      * @return mixed
      */
     public function store(Request $request)
@@ -42,8 +41,8 @@ class FormController extends Controller
     }
 
     /**
-     * 表单编辑保存
-     * @param FormsRequest $request
+     * 编辑
+     * @param Request $request
      * @return mixed
      */
     public function update(Request $request)
@@ -57,7 +56,7 @@ class FormController extends Controller
     }
 
     /**
-     *  表单列表
+     *  列表
      * @param Request $request
      */
     public function index()
@@ -68,7 +67,7 @@ class FormController extends Controller
 
 
     /**
-     * 表单删除
+     * 删除
      * @param Request $request
      */
     public function destroy($id)
@@ -81,12 +80,12 @@ class FormController extends Controller
     }
 
     /**
-     * 表单修改获取数据
+     * 详情
      * @param Request $request
      */
     public function show($id)
     {
-        $data = Form::with([
+        $data = Form::withTrashed()->with([
             'fields' => function ($query) {
                 $query->whereNull('form_grid_id')->orderBy('sort', 'asc');
             },
