@@ -375,6 +375,7 @@ trait Update
     {
         $deletedFields = array_diff($fieldData,$allFields);
         $newField = array_diff($fieldData,$deletedFields);
+        $newField = array_filter($newField);
         return $newField;
     }
 
