@@ -114,7 +114,7 @@ class FormDataTableService
                                 $max = $v['max']?strlen($v['max']) - 1:20;
                                 $table->decimal($v['key'], $max, $v['scale'])->nullable()->comment($v['name']);
                             } else {
-                                $table->unsignedInteger($v['key'])->nullable()->comment($v['name']);
+                                $table->bigInteger($v['key'])->nullable()->comment($v['name']);
                             }
                             break;
                         case 'text':
