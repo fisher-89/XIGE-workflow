@@ -16,7 +16,10 @@ class IndexTest extends TestCase
     public function testExample()
     {
         $response = $this->get('/admin/form-type');
-        $response->assertStatus(200);
-//        $this->assertTrue(true);
+        $response->assertStatus(200)
+            ->assertJson([
+                'name'=>true,
+            ]);
+        $this->assertTrue(true);
     }
 }
