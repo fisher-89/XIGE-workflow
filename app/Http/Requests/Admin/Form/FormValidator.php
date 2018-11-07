@@ -133,6 +133,7 @@ class FormValidator
             'fields.*.name' => [
                 'required',
                 'max:20',
+                'distinct',
                 'string'
             ],
             'fields.*.description' => [
