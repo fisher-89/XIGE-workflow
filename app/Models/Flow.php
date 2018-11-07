@@ -14,7 +14,7 @@ class Flow extends Model
 
     public function form()
     {
-        return $this->belongsTo(Form::class, 'form_id');
+        return $this->belongsTo(Form::class, 'form_id')->withTrashed();
     }
 
     public function steps()

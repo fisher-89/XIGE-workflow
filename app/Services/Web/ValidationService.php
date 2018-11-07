@@ -22,7 +22,7 @@ class ValidationService
      */
     public function makeStepFormValidationRules($step)
     {
-        $fields = $step->flow->form()->withTrashed()->fields;
+        $fields = $step->flow->form->fields;
         $editableFields = $step->editable_fields;
         $requiredFields = $step->required_fields;
         $rules = [];
