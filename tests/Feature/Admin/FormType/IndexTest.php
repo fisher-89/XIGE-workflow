@@ -20,6 +20,5 @@ class IndexTest extends TestCase
             ->assertJson([
                 'name'=>true,
             ]);
-        //$this->assertTrue(true);
     }
 }
