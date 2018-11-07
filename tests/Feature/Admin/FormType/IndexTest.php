@@ -16,11 +16,15 @@ class IndexTest extends TestCase
     public function testExample()
     {
         $response = $this->get('/admin/form-type');
-        $response->assertStatus(200)
+        $response->assertStatus(200);
+    }
+
+    public function testShow()
+    {
+        $this->get('/admin/form-type/1')
+            ->assertStatus(200)
             ->assertJson([
-                '*'=>[
-                    'name'=>true,
-                ],
+                "name"=>'离职'
             ]);
     }
 }
