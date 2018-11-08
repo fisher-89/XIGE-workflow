@@ -14,7 +14,7 @@ abstract class TestCase extends BaseTestCase
      */
     public function apiAuth()
     {
-        $user = factory(User::class)->create();
+        $user = factory(User::class)->make();
         $this->actingAs($user, 'api');
     }
 }
