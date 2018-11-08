@@ -79,7 +79,7 @@ class SendCallbackService
      */
     protected function flowStartCallback($stepRunData)
     {
-        $flowData = $stepRunData->flow()->withTrashed()->first();
+        $flowData = $stepRunData->flow;
         $url = $flowData->start_callback_uri;
         //是否接收回调返回值
         $isAcceptCallback = $flowData->accept_start_callback;
@@ -109,7 +109,7 @@ class SendCallbackService
      */
     protected function flowFinishCallback($stepRunData)
     {
-        $flowData = $stepRunData->flow()->withTrashed()->first();
+        $flowData = $stepRunData->flow;
         $url = $flowData->end_callback_uri;
         //是否接收回调返回值
         $isAcceptCallback = $flowData->accept_end_callback;
