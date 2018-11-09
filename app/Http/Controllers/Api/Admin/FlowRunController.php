@@ -39,12 +39,21 @@ class FlowRunController extends Controller
     }
 
     /**
-     * 获取表单
+     * 通过流程ID获取表单数据（包含旧的）
      * @param $flowId
      */
-    public function getForm($flowId)
+    public function getFlowForm($flowId)
     {
-        $data = $this->flowStepRun->getForm($flowId);
+        $data = $this->flowStepRun->getFlowForm($flowId);
+        return $this->response->get($data);
+    }
+
+    /**
+     * 通过表单ID获取表单数据（包含旧的）
+     * @param $formId
+     */
+    public function getForm($formId){
+        $data = $this->flowStepRun->getForm($formId);
         return $this->response->get($data);
     }
 }

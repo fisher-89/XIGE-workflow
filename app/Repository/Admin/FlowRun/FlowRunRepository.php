@@ -26,18 +26,33 @@ class FlowRunRepository
     }
 
     /**
-     * 获取表单（包含旧表单）
+     * 通过流程ID获取表单数据（包含旧的）
      * @param int $flowId
      * @return mixed
      */
-    public function getForm(int $flowId)
+    public function getFlowForm(int $flowId)
     {
         $flow = Flow::findOrFail($flowId);
         $form = Form::withTrashed()
-            ->where('number',$flow->form->number)
+            ->where('number', $flow->form->number)
+            ->orderBy('created_at', 'desc')
+            ->get();
+        return $form;
+    }
+
+    /**
+     * 通过表单ID获取表单数据（包含旧的）
+     * @param int $formId
+     * @return mixed
+     */
+    public function getForm(int $formId)
+    {
+        $form = Form::findOrFail($formId);
+        $data = Form::withTrashed()
+            ->where('number',$form->number)
             ->orderBy('created_at','desc')
             ->get();
-       return $form;
+        return $data;
     }
 
     /**
@@ -58,52 +73,58 @@ class FlowRunRepository
      */
     public function getExportData()
     {
+        $formIds = request()->get('form_id');
+        $formIds = json_decode($formIds, true);
+
         $flowRun = FlowRun::filterByQueryString()
             ->sortByQueryString()
             ->withPagination();
-        //获取表单data数据
-        $formId = $flowRun[0]->form_id;
-        $flowRunIds = $flowRun->pluck('id')->all();
-        $formData = DB::table('form_data_' . $formId)->whereIn('run_id', $flowRunIds)->get();
-        $newFormData = [];
-        foreach($formData as $k=>$v){
-            foreach($v as $field=>$value){
-                if(!in_array($field,['id','run_id',$field.'_province_id',$field.'_city_id',$field.'_county_id',$field.'_address','created_at','updated_at','deleted_at'])){
-                    if($value){
-                        $newValue = json_decode($value,true);
-                        if(is_array($newValue) && $newValue && !is_null($value)){
-                            if(count($newValue) == count($newValue,1)){
-                                //一维数组
-                                if(array_has($newValue,'text')){
-                                    $value = $newValue['text'];
-                                }elseif(array_has($newValue,['province_id','city_id','county_id','address'])){
-                                    $regionFullName = $this->getRegionName($newValue['county_id']);
-                                    $value = $regionFullName.$newValue['address'];
-                                }elseif(array_has($newValue,['province_id','city_id','county_id'])){
-                                    $value = $this->getRegionName($newValue['county_id']);
-                                }elseif(array_has($newValue,['province_id','city_id'])){
-                                    $value = $this->getRegionName($newValue['city_id']);
-                                }elseif(array_has($newValue,['province_id'])){
-                                    $value = $this->getRegionName($newValue['province_id']);
-                                }else{
-                                    $value = implode(',',$newValue);
-                                }
-                            }else{
-                                //二维数组
-                                $value = implode(',',array_pluck($newValue,'text'));
-                            }
-                        }elseif(is_array($newValue) && count($newValue)==0){
-                            $value = '';
-                        }
-                    }else{
-                        $value = '';
-                    }
-//                    $newFormData[$k][$field] = $value;
-                    $newFormData[$k][] = $value;
-                }
 
-            }
-        }
+        $flowRunIds = $flowRun->pluck('id')->all();
+        $formData = $this->getFormData($formIds,$flowRunIds);
+        dd($formData);
+
+
+//        $formData = DB::table('form_data_' . $formId)->whereIn('run_id', $flowRunIds)->get();
+//        $newFormData = [];
+//        foreach ($formData as $k => $v) {
+//            foreach ($v as $field => $value) {
+//                if (!in_array($field, ['id', 'run_id', $field . '_province_id', $field . '_city_id', $field . '_county_id', $field . '_address', 'created_at', 'updated_at', 'deleted_at'])) {
+//                    if ($value) {
+//                        $newValue = json_decode($value, true);
+//                        if (is_array($newValue) && $newValue && !is_null($value)) {
+//                            if (count($newValue) == count($newValue, 1)) {
+//                                //一维数组
+//                                if (array_has($newValue, 'text')) {
+//                                    $value = $newValue['text'];
+//                                } elseif (array_has($newValue, ['province_id', 'city_id', 'county_id', 'address'])) {
+//                                    $regionFullName = $this->getRegionName($newValue['county_id']);
+//                                    $value = $regionFullName . $newValue['address'];
+//                                } elseif (array_has($newValue, ['province_id', 'city_id', 'county_id'])) {
+//                                    $value = $this->getRegionName($newValue['county_id']);
+//                                } elseif (array_has($newValue, ['province_id', 'city_id'])) {
+//                                    $value = $this->getRegionName($newValue['city_id']);
+//                                } elseif (array_has($newValue, ['province_id'])) {
+//                                    $value = $this->getRegionName($newValue['province_id']);
+//                                } else {
+//                                    $value = implode(',', $newValue);
+//                                }
+//                            } else {
+//                                //二维数组
+//                                $value = implode(',', array_pluck($newValue, 'text'));
+//                            }
+//                        } elseif (is_array($newValue) && count($newValue) == 0) {
+//                            $value = '';
+//                        }
+//                    } else {
+//                        $value = '';
+//                    }
+////                    $newFormData[$k][$field] = $value;
+//                    $newFormData[$k][] = $value;
+//                }
+//
+//            }
+//        }
 
         //表单字段
         $fields = $this->formRepository->getFields($formId);
@@ -117,6 +138,54 @@ class FlowRunRepository
             'data' => $newFormData,
             'headers' => $headers
         ];
+    }
+
+    protected function getFormData(array $formIds, array $runIds)
+    {
+        return array_map(function($formId)use($runIds){
+            $formData = DB::table('form_data_' . $formId)->whereIn('run_id', $runIds)->get();
+            $newFormData = [];
+            foreach ($formData as $k => $v) {
+                foreach ($v as $field => $value) {
+                    if (!in_array($field, ['id', 'run_id', $field . '_province_id', $field . '_city_id', $field . '_county_id', $field . '_address', 'created_at', 'updated_at', 'deleted_at'])) {
+                        if ($value) {
+                            $newValue = json_decode($value, true);
+                            if (is_array($newValue) && $newValue && !is_null($value)) {
+                                if (count($newValue) == count($newValue, 1)) {
+                                    //一维数组
+                                    if (array_has($newValue, 'text')) {
+                                        $value = $newValue['text'];
+                                    } elseif (array_has($newValue, ['province_id', 'city_id', 'county_id', 'address'])) {
+                                        $regionFullName = $this->getRegionName($newValue['county_id']);
+                                        $value = $regionFullName . $newValue['address'];
+                                    } elseif (array_has($newValue, ['province_id', 'city_id', 'county_id'])) {
+                                        $value = $this->getRegionName($newValue['county_id']);
+                                    } elseif (array_has($newValue, ['province_id', 'city_id'])) {
+                                        $value = $this->getRegionName($newValue['city_id']);
+                                    } elseif (array_has($newValue, ['province_id'])) {
+                                        $value = $this->getRegionName($newValue['province_id']);
+                                    } else {
+                                        $value = implode(',', $newValue);
+                                    }
+                                } else {
+                                    //二维数组
+                                    $value = implode(',', array_pluck($newValue, 'text'));
+                                }
+                            } elseif (is_array($newValue) && count($newValue) == 0) {
+                                $value = '';
+                            }
+                        } else {
+                            $value = '';
+                        }
+                    $newFormData[$k][$field] = $value;
+//                        $newFormData[$k][] = $value;
+                    }
+
+                }
+            }
+            return $newFormData;
+        },$formIds);
+
     }
 
     /**
