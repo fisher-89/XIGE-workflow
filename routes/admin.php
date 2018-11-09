@@ -47,6 +47,8 @@ Route::namespace('Api\Admin')->middleware('auth:api')->group(function(){
      * 流程运行
      */
     Route::prefix('flow-run')->group(function(){
+        //获取流程的表单
+        Route::get('/form/{flow_id}','FlowRunController@getForm');
         //获取列表
         Route::get('/','FlowRunController@index');
         //获取导出数据

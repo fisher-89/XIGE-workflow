@@ -37,4 +37,14 @@ class FlowRunController extends Controller
         $data = $this->flowStepRun->getExportData();
         return $this->response->get($data);
     }
+
+    /**
+     * 获取表单
+     * @param $flowId
+     */
+    public function getForm($flowId)
+    {
+        $data = $this->flowStepRun->getForm($flowId);
+        return $this->response->get($data);
+    }
 }

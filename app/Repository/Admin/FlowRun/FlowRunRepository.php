@@ -9,7 +9,9 @@
 namespace App\Repository\Admin\FlowRun;
 
 
+use App\Models\Flow;
 use App\Models\FlowRun;
+use App\Models\Form;
 use App\Models\Region;
 use App\Repository\Web\FormRepository;
 use Illuminate\Support\Facades\DB;
@@ -21,6 +23,21 @@ class FlowRunRepository
     public function __construct(FormRepository $formRepository)
     {
         $this->formRepository = $formRepository;
+    }
+
+    /**
+     * 获取表单（包含旧表单）
+     * @param int $flowId
+     * @return mixed
+     */
+    public function getForm(int $flowId)
+    {
+        $flow = Flow::findOrFail($flowId);
+        $form = Form::withTrashed()
+            ->where('number',$flow->form->number)
+            ->orderBy('created_at','desc')
+            ->get();
+       return $form;
     }
 
     /**
