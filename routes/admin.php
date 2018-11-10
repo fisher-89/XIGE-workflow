@@ -69,3 +69,6 @@ Route::namespace('Api\Admin')->middleware('auth:api')->group(function(){
         'only'=>['index','update'],
     ])->parameter('job','id');
 });
+
+//测试导出
+Route::get('flow-run/get-export','Api\Admin\FlowRunController@getExport');
