@@ -34,8 +34,7 @@ class FlowRunController extends Controller
      */
     public function getExport()
     {
-        $data = $this->flowStepRun->getExportData();
-        return $this->response->get($data);
+        return $this->flowStepRun->getExportData();
     }
 
     /**

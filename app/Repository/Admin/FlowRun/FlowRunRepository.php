@@ -79,14 +79,12 @@ class FlowRunRepository
         $formExport = new FormExport($formIds,$flowRunIds);
 
         //保存服务器
-        $filePath = 'excel/form/'.$form->name.'.'.$this->excel;
-        $formExport->store($filePath, 'public');
+//        $filePath = 'excel/form/'.$form->name.'.'.$this->excel;
+//        $formExport->store($filePath, 'public');
 
 //        //下载
         $fileName = $form->name.'.'.$this->excel;
         return $formExport->download($fileName);
-
-
     }
 
 }
