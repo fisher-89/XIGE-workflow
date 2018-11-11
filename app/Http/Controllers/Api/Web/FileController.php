@@ -7,9 +7,7 @@ use App\Http\Requests\Web\FileRequest;
 use App\Services\ResponseService;
 use App\Services\Web\File\Images;
 use Illuminate\Http\Request;
-use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Storage;
-use Intervention\Image\Facades\Image;
 
 class FileController extends Controller
 {
@@ -21,7 +19,7 @@ class FileController extends Controller
 
     public function index(FileRequest $request,Images $images)
     {
-        $data = $images->uploadPic($request);
+        $data = $images->uploadPic();
         return $this->response->post($data);
     }
 

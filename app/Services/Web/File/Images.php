@@ -21,26 +21,27 @@ class Images
      * @param $request
      * @return array
      */
-    public function uploadPic($request)
+    public function uploadPic()
     {
-        $file = $request->file('upFile');
-        $originalExtension = $file->getClientOriginalExtension(); // 扩展名
+        $file = request()->file('upFile');
+        // 扩展名
+        $originalExtension = $file->getClientOriginalExtension();
+        //文件名称
         $name = $this->setFileName();
         $newFileName = $name . '.' . $originalExtension;//新的文件名
-        $newFilePath = 'uploads/temporary/' . date('Y') . '/' . date('m') . '/' . date('d') . '/';//新的文件路径
-        $file->storeAs($newFilePath, $newFileName, 'public');//图片存储
+        $path = 'uploads/temporary/' . date('Y') . '/' . date('m') . '/' . date('d') . '/';//新的文件路径
+        $file->storeAs($path, $newFileName, 'public');//图片存储
 
         //缩略图处理
-        $realPath = $file->getRealPath();   //临时文件的绝对路径
         $newThumbFileName = $name . '_thumb' . '.' . $originalExtension;//缩略图文件名
-        $thumbImg = Image::make($realPath)->resize(100, 100);
-        $thumbImg->save(Storage::disk('public')->copy($newFilePath . $newFileName, $newFilePath . $newThumbFileName));//缩略图保存
+        Image::make($file)->resize(100,100)->save(storage_path('app/public/'.$path.$newThumbFileName));
 
-        $path = '/storage/' . $newFilePath . $newFileName;
+
+        $responsePath = '/storage/' . $path;
         return [
-            'path' => $path,
-            'url' => config('app.url') . $path,
-            'thumb_url' => config('app.url') . '/storage/' . $newFilePath . $newThumbFileName
+            'path' => $responsePath,
+            'url' => config('app.url') . $responsePath.$newFileName,
+            'thumb_url' => config('app.url') .$responsePath . $newThumbFileName
         ];
     }
 
