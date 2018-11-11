@@ -94,4 +94,18 @@ class Images
         }
         return '/storage/' . $filePermanent;
     }
+
+    /**
+     * 清除临时文件
+     * @param int|null $month
+     * @return mixed
+     */
+    public function clearTempFile(int $month = null)
+    {
+        if(is_null($month)){
+            //删除全部
+            return Storage::disk('public')->deleteDirectory('uploads/temporary');
+        }
+        return Storage::disk('public')->deleteDirectory('uploads/temporary/'.date('Y').'/'.$month);
+    }
 }

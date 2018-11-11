@@ -12,14 +12,16 @@ use Illuminate\Support\Facades\Storage;
 class FileController extends Controller
 {
     protected $response;
-    public function __construct(ResponseService $responseService)
+    protected $images;
+    public function __construct(ResponseService $responseService,Images $images)
     {
         $this->response = $responseService;
+        $this->images = $images;
     }
 
-    public function index(FileRequest $request,Images $images)
+    public function index(FileRequest $request)
     {
-        $data = $images->uploadPic();
+        $data = $this->images->uploadPic();
         return $this->response->post($data);
     }
 
@@ -29,8 +31,8 @@ class FileController extends Controller
      */
     public function clearTempFile()
     {
-        $tempFile = Storage::disk('public')->deleteDirectory('uploads/temporary');
-        if (!$tempFile)
+        $isOk = $this->images->clearTempFile();
+        if (!$isOk)
             abort(403, '清楚临时文件失败');
         return $this->response->delete();
     }
