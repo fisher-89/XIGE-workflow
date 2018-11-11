@@ -73,6 +73,9 @@ class FlowRunRepository
         $flowRun = FlowRun::filterByQueryString()
             ->sortByQueryString()
             ->withPagination();
+        if($flowRun->count() > 30000){
+            abort(400,'导出数据大于30000条，请筛选条件分批导出');
+        }
         $flowRunIds = $flowRun->pluck('id')->all();
         $form = Form::withTrashed()->findOrFail($formIds[0]);
 
