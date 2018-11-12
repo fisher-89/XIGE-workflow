@@ -39,7 +39,7 @@ class Images
 
         $responsePath = '/storage/' . $path;
         return [
-            'path' => $responsePath,
+            'path' => $responsePath.$newFileName,
             'url' => config('app.url') . $responsePath.$newFileName,
             'thumb_url' => config('app.url') .$responsePath . $newThumbFileName
         ];
