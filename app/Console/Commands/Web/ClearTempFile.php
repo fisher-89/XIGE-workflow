@@ -2,9 +2,9 @@
 
 namespace App\Console\Commands\Web;
 
+use App\Models\Crontab;
 use App\Services\Web\File\Images;
 use Illuminate\Console\Command;
-use Illuminate\Support\Facades\DB;
 
 class ClearTempFile extends Command
 {
@@ -55,13 +55,13 @@ class ClearTempFile extends Command
         }
         $clear = $this->images->clearTempFile($month);
         if ($crontab) {
-            DB::table('crontab')->insert([
+            $data = [
                 'type' => 'file',
                 'year' => date('Y'),
                 'month' => $month,
                 'status' => $clear ? "1" : "0",
-                'created_at'=>date('Y-m-d H:i:s')
-            ]);
+            ];
+            Crontab::create($data);
         }
         if ($clear) {
             echo 'success';
