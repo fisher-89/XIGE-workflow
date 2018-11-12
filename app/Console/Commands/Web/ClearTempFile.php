@@ -54,6 +54,15 @@ class ClearTempFile extends Command
             //command 命令执行
         }
         $clear = $this->images->clearTempFile($month);
+        if ($crontab) {
+            DB::table('crontab')->insert([
+                'type' => 'file',
+                'year' => date('Y'),
+                'month' => $month,
+                'status' => $clear ? "1" : "0",
+                'created_at'=>date('Y-m-d H:i:s')
+            ]);
+        }
         if ($clear) {
             echo 'success';
         } else {
