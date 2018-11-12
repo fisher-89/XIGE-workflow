@@ -30,7 +30,7 @@ class Kernel extends ConsoleKernel
         //          ->hourly();
 
         //清除临时文件
-        $schedule->command(ClearTempFile::class,['--timing'])->everyMinute();
+        $schedule->command(ClearTempFile::class,['--crontab'])->everyMinute();
     }
 
     /**

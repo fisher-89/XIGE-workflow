@@ -12,7 +12,7 @@ class ClearTempFile extends Command
      *
      * @var string
      */
-    protected $signature = 'file:clear-cache {month?} {--timing}';
+    protected $signature = 'file:clear-cache {month?} {--crontab}';
 
     /**
      * The console command description.
@@ -45,8 +45,8 @@ class ClearTempFile extends Command
         //清除的月份
         $month = $this->argument('month');
         //定时开关
-        $timing = $this->option('timing');
-        if ($timing) {
+        $crontab = $this->option('crontab');
+        if ($crontab) {
             //定时任务执行
             $month = date('m',strtotime('-1 month'));
         } else {
