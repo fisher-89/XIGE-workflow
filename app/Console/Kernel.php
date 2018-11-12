@@ -2,6 +2,7 @@
 
 namespace App\Console;
 
+use App\Console\Commands\Web\ClearTempFile;
 use Illuminate\Console\Scheduling\Schedule;
 use Illuminate\Foundation\Console\Kernel as ConsoleKernel;
 
@@ -13,7 +14,8 @@ class Kernel extends ConsoleKernel
      * @var array
      */
     protected $commands = [
-        //
+        //清除临时文件
+        \App\Console\Commands\Web\ClearTempFile::class,
     ];
 
     /**
@@ -26,6 +28,9 @@ class Kernel extends ConsoleKernel
     {
         // $schedule->command('inspire')
         //          ->hourly();
+
+        //清除临时文件
+        $schedule->command(ClearTempFile::class,['--timing'])->everyMinute();
     }
 
     /**
