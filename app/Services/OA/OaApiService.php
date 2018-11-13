@@ -29,11 +29,11 @@ class OaApiService
      * @param $departmentId
      * @return mixed
      */
-    public function getDepartmentUser($departmentId)
-    {
-        $url = config('oa.get_department_user.departments') . $departmentId . config('oa.get_department_user.children_and_staff');
-        return app('curl')->get($url);
-    }
+//    public function getDepartmentUser($departmentId)
+//    {
+//        $url = config('oa.get_department_user.departments') . $departmentId . config('oa.get_department_user.children_and_staff');
+//        return app('curl')->get($url);
+//    }
 
     /**
      * 获取OA角色
