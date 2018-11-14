@@ -82,6 +82,9 @@ class TodoController extends Controller
     public function update(Request $request, $id)
     {
         $data = $this->todo->update($id);
+        if($data['errcode']){
+            abort(400,'发送失败');
+        }
         return $this->response->patch($data);
     }
 
