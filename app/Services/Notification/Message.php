@@ -32,7 +32,7 @@ trait Message
             $url = $url . '/' . $stepRun->id;
         }
         $title = $stepRun->flowRun->creator_name . '发起的' . $stepRun->flow_name . '需要你审批';
-        $data = $this->getSendData($stepRun->id,[$stepRun->approver_id],$url,$title,$topThreeFormData);
+        $data = $this->getSendData($stepRun->id,[$stepRun->approver_sn],$url,$title,$topThreeFormData);
 //        $data = [
 //            'step_run_id' => $stepRun->id,
 //            'oa_client_id' => config('oa.client_id'),
