@@ -37,6 +37,9 @@ class JobService
     public function update($id)
     {
         $data = $this->oaApi->retraceJob($id);
+        if($data['errcode']){
+            abort(400,'发送失败');
+        }
         return $data;
     }
 }
