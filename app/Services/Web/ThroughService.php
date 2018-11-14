@@ -117,6 +117,8 @@ class ThroughService
 
             }
         });
+        //清除预提交formData缓存
+        $this->presetService->forgetPresetData($request->input('timestamp'));
         return $this->stepRun;
     }
 
