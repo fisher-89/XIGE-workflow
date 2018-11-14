@@ -450,7 +450,7 @@ class StartService
 
             //发送工作通知text消息 给发起人
             if ($stepRunData['current_step_run_data']->steps->send_start) {
-                $content = '你已发起了' . $stepRunData['current_step_run_data']->flow_name . '的流程';
+                $content = $stepRunData['flow_run']->created_at->format('Y-m-d H:i:s').'你已发起了' . $stepRunData['current_step_run_data']->flow_name . '的流程';
                 $result = $this->dingTalkMessage->sendJobTextMessage($stepRunData['current_step_run_data'], $content);
                 abort_if($result == 0, 400, '发送工作通知失败');
             }

@@ -100,7 +100,7 @@ class DeliverService
 
             //发送工作通知text消息 给发起人
             if ($stepRun->steps->send_start) {
-                $content = '你发起的' . $stepRun->flow_name . '流程被' . $approverName . '转交给' . $stepRun->approver_name . '审批了';
+                $content = '你发起的' . $stepRun->flow_name . '流程'.$stepRun->created_at->format('Y-m-d H:i:s').'被' . $approverName . '转交给' . $stepRun->approver_name . '审批了';
                 $result = $this->dingTalkMessage->sendJobTextMessage($stepRun, $content);
                 abort_if($result == 0, 400, '发送工作通知失败');
             }

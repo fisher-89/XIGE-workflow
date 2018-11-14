@@ -87,7 +87,7 @@ class ThroughService
                 //发送流程结束 text工作通知 给发起人
                 if (config('oa.is_send_message') && $flowIsSendMessage && $this->stepRun->steps->send_start) {
                     try {
-                        $content = '你发起的' . $this->stepRun->flow_name . '流程审批已结束';
+                        $content = '你发起的' . $this->stepRun->flow_name . '流程在'.$this->stepRun->flowRun->end_at.'审批结束';
                         $result = $this->dingTalkMessage->sendJobTextMessage($this->stepRun, $content);
                         abort_if($result == 0, 400, '发送工作通知失败');
                     } catch (\Exception $e) {
@@ -149,7 +149,7 @@ class ThroughService
 
             //发送工作通知text消息 给发起人
             if ($this->stepRun->steps->send_start) {
-                $content = '你发起的' . $this->stepRun->flow_name . '流程已被' . $this->stepRun->approver_name . '审批通过了';
+                $content = '你发起的' . $this->stepRun->flow_name . '流程'.$this->stepRun->acted_at.'已被' . $this->stepRun->approver_name . '审批通过了';
                 $result = $this->dingTalkMessage->sendJobTextMessage($this->stepRun, $content);
                 abort_if($result == 0, 400, '发送工作通知失败');
             }

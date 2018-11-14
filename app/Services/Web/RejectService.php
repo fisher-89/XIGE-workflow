@@ -71,7 +71,7 @@ class RejectService
         //发送text 工作通知 给发起人
         $flowIsSendMessage = $stepRunData->flow->send_message;
         if (config('oa.is_send_message') && $flowIsSendMessage && $stepRunData->steps->send_start) {
-            $content = '你发起的' . $stepRunData->flow_name . '的流程被' . $stepRunData->approver_name . '驳回了';
+            $content = '你发起的' . $stepRunData->flow_name . '的流程'.$stepRunData->acted_at.'被' . $stepRunData->approver_name . '驳回了';
             $result = $dingTalkMessage->sendJobTextMessage($stepRunData, $content);
             abort_if($result == 0, 400, '发送工作通知失败');
         }

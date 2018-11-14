@@ -128,7 +128,7 @@ trait Message
         } else {
             $url = $url . '/' . $stepCc->id;
         }
-        $title = $stepRun->flowRun->creator_name . '发起的' . $stepRun->flow_name . '的流程下'.$stepRun->step_name.'的步骤的数据，抄送给你了';
+        $title = $stepRun->flowRun->creator_name . '发起的' . $stepRun->flow_name . '的流程下'.$stepRun->step_name.'的步骤的数据，'.date('Y-m-d H:i:s').'抄送给你了';
 
         $data = $this->getSendData($stepRun->id,[$staffSn],$url,$title,$topThreeFormData);
         return $this->sendToOaApi($data);
