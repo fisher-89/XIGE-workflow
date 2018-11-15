@@ -9,12 +9,15 @@ use Maatwebsite\Excel\Concerns\Exportable;
 use Maatwebsite\Excel\Concerns\FromCollection;
 use Maatwebsite\Excel\Concerns\FromQuery;
 use Maatwebsite\Excel\Concerns\WithTitle;
+use PhpOffice\PhpSpreadsheet\Style\NumberFormat;
+use Maatwebsite\Excel\Concerns\WithColumnFormatting;
 
-class FormSheet implements FromCollection, WithTitle
+class FormSheet implements FromCollection, WithTitle,WithColumnFormatting
 {
 //    use Exportable;
     private $formId;
     private $runIds;
+    protected $cellCount = 0;
 
     public function __construct(int $formId, array $runIds)
     {
@@ -43,10 +46,24 @@ class FormSheet implements FromCollection, WithTitle
         return $sheetName;
     }
 
+
+    public function columnFormats(): array
+    {
+        $cells = [];
+        $key = 'A';
+        for($i=1;$i<=$this->cellCount;$i++){
+            $cells[$key] = NumberFormat::FORMAT_TEXT;
+            $key++;
+        }
+        return $cells;
+    }
+
     protected function getData()
     {
         $formData = DB::table('form_data_' . $this->formId)->whereIn('run_id', $this->runIds)->get();
         $header = $this->getExcelHeader($this->formId);
+        //单元格数量
+        $this->cellCount = count($header);
         $newFormData = [];
         foreach ($formData as $k => $v) {
             foreach ($v as $field => $value) {
