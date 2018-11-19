@@ -12,6 +12,10 @@ use App\Exports\Admin\FlowRun\FormExport;
 use App\Models\Flow;
 use App\Models\FlowRun;
 use App\Models\Form;
+use Illuminate\Support\Facades\Artisan;
+use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\Cache;
+use Illuminate\Support\Facades\Storage;
 use Maatwebsite\Excel\Facades\Excel;
 
 class FlowRunRepository
@@ -60,12 +64,12 @@ class FlowRunRepository
             ->withPagination();
         return $data;
     }
-
+    /*---------------------------导出start---------------------------*/
     /**
-     * 导出数据
-     * @return array
+     * 开始导出
+     * @return string
      */
-    public function getExportData()
+    public function startExport()
     {
         $formIds = request()->get('form_id');
         $formIds = json_decode($formIds, true);
@@ -73,21 +77,30 @@ class FlowRunRepository
         $flowRun = FlowRun::filterByQueryString()
             ->sortByQueryString()
             ->withPagination();
-        if($flowRun->count() > 30000){
-            abort(400,'导出数据大于30000条，请筛选条件分批导出');
-        }
+
         $flowRunIds = $flowRun->pluck('id')->all();
-        $form = Form::withTrashed()->findOrFail($formIds[0]);
 
-        $formExport = new FormExport($formIds,$flowRunIds);
+        $codeName = date('YmdHis') . str_random(6);
+        $code = Auth::id() ? Auth::id() . $codeName : $codeName;
 
-        //保存服务器
-//        $filePath = 'excel/form/'.$form->name.'.'.$this->excel;
-//        $formExport->store($filePath, 'public');
-
-//        //下载
-        $fileName = $form->name.'.'.$this->excel;
-        return $formExport->download($fileName);
+        Artisan::queue('excel:flow-run', [
+            '--formId' => $formIds,
+            '--flowRunId' => $flowRunIds,
+            '--code' => $code
+        ]);
+        return $code;
     }
+
+    /**
+     * 获取导出进度
+     */
+    public function getExport()
+    {
+        $code = request()->query('code');
+        $response = Cache::get($code, []);
+        return $response;
+    }
+
+    /*---------------------------导出end--------------------------*/
 
 }

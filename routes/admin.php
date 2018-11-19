@@ -57,6 +57,11 @@ Route::namespace('Api\Admin')->middleware('auth:api')->group(function(){
         Route::get('/','FlowRunController@index');
         //获取导出数据
         Route::get('/get-export','FlowRunController@getExport');
+        /*-----导出-----*/
+        Route::get('/export/start','FlowRunController@startExport');
+        Route::get('/export/get','FlowRunController@getExport');
+        Route::get('/export/download','FlowRunController@downloadExport');
+        /*-----导出-----*/
     });
 
     //待办通知
@@ -71,4 +76,6 @@ Route::namespace('Api\Admin')->middleware('auth:api')->group(function(){
 });
 
 //测试导出
-//Route::get('flow-run/get-export','Api\Admin\FlowRunController@getExport');
+//Route::get('flow-run/export/start','Api\Admin\FlowRunController@startExport');
+//Route::get('flow-run/export/get','Api\Admin\FlowRunController@getExport');
+//Route::get('flow-run/export/download','Api\Admin\FlowRunController@downloadExport');
