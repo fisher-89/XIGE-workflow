@@ -86,6 +86,10 @@ class FlowRequest extends FormRequest
                 'required',
                 Rule::in([0, 1])
             ],
+            'is_client'=>[
+                'required',
+                Rule::in([0, 1])
+            ],
             /*--------流程验证end-------*/
 
             /*------流程权限start----*/
@@ -306,6 +310,7 @@ class FlowRequest extends FormRequest
             'end_callback_uri' => '结束回调地址',
             'accept_end_callback' => '结束回调接收返回值',
             'send_message' => '发送消息',
+            'is_client'=>'是否客服端发起',
             //权限
             'flows_has_staff' => '发起人',
             'flows_has_roles' => '发起角色',

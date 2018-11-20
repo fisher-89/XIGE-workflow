@@ -129,6 +129,7 @@ class CreateWorkflowTable extends Migration
             $table->string('end_callback_uri')->comment('结束回调地址')->default('');
             $table->enum('accept_end_callback',[0,1])->comment('是否接收结束回调返回值 0否 1是')->default(0);
             $table->enum('send_message',[1,0])->comment('发送消息 1是 0否')->default(1);
+            $table->unsignedTinyInteger('is_client')->comment('是否客服端发起 1是 0否')->default(1);
             $table->timestamps();
             $table->softDeletes();
             $table->foreign('flow_type_id')->references('id')->on('flow_types');
