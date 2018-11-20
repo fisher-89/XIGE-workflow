@@ -31,7 +31,7 @@ class DefaultValueVariateService
     /**
      * 清楚变量缓存
      */
-    public function clearVariateCache(){
-        Cache::forget('variate');
+    public function clear(){
+        return Cache::forget('variate');
     }
 }

@@ -32,6 +32,5 @@ class DefaultValueCalculationsSeeder extends Seeder
             ['id' => 18, 'code' => 'count'],
         ];
         \App\Models\DefaultValueCalculation::insert($data);
-        app('defaultValueCalculation')->clearCalculationCache();//清楚计算公式缓存
     }
 }

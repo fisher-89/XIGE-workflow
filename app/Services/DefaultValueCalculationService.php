@@ -10,6 +10,7 @@ namespace App\Services;
 
 
 use App\Models\DefaultValueCalculation;
+use Illuminate\Support\Facades\Cache;
 
 class DefaultValueCalculationService
 {
@@ -17,8 +18,8 @@ class DefaultValueCalculationService
      *获取默认值的计算数据
      */
     public function get(){
-        $data = cache()->get('calculation',function(){
-           return $this->setCalculationToCache();
+        $data = Cache::rememberForever('calculation',function(){
+           return  DefaultValueCalculation::get()->keyBy('id')->toArray();
         });
         return  $data;
     }
@@ -26,16 +27,8 @@ class DefaultValueCalculationService
     /**
      * 清楚计算公式数据缓存
      */
-    public function clearCalculationCache(){
-        cache()->forget('calculation');
+    public function clear(){
+        return Cache::forget('calculation');
     }
 
-    /**
-     * 添加计算公式数据到缓存
-     */
-    public function setCalculationToCache(){
-        $data = DefaultValueCalculation::get()->keyBy('id')->toArray();
-        cache()->forever('calculation',$data);
-        return $data;
-    }
 }

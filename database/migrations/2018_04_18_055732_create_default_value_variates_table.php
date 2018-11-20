@@ -16,11 +16,10 @@ class CreateDefaultValueVariatesTable extends Migration
         Schema::create('default_value_variates', function (Blueprint $table) {
             $table->engine = 'MyISAM';
             $table->increments('id');
-            $table->char('key',50)->default('')->comment('默认值变量key');
-            $table->char('name',50)->default('')->comment('默认值变量名字');
+            $table->char('key',50)->default('')->comment('默认值变量key')->unique();
+            $table->char('name',50)->default('')->comment('默认值变量名字')->unique();
             $table->char('code',200)->default('')->comment('默认值变量php代码');
-            $table->unique('key');
-            $table->unique('name');
+            $table->softDeletes();
         });
     }
 

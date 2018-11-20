@@ -18,6 +18,7 @@ class CreateDefaultValueCalculationsTable extends Migration
 //            $table->increments('id');
             $table->unsignedInteger('id');
             $table->char('code',10)->default('')->comment('计算的类型');
+            $table->softDeletes();
             $table->primary('id');
         });
     }

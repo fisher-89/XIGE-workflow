@@ -51,6 +51,5 @@ class DefaultValueVariatesSeeder extends Seeder
             ['key' => 'week', 'name' => '星期', 'code' => 'date(\'w\',time())'],
         ];
         \Illuminate\Support\Facades\DB::table('default_value_variates')->insert($data);
-        app('defaultValueVariate')->clearVariateCache();//清楚变量的缓存
     }
 }
