@@ -40,7 +40,8 @@ class ResourceController extends Controller
         $flow = FlowType::with(['flow' => function ($query) use ($flowId) {
             $query->whereIn('id', $flowId)
                 ->where('is_active', 1)
-                ->select('id', 'name', 'description', 'flow_type_id')
+                ->where('is_client',1)
+                ->select('id', 'name', 'description', 'flow_type_id','sort','number')
                 ->orderBy('sort', 'asc');
         }])
             ->select('id', 'name')
@@ -58,13 +59,14 @@ class ResourceController extends Controller
      * 获取发起数据
      * @return array
      */
-    public function start(Flow $flow)
+    public function start($number)
     {
-        $flowAuthorized = (bool)FlowAuth::checkFlowAuthorize($flow->id);//该流程的当前用户权限
-        if ($flowAuthorized === false)
-            abort(403, '该流程你无权限');
-        if ($flow->is_active === 0)
-            abort(404, '该流程未启动');
+//        $flowAuthorized = (bool)FlowAuth::checkFlowAuthorize($flow->id);//该流程的当前用户权限
+//        if ($flowAuthorized === false)
+//            abort(403, '该流程你无权限');
+        $flow = Flow::where('number',$number)->where('is_active',1)->orderBy('id','desc')->firstOrFail();
+//        if ($flow->is_active === 0)
+//            abort(400, '该流程未启动');
         $flowRepository = new FlowRepository();
         //开始步骤数据
         $firstStepData = $flowRepository->getFlowFirstStep($flow);

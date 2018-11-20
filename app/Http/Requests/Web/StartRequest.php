@@ -17,9 +17,10 @@ class StartRequest extends FormRequest
      */
     public function authorize()
     {
-        if ($this->flow_id && intval($this->flow_id))
-            return FlowAuth::checkFlowAuthorize($this->flow_id);
-        return false;
+//        if ($this->flow_id && intval($this->flow_id))
+//            return FlowAuth::checkFlowAuthorize($this->flow_id);
+//        return false;
+        return true;
     }
 
     /**
