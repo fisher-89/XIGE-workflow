@@ -64,9 +64,9 @@ class ClearTempFile extends Command
             Crontab::create($data);
         }
         if ($clear) {
-            echo 'success';
+            $this->info('清除临时文件成功');
         } else {
-            echo 'error 没有删除的目录';
+            $this->info('没有删除的目录');
         }
     }
 }
