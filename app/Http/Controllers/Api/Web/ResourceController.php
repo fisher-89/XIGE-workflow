@@ -41,7 +41,7 @@ class ResourceController extends Controller
             $query->whereIn('id', $flowId)
                 ->where('is_active', 1)
                 ->where('is_client',1)
-                ->select('id', 'name', 'description', 'flow_type_id','sort','number')
+//                ->select('id', 'name', 'description', 'flow_type_id','sort','number')
                 ->orderBy('sort', 'asc');
         }])
             ->select('id', 'name')
