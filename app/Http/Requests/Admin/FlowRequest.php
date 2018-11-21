@@ -310,7 +310,7 @@ class FlowRequest extends FormRequest
             'end_callback_uri' => '结束回调地址',
             'accept_end_callback' => '结束回调接收返回值',
             'send_message' => '发送消息',
-            'is_client'=>'是否客服端发起',
+            'is_client'=>'客服端可见',
             //权限
             'flows_has_staff' => '发起人',
             'flows_has_roles' => '发起角色',

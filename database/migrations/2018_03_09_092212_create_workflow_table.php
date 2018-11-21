@@ -119,6 +119,7 @@ class CreateWorkflowTable extends Migration
             $table->increments('id');
             $table->char('name', 20)->comment('流程名称');
             $table->char('description', 200)->comment('流程描述')->default('');
+            $table->string('icon')->comment('流程图标')->nullable()->default('');
             $table->unsignedSmallInteger('flow_type_id')->comment('分类ID');
             $table->unsignedInteger('form_id')->comment('表单ID');
             $table->unsignedTinyInteger('sort')->comment('排序')->default(0);

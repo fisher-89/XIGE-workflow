@@ -6,7 +6,7 @@
  * Time: 9:28
  */
 
-namespace App\Services\Admin;
+namespace App\Services\Admin\Flow;
 
 
 use App\Models\Flow;
@@ -14,11 +14,19 @@ use App\Models\FlowRun;
 use App\Models\Step;
 use App\Models\SubStep;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Storage;
 
 class FlowService
 {
     //流程克隆
     use FlowClone;
+
+    protected $flowIcon;
+
+    public function __construct(FlowIcon $flowIcon)
+    {
+        $this->flowIcon = $flowIcon;
+    }
 
     /**
      * 新增
@@ -58,6 +66,10 @@ class FlowService
     {
         //创建流程数据
         $flow = Flow::create($request);//保存流程数据
+
+        //图标移动到正式目录
+        $this->moveIcon($flow,$request->input('icon'));
+
         //流程发起人data
         $this->createFlowSponsor($flow, $request);
 
@@ -90,6 +102,19 @@ class FlowService
         return $flow->withDetail();
     }
 
+    /**
+     * 移动临时文件到正式目录
+     * @param $flow
+     * @param string $icon
+     */
+    protected function moveIcon($flow,string $icon)
+    {
+        if ($icon && (str_contains($icon,'perpetual')) == false){
+            $iconPath = $this->flowIcon->move($icon, $flow->id);
+            $flow->icon = $iconPath;
+            $flow->save();
+        }
+    }
 
     /**
      * 创建步骤数据
@@ -127,6 +152,10 @@ class FlowService
     {
         //保存流程数据
         $flow->update($request);
+
+        //图标移动到正式目录
+        $this->moveIcon($flow,$request['icon']);
+
         //修改修改流程发起人数据
         $this->updateFlowSponsor($flow, $request);
         //修改步骤数据

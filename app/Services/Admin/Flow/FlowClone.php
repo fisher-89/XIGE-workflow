@@ -6,7 +6,7 @@
  * Time: 17:24
  */
 
-namespace App\Services\Admin;
+namespace App\Services\Admin\Flow;
 
 
 use App\Models\Flow;

@@ -4,7 +4,8 @@ namespace App\Http\Controllers\Api\Admin;
 
 use App\Http\Requests\Admin\FlowRequest;
 use App\Models\Flow;
-use App\Services\Admin\FlowService;
+use App\Services\Admin\Flow\FlowIcon;
+use App\Services\Admin\Flow\FlowService;
 use App\Services\ResponseService;
 use Illuminate\Http\Request;
 use App\Http\Controllers\Controller;
@@ -102,5 +103,25 @@ class FlowController extends Controller
         $flow = Flow::findOrFail($id);
         $oldFlow = Flow::onlyTrashed()->where('number', $flow->number)->orderBy('created_at','desc')->get();
         return $this->response->get($oldFlow);
+    }
+
+    /**
+     * 上传图标
+     * @param Request $request
+     * @param FlowIcon $flowIcon
+     * @return \Illuminate\Contracts\Routing\ResponseFactory|\Symfony\Component\HttpFoundation\Response
+     */
+    public function uploadIcon(Request $request,FlowIcon $flowIcon)
+    {
+        $this->validate($request,[
+            'icon'=>[
+                'file',
+                'image'// jpeg、png、bmp、gif、或 svg
+            ]
+        ],[],[
+            'icon'=>'图标'
+        ]);
+        $data = $flowIcon->upload();
+        return $this->response->post($data);
     }
 }

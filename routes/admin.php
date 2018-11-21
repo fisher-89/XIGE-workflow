@@ -31,6 +31,8 @@ Route::namespace('Api\Admin')->middleware('auth:api')->group(function(){
     //流程
     Route::apiResource('flow', 'FlowController')->parameter('flow', 'id');
 
+    //流程图标
+    Route::post('flow-icon','FlowController@uploadIcon');
     //流程克隆
     Route::post('flow-clone','FlowController@flowClone');
 
