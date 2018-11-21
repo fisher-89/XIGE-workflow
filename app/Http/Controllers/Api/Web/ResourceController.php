@@ -50,6 +50,14 @@ class ResourceController extends Controller
 
         //过滤分类下无流程的
         $data = $flow->filter(function ($value, $key) {
+            if($value->flow){
+                $value->flow = $value->flow->map(function($flow){
+                    if($flow->icon){
+                        $flow->icon = config('app.url').$flow->icon;
+                    }
+                    return $flow;
+                });
+            }
             return count($value->flow) > 0;
         })->pluck([]);
         return $this->response->get($data);
