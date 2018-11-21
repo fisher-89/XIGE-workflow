@@ -63,7 +63,7 @@ trait NextStepApprover
         $currentDepartmentId = Auth::user()->department['id'];
         //当前部门审批人配置
         if(!array_has($currentDepartmentApproverData,$currentDepartmentId)){
-            abort(400,'该部门的审批没有配置');
+            abort(400,'该部门的审批人没有配置(部门ID为'.$currentDepartmentId.'),请联系管理员进行配置');
         }
         $approve = $currentDepartmentApproverData[$currentDepartmentId];
         $userData = $this->getUserData($approve->approver_staff,$approve->approver_roles,$approve->approver_departments);
