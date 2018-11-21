@@ -45,6 +45,11 @@ class FlowRequest extends FormRequest
                 'string',
                 'max:200'
             ],
+            'icon' => [
+                'nullable',
+                'string',
+                'max:255'
+            ],
             'flow_type_id' => [
                 'required',
                 Rule::exists('flow_types', 'id')->whereNull('deleted_at')
@@ -68,9 +73,9 @@ class FlowRequest extends FormRequest
                 'url',
                 'max:255',
             ],
-            'accept_start_callback'=>[
+            'accept_start_callback' => [
                 'required',
-                Rule::in([0,1])
+                Rule::in([0, 1])
             ],
             'end_callback_uri' => [
                 'nullable',
@@ -78,15 +83,15 @@ class FlowRequest extends FormRequest
                 'url',
                 'max:255',
             ],
-            'accept_end_callback'=>[
-              'required',
-              Rule::in([0,1])
+            'accept_end_callback' => [
+                'required',
+                Rule::in([0, 1])
             ],
             'send_message' => [
                 'required',
                 Rule::in([0, 1])
             ],
-            'is_client'=>[
+            'is_client' => [
                 'required',
                 Rule::in([0, 1])
             ],
@@ -213,7 +218,7 @@ class FlowRequest extends FormRequest
             ],
             'steps.*.accept_start_callback' => [
                 'required',
-                Rule::in([0,1])
+                Rule::in([0, 1])
             ],
             'steps.*.check_callback_uri' => [
                 'string',
@@ -222,7 +227,7 @@ class FlowRequest extends FormRequest
             ],
             'steps.*.accept_check_callback' => [
                 'required',
-                Rule::in([0,1])
+                Rule::in([0, 1])
             ],
             'steps.*.approve_callback_uri' => [
                 'string',
@@ -231,7 +236,7 @@ class FlowRequest extends FormRequest
             ],
             'steps.*.accept_approve_callback' => [
                 'required',
-                Rule::in([0,1])
+                Rule::in([0, 1])
             ],
             'steps.*.reject_callback_uri' => [
                 'string',
@@ -240,7 +245,7 @@ class FlowRequest extends FormRequest
             ],
             'steps.*.accept_reject_callback' => [
                 'required',
-                Rule::in([0,1])
+                Rule::in([0, 1])
             ],
             'steps.*.transfer_callback_uri' => [
                 'string',
@@ -249,7 +254,7 @@ class FlowRequest extends FormRequest
             ],
             'steps.*.accept_transfer_callback' => [
                 'required',
-                Rule::in([0,1])
+                Rule::in([0, 1])
             ],
             'steps.*.end_callback_uri' => [
                 'string',
@@ -258,7 +263,7 @@ class FlowRequest extends FormRequest
             ],
             'steps.*.accept_end_callback' => [
                 'required',
-                Rule::in([0,1])
+                Rule::in([0, 1])
             ],
             'steps.*.withdraw_callback_uri' => [
                 'string',
@@ -267,7 +272,7 @@ class FlowRequest extends FormRequest
             ],
             'steps.*.accept_withdraw_callback' => [
                 'required',
-                Rule::in([0,1])
+                Rule::in([0, 1])
             ],
             'steps.*.x' => [
                 'max:50',
@@ -306,11 +311,11 @@ class FlowRequest extends FormRequest
             'sort' => '排序',
             'is_active' => '是否启用',
             'start_callback_uri' => '发起回调地址',
-            'accept_start_callback'=>'开始回调接收返回值',
+            'accept_start_callback' => '开始回调接收返回值',
             'end_callback_uri' => '结束回调地址',
             'accept_end_callback' => '结束回调接收返回值',
             'send_message' => '发送消息',
-            'is_client'=>'客服端可见',
+            'is_client' => '客服端可见',
             //权限
             'flows_has_staff' => '发起人',
             'flows_has_roles' => '发起角色',
@@ -358,7 +363,7 @@ class FlowRequest extends FormRequest
             'steps.*.y' => '坐标Y轴',
             'steps.*.send_todo' => '发送待办',
             'steps.*.send_start' => '发起人信息',
-            'steps.*.is_cc'=>'是否抄送',
+            'steps.*.is_cc' => '是否抄送',
             'steps.*.cc_person' => '抄送人',
         ];
     }

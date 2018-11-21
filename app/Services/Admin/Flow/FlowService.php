@@ -68,7 +68,7 @@ class FlowService
         $flow = Flow::create($request);//保存流程数据
 
         //图标移动到正式目录
-        $this->moveIcon($flow,$request->input('icon'));
+        $this->moveIcon($flow,$request['icon']);
 
         //流程发起人data
         $this->createFlowSponsor($flow, $request);
