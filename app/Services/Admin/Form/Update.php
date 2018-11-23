@@ -32,293 +32,247 @@ trait Update
             Flow::where('form_id', $request->id)->update(['form_id' => $form->id]);//修改流程表的表单id
         } else {
             //表单数据表无数据
-            $this->formDataIsNullUpdateSave($form, $request);
+            $this->formDataIsNullUpdateSave($form);
         }
-        $this->updateStepFieldsKey($request);//修改步骤字段
+        $this->updateStepFieldsKey($request);//修改步骤字段 (可以、必填、编辑、隐藏字段)
         $data = Form::with(['fields.validator', 'grids.fields.validator'])->find($form->id);
         return $data;
     }
 
+    /*-------------------------------表单data无数据修改start-----------------------------------------------*/
     /**
      * 表单数据表无数据进行编辑保存
-     * @param $request
+     * @param $form
      */
-    protected function formDataIsNullUpdateSave($formData, $request)
+    protected function formDataIsNullUpdateSave($form)
     {
-        $formData->update($request->input());
-        $this->gridDataUpdate($request, $formData);//修改列表控件
-        $this->formFieldsUpdate($request);//表单字段数据修改
-//        $this->updateStepFieldsKey($request);//修改步骤字段
-    }
-
-    /**
-     * 修改列表控件数据
-     * @param $request
-     * @param $fromData
-     */
-    protected function gridDataUpdate($request, $fromData)
-    {
-        if ($request->has('grids') && $request->grids) {
-            $this->updateGrids($request);
-        } else {
-            $this->deleteGrids($fromData->id);
-        }
-    }
-
-    /**
-     * @param $request
-     * 列表控件修改
-     */
-    protected function updateGrids($request)
-    {
-        $data = FormGrid::with('fields.validator')->where('form_id', $request->id)->get();
-        if ($data) {
-            $this->deleteFormGridsTable($data);//删除列表控件表
-        }
-        $gridId = [];
-        $fieldsId = [];//控件所有的修改字段id
-        $gridItemFieldUpdateId = [];
-        foreach ($request->grids as $k => $v) {
-            $v['sort'] = $k;
-            if (isset($v['id']) && intval($v['id'])) {
-                //编辑数据
-                $gridId[] = $v['id'];
-                $this->formGridDataUpdate($v);//表单控件数据修改
-                $gridFieldData = $this->formGridsFieldsUpdate($v, $request->id);
-                $gridItemFieldUpdateId = $gridFieldData['grid_update_field_id'];
-                $formDataTable = new FormDataTableService($request->id);
-                $v['fields'] = $gridFieldData['new_field_data'];
-                $formDataTable->createFormGridTable($v);//创建列表控件表
-            } else {
-                //新增数据
-                $v['form_id'] = $request->id;
-                $this->gridItemSave($v);
-            }
-            $fieldsId[] = $gridItemFieldUpdateId;
-        }
-        $fieldsId = array_collapse($fieldsId);
-        $this->deleteGridData($data, $gridId, $fieldsId);//删除多余的数据
-
-    }
-
-    /**
-     * 删除列表控件表
-     * @param $formId
-     */
-    protected function deleteFormGridsTable($formGridData)
-    {
-        foreach ($formGridData as $v) {
-            $formDataTable = new FormDataTableService($v['form_id']);
-            $formDataTable->destroyFormGridTable($v['key']);
-            foreach($v->fields as $field){
-                //删除表单字段控件表
-                $formDataTable->destroyFormDataFieldTypeTable($field->key);
-            }
-        }
-    }
-
-    /**
-     * 表单控件数据修改
-     * @param $gridItem
-     */
-    protected function formGridDataUpdate($gridItem)
-    {
-        $formGridData = FormGrid::find($gridItem['id']);
-        $formGridData->key = $gridItem['key'];
-        $formGridData->name = $gridItem['name'];
-        $formGridData->save();
-    }
-
-    /**
-     * 列表控件字段修改
-     * @param $gridItem
-     * @param $formId
-     */
-    protected function formGridsFieldsUpdate($gridItem, $formId)
-    {
-        $newFieldData = [];
-        $gridUpdateFieldsId = [];//编辑的控件id
-        foreach ($gridItem['fields'] as $k => $v) {
-            $v['sort'] = $k;
-            $v['form_id'] = $formId;
-            $v['form_grid_id'] = $gridItem['id'];
-            if (isset($v['id']) && intval($v['id'])) {
-                //编辑
-                $gridUpdateFieldsId[] = $v['id'];
-                $fieldData = $this->formGridFieldSave($v);
-            } else {
-                //新增
-                $fieldData = $this->fieldsItemSave($v);//新增控件字段
-            }
-            $newFieldData[] = $fieldData;
-        }
-        return [
-            'grid_update_field_id'=>$gridUpdateFieldsId,
-            'new_field_data'=>$newFieldData
-        ];
-    }
-
-    protected function formGridFieldSave($fieldsItem)
-    {
-        $fieldData = Field::find($fieldsItem['id']);
-        $fieldData->update($fieldsItem);
-        $fieldData->validator()->sync($fieldsItem['validator_id']);
-        //部门、员工、店铺控件
-        if (count($fieldData->widgets) > 0) {
-            $this->deleteWidgets($fieldData);
-        }
-        if (array_has($fieldsItem, 'available_options') && $fieldsItem['available_options']) {
-            data_fill($fieldsItem['available_options'],'*.field_id',$fieldData->id);
-
-            $fieldData->widgets()->createMany($fieldsItem['available_options']);
-        }
-        return $fieldData->toArray();
-    }
-
-    /**
-     * 删除部门、员工、店铺控件
-     * @param $field
-     */
-    protected function deleteWidgets($field)
-    {
-        $field->widgets->each(function ($widget) {
-            $widget->delete();
-        });
-    }
-
-    /**
-     * 删除多余的控件数据
-     * @param array $data
-     * @param array $gridId
-     * @param array $fieldId
-     */
-    protected function deleteGridData(Collection $data, array $gridId, array $fieldId)
-    {
-        foreach ($data as $k => $v) {
-            if (!in_array($v['id'], $gridId)) {
-                if ($v['fields']) {
-                    foreach ($v['fields'] as $val) {
-                        if ($val['validator']) {
-                            $val->validator()->sync([]);
-                        }
-                        if($val->widgets){
-                            $this->deleteWidgets($val);
-                        }
-                        $val->delete();
-                    }
-                }
-                $v->delete();
-            } else {
-                if ($v['fields']) {
-                    foreach ($v['fields'] as $val) {
-                        if (!in_array($val['id'], $fieldId)) {
-                            if ($val['validator']) {
-                                $val->validator()->sync([]);
-                            }
-                            if($val->widgets){
-                                $this->deleteWidgets($val);
-                            }
-                            $val->delete();
-                        }
-                    }
-                }
-            }
-        }
-    }
-
-    /**
-     * 删除列表控件相关数据
-     * @param $formId
-     */
-    protected function deleteGrids($formId)
-    {
-        $formGridData = FormGrid::where('form_id', $formId)->get();
-        if ($formGridData) {
-            $formGridId = $formGridData->pluck('id')->all();//控件id
-            $this->deleteFormGridsTable($formGridData);//删除列表控件表
-            $this->deleteFormGridsFields($formGridId, $formId);//删除控件字段
-            $this->deleteFormGridData($formGridData);//删除表单控件数据
-        }
-    }
-
-    /**
-     * 删除控件字段
-     * @param array $formGridId
-     * @param $formId
-     */
-    protected function deleteFormGridsFields(array $formGridId, $formId)
-    {
-        $fieldData = Field::where('form_id', $formId)->whereIn('form_grid_id', $formGridId)->get();
-        foreach ($fieldData as $v) {
-            $v->validator()->sync([]);
-            $v->delete();
-        }
-    }
-
-    /**
-     * /删除表单控件数据
-     * @param $formGridData
-     */
-    protected function deleteFormGridData($formGridData)
-    {
-        foreach ($formGridData as $v) {
-            $v->delete();
-        }
+        //表单修改
+        $form->update(request()->input());
+        //表单字段修改
+        $this->formFieldsUpdate($form);
+        //表单控件字段修改
+        $this->gridDataUpdate($form);
     }
 
     /**
      * @param $request
      * 表单字段数据修改
      */
-    protected function formFieldsUpdate($request)
+    protected function formFieldsUpdate($form)
     {
-        $formDataTable = new FormDataTableService($request->id);
-        $editIdArray = [];
-        $fieldData = Field::where('form_id', $request->id)->whereNull('form_grid_id')->get();
-        $fieldId = $fieldData->pluck('id')->all();
-
-        //删除表单字段控件表
-        foreach ($fieldData as $field) {
-            $formDataTable->destroyFormDataFieldTypeTable($field->key);
-        }
-
-        foreach ($request->input('fields') as $k => $v) {
+        //字段的全部Id
+        $fieldAllIds = $form->formFields->pluck('id')->all();
+        //编辑的ID
+        $editIds = [];
+        foreach (request()->input('fields') as $k => $v) {
             $v['sort'] = $k;
             if (isset($v['id']) && intval($v['id'])) {
-                $editIdArray[] = $v['id'];
+                //编辑
+                $editIds[] = $v['id'];
                 $field = Field::find($v['id']);
                 $field->update($v);
                 $field->validator()->sync(array_get($v, 'validator_id'));
 
             } else {
-                $v['form_id'] = $request->id;
+                //新增
+                $v['form_id'] = $form->id;
                 $field = Field::create($v);
                 $field->validator()->sync(array_get($v, 'validator_id'));
             }
-
-            //部门、员工、店铺控件
-            if (count($field->widgets) > 0) {
-                $this->deleteWidgets($field);
+            //部门、员工、店铺控件（表数据删除）
+            if ($field->widgets->count() > 0) {
+                $field->widgets()->delete();
             }
-            //员工、部门、店铺ID数据控件保存
+            //员工、部门、店铺ID数据控件数据新增
             if (array_has($v, 'available_options') && $v['available_options']) {
-                data_fill($v['available_options'],'*.field_id',$field->id);
-
+                data_fill($v['available_options'], '*.field_id', $field->id);
                 $field->widgets()->createMany($v['available_options']);
             }
         }
 
-        $deleteId = array_diff($fieldId, $editIdArray);
-        $deleteFieldData = Field::whereIn('id', $deleteId)->get();
-        $deleteFieldData->each(function($field){
-            if (count($field->widgets) > 0) {
-                $this->deleteWidgets($field);
+        //删除多余的字段
+        $deleteId = array_diff($fieldAllIds, $editIds);
+        $form->formFields->map(function ($field) use ($deleteId) {
+            if (in_array($field->id, $deleteId)) {
+                if ($field->widgets->count() > 0)
+                    $field->widgets()->delete();
+                $field->delete();
             }
-            $field->delete();
         });
 
-        $formDataTable->updateFormDataTable();//修改表单数据表字段
+        $formDataTable = new FormDataTableService($form->id);
+        ///删除表单字段控件表
+        $form->formFields->each(function ($field) use ($formDataTable) {
+            $formDataTable->destroyFormDataFieldTypeTable($field->key);
+        });
+
+        //表单字段data表与字段控件表  修改
+        $formDataTable->updateFormDataTable();
     }
+
+    /**
+     * 修改列表控件数据
+     * @param $form
+     */
+    protected function gridDataUpdate($form)
+    {
+        if (request()->has('grids') && request()->input('grids')) {
+            //request 有控件
+            $this->updateGrids($form);
+        } else {
+            //request 无控件
+            $this->deleteGrids($form);
+        }
+    }
+
+    /**
+     * @param $form
+     * 列表控件修改
+     */
+    protected function updateGrids($form)
+    {
+        //删除列表控件表
+        if ($form->grids->count() > 0)
+            $this->deleteFormGridsTable($form->grids);
+
+        //控件全部ID
+        $gridAllIds = $form->grids->pluck('id')->all();
+        //控件编辑ID
+        $gridEditIds = [];
+        foreach (request()->input('grids') as $k => $grid) {
+            if (array_has($grid, 'id') && $grid['id']) {
+                //编辑
+                $gridEditIds[] = $grid['id'];
+                $formGrid = FormGrid::find($grid['id']);
+                //表单控件数据修改
+                $formGrid->update($grid);
+                //控件字段修改
+                $this->formGridFieldsUpdate($grid['fields'], $formGrid);
+            } else {
+                //新增
+                $grid['form_id'] = $form->id;
+                $this->gridItemSave($grid);
+            }
+        }
+        //删除多余控件
+        $deleteGridId = array_diff($gridAllIds, $gridEditIds);
+        if ($deleteGridId) {
+            $form->grids->map(function ($grid) use ($deleteGridId) {
+                if (in_array($grid->id, $deleteGridId)) {
+                    $grid->fields->map(function ($field) {
+                        if ($field->widgets->count() > 0)
+                            $field->widgets()->delete();
+                        $field->validator()->sync([]);
+                        $field->delete();
+                    });
+                    $grid->delete();
+                }
+            });
+        }
+    }
+
+    /**
+     * 表单控件字段修改
+     * @param array $fields
+     * @param $formGrid
+     */
+    protected function formGridFieldsUpdate(array $fields, $formGrid)
+    {
+        //字段全部data
+        $data = [];
+        //编辑字段ID
+        $editId = [];
+        //全部字段ID
+        $allId = $formGrid->fields->pluck('id')->all();
+        foreach ($fields as $k => $field) {
+            $field['sort'] = $k;
+            if (array_has($field, 'id') && $field['id']) {
+                //编辑
+                $editId[] = $field['id'];
+                $fieldData = Field::find($field['id']);
+                $fieldData->update($field);
+                $fieldData->validator()->sync($field['validator_id']);
+                //部门、员工、店铺控件
+                if ($fieldData->widgets->count() > 0) {
+                    $fieldData->widgets()->delete();
+                }
+                if (array_has($field, 'available_options') && $field['available_options']) {
+                    data_fill($field['available_options'], '*.field_id', $fieldData->id);
+                    $fieldData->widgets()->createMany($field['available_options']);
+                }
+
+            } else {
+                //新增
+                $fieldData = $this->fieldsItemSave($field);//新增控件字段
+            }
+            $data[] = $fieldData->toArray();
+        }
+
+        $formDataTable = new FormDataTableService($formGrid->form_id);
+        $gridData['key'] = $formGrid->key;
+        $gridData['fields'] = $data;
+        $formDataTable->createFormGridTable($gridData);//创建列表控件表
+
+        //删除多余字段
+        $deleteId = array_diff($allId, $editId);
+        $formGrid->fields->map(function ($field) use ($deleteId) {
+            if (in_array($field->id, $deleteId)) {
+                if ($field->widgets->count() > 0)
+                    $field->widgets()->delete();
+                $field->validator()->sync([]);
+                $field->delete();
+            }
+        });
+    }
+
+    /**
+     * 删除列表控件相关数据
+     * @param $formId
+     */
+    protected function deleteGrids($form)
+    {
+        if ($form->grids->count() > 0) {
+            //删除控件与字段
+            $this->deleteFormGridsFields($form);
+            $this->deleteFormGridsTable($form->grids);//删除列表控件表
+        }
+    }
+
+    /**
+     * 删除控件与字段
+     * @param array $formGridId
+     * @param $formId
+     */
+    protected function deleteFormGridsFields($form)
+    {
+        $form->grids->map(function ($grid) {
+            $grid->fields->each(function ($field) {
+                $field->validator()->sync([]);
+                $field->widgets()->delete();
+            });
+            $grid->fields()->delete();
+        });
+        $form->grids()->delete();
+    }
+
+    /**
+     * 删除列表控件表
+     * @param $formId
+     */
+    protected function deleteFormGridsTable($grids)
+    {
+        $grids->map(function ($grid) {
+            $formDataTable = new FormDataTableService($grid->form_id);
+            $formDataTable->destroyFormGridTable($grid->key);
+            $grid->fields->each(function ($field) use ($formDataTable) {
+                $formDataTable->destroyFormDataFieldTypeTable($field->key);
+            });
+        });
+    }
+    /*-------------------------------表单data无数据修改end----------------------------------------------*/
+
+
+
 
     /*------------------------修改流程的步骤表的隐藏、可写、必填字段start------------------*/
     /**
@@ -341,8 +295,8 @@ trait Update
      */
     protected function updateStepFields($data, array $fields)
     {
-        $data->map(function($flow)use($fields){
-            $flow->steps->map(function($step)use($fields){
+        $data->map(function ($flow) use ($fields) {
+            $flow->steps->map(function ($step) use ($fields) {
                 //可用字段处理
                 if ($step->available_fields) {
                     $newField = $this->checkFields($step->available_fields, $fields);
@@ -380,8 +334,8 @@ trait Update
     protected function checkFields($fieldData, $allFields)
     {
         $newField = [];
-        foreach($fieldData as $v){
-            if(in_array($v,$allFields)){
+        foreach ($fieldData as $v) {
+            if (in_array($v, $allFields)) {
                 $newField[] = $v;
             }
         }
@@ -397,7 +351,7 @@ trait Update
         $formDataTable = new FormDataTableService($formId);
         $formFieldsKeys = $formDataTable->getFormFields()->pluck('key')->all();
         //获取控件字段
-        $gridData = FormGrid::with('fields')->where('form_id',$formId)->get();
+        $gridData = FormGrid::with('fields')->where('form_id', $formId)->get();
         if ($gridData) {
             foreach ($gridData as $v) {
                 //添加控件的key进去

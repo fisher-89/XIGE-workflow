@@ -12,9 +12,22 @@ class Form extends Model
     protected $fillable = ['name','description','form_type_id','number','sort'];
     protected $hidden = ['deleted_at'];
 
+    /**
+     * 表单所有字段（包含控件字段）
+     * @return \Illuminate\Database\Eloquent\Relations\HasMany
+     */
     public function fields()
     {
         return $this->hasMany(Field::class)->orderBy('sort','asc');
+    }
+
+    /**
+     * 表单字段
+     * @return \Illuminate\Database\Eloquent\Relations\HasMany
+     */
+    public function formFields()
+    {
+        return $this->hasMany(Field::class)->whereNull('form_grid_id')->orderBy('sort');
     }
 
     public function flows()
