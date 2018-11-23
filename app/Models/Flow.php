@@ -8,7 +8,7 @@ use Illuminate\Database\Eloquent\SoftDeletes;
 class Flow extends Model
 {
     use SoftDeletes;
-    protected $fillable = ['name', 'description','icon', 'flow_type_id', 'form_id', 'sort','number', 'is_active', 'start_callback_uri','accept_start_callback', 'end_callback_uri','accept_end_callback','send_message','is_client'];
+    protected $fillable = ['name', 'description', 'icon', 'flow_type_id', 'form_id', 'sort', 'number', 'is_active', 'start_callback_uri', 'accept_start_callback', 'end_callback_uri', 'accept_end_callback', 'send_message', 'is_client'];
     protected $hidden = ['deleted_at'];
     protected $appends = ['flows_has_staff', 'flows_has_roles', 'flows_has_departments'];
 
@@ -65,5 +65,12 @@ class Flow extends Model
     public function getFlowsHasDepartmentsAttribute()
     {
         return FlowHasDepartment::where('flow_id', $this->attributes['id'])->get()->pluck('department_id');
+    }
+
+    public function getIconAttribute($value)
+    {
+        if ($value)
+            return config('app.url') . $value;
+        return $value;
     }
 }

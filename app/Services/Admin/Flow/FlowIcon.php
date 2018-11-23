@@ -49,7 +49,7 @@ class FlowIcon
      */
     public function move(string $path, int $flowId)
     {
-        $tempPath = str_replace('/storage/', '', $path);
+        $tempPath = str_replace(config('app.url').'/storage/', '', $path);
         if (!Storage::disk('public')->exists($tempPath)) {
             abort(400, $path . '文件不存在');
         }

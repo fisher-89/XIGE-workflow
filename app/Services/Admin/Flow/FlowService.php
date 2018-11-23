@@ -69,6 +69,7 @@ class FlowService
 
         //图标移动到正式目录
         $this->moveIcon($flow,$request['icon']);
+        dd($flow->toArray());
 
         //流程发起人data
         $this->createFlowSponsor($flow, $request);
@@ -109,8 +110,14 @@ class FlowService
      */
     protected function moveIcon($flow,string $icon)
     {
-        if ($icon && (str_contains($icon,'perpetual')) == false){
-            $iconPath = $this->flowIcon->move($icon, $flow->id);
+        if ($icon){
+            if(str_contains($icon,'perpetual')){
+                //正式目录有
+                $iconPath = str_replace(config('app.url'), '', $icon);
+            }else{
+                //正式目录无
+                $iconPath = $this->flowIcon->move($icon, $flow->id);
+            }
             $flow->icon = $iconPath;
             $flow->save();
         }
