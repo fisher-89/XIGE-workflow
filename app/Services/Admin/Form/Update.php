@@ -200,12 +200,12 @@ trait Update
                     data_fill($field['available_options'], '*.field_id', $fieldData->id);
                     $fieldData->widgets()->createMany($field['available_options']);
                 }
-
+                $fieldData = $fieldData->toArray();
             } else {
                 //新增
                 $fieldData = $this->fieldsItemSave($field);//新增控件字段
             }
-            $data[] = $fieldData->toArray();
+            $data[] = $fieldData;
         }
 
         $formDataTable = new FormDataTableService($formGrid->form_id);
