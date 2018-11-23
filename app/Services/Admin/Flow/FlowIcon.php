@@ -24,6 +24,8 @@ class FlowIcon
         $file = request()->file('icon');
         //扩展名
         $originalExtension = $file->getClientOriginalExtension();
+        //前端上传上来的默认是png格式
+        $originalExtension = 'png';
         $fileName = $this->getName() . '.' . $originalExtension;
         $path = 'uploads/temporary/' . date('Y') . '/' . date('m') . '/' . date('d') . '/';
         if (!Storage::disk('public')->exists($path)) {
