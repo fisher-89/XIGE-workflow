@@ -23,10 +23,10 @@ trait Update
         $form = Form::findOrFail($request->id);
         if ($formDataTable->getFormDataCount() > 0) {
             //表单数据表含有数据
-            $this->formDataIsTrueUpdate($form);
+            $form = $this->formDataIsTrueUpdate($form);
         } else {
             //表单数据表无数据
-            $this->formDataIsNullUpdateSave($form);
+            $form = $this->formDataIsNullUpdateSave($form);
         }
         $this->updateStepFieldsKey($request);//修改步骤字段 (可以、必填、编辑、隐藏字段)
         $data = Form::with([
@@ -65,7 +65,7 @@ trait Update
             $form->save();
             Flow::where('form_id', request()->route('id'))->update(['form_id' => $form->id]);//修改流程表的表单id
         }
-
+        return $form;
     }
 
     /**
@@ -304,6 +304,7 @@ trait Update
         $this->formFieldsUpdate($form);
         //表单控件字段修改
         $this->gridDataUpdate($form);
+        return $form;
     }
 
     /**
