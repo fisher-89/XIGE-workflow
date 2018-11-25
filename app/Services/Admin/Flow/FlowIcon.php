@@ -33,7 +33,7 @@ class FlowIcon
         }
         $filePath = $path . $fileName;
 
-        Image::make($file)->resize(200, 200)->save(storage_path('app/public/' . $filePath));
+        Image::make($file)->resize(120, 120)->save(storage_path('app/public/' . $filePath));
 
         return [
             'path' => '/storage/' . $filePath,
