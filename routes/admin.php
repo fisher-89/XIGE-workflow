@@ -58,7 +58,7 @@ Route::namespace('Api\Admin')->middleware('auth:api')->group(function(){
         //获取列表
         Route::get('/','FlowRunController@index');
         //获取导出数据
-        Route::get('/get-export','FlowRunController@getExport');
+//        Route::get('/get-export','FlowRunController@getExport');
         /*-----导出-----*/
         Route::get('/export/start','FlowRunController@startExport');
         Route::get('/export/get','FlowRunController@getExport');
