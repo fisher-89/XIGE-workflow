@@ -127,7 +127,8 @@ class StartService
      */
     protected function createFlowRun()
     {
-        $flowData = Flow::select('id', 'id as flow_id', 'name', 'form_id', 'flow_type_id')->find($this->flowId);
+        $flowData = Flow::select('id', 'id as flow_id','number as flow_number', 'name', 'form_id', 'flow_type_id')->find($this->flowId);
+        $flowData->form_number = $flowData->form->number;
         $flowData->creator_sn = Auth::id();
         $flowData->creator_name = Auth::user()->realname;
         $flowData->process_instance_id = date('YmdHis') . '-' . $flowData->id;;
