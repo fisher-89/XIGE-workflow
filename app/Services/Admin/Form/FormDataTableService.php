@@ -270,6 +270,88 @@ class FormDataTableService
     }
 
     /**
+     * 修改表单data表（修改注释字段）
+     * @param array $field
+     */
+    public function saveFormFieldTableComment(array $field)
+    {
+        Schema::table($this->tableName,function(Blueprint $table)use($field){
+            switch ($field['type']) {
+                case 'int':
+                    if ($field['scale']) {
+                        $max = $field['max']?strlen($field['max']) - 1:20;
+                        $table->decimal($field['key'], $max, $field['scale'])->nullable()->comment($field['name'])->change();
+                    } else {
+                        $table->bigInteger($field['key'])->nullable()->comment($field['name'])->change();
+                    }
+                    break;
+                case 'text':
+                    if ($field['max'] && $field['max'] < 255) {
+                        $table->char($field['key'], $field['max'])->nullable()->comment($field['name'])->change();
+                    } else {
+                        $table->text($field['key'])->nullable()->comment($field['name'])->change();
+                    }
+                    break;
+                case 'date':
+                    $table->date($field['key'])->nullable()->comment($field['name'])->change();
+                    break;
+                case 'datetime':
+                    $table->dateTime($field['key'])->nullable()->comment($field['name'])->change();
+                    break;
+                case 'time':
+                    $table->time($field['key'])->nullable()->comment($field['name'])->change();
+                    break;
+                case 'array':
+                    $table->text($field['key'])->nullable()->comment($field['name'])->change();
+                    break;
+                case 'select':
+                    $table->text($field['key'])->nullable()->comment($field['name'])->change();
+                    break;
+                case 'file':
+                    $table->text($field['key'])->nullable()->comment($field['name'])->change();
+                    break;
+                case 'staff':
+                    $table->text($field['key'])->nullable()->comment($field['name'])->change();
+                    break;
+                case 'department':
+                    $table->text($field['key'])->nullable()->comment($field['name'])->change();
+                    break;
+                case 'shop':
+                    $table->text($field['key'])->nullable()->comment($field['name'])->change();
+                    break;
+                case 'region':
+                    $table->text($field['key'])->nullable()->comment($field['name'])->change();
+                    switch ($field['region_level']) {
+                        case 1:
+                            $table->char($field['key'].'_province_id', 20)->nullable()->index()->comment($field['name'].'的省编码')->change();
+                            break;
+                        case 2:
+                            $table->char($field['key'].'_province_id', 20)->nullable()->index()->comment($field['name'].'的省编码')->change();
+                            $table->char($field['key'].'_city_id', 20)->nullable()->index()->comment($field['name'].'的市编码')->change();
+                            break;
+                        case 3:
+                            $table->char($field['key'].'_province_id', 20)->nullable()->index()->comment($field['name'].'的省编码')->change();
+                            $table->char($field['key'].'_city_id', 20)->nullable()->index()->comment($field['name'].'的市编码')->change();
+                            $table->char($field['key'].'_county_id', 20)->nullable()->index()->comment($field['name'].'的区、县编码')->change();
+                            break;
+                        case 4:
+                            $table->char($field['key'].'_province_id', 20)->nullable()->index()->comment($field['name'].'的省编码')->change();
+                            $table->char($field['key'].'_city_id', 20)->nullable()->index()->comment($field['name'].'的市编码')->change();
+                            $table->char($field['key'].'_county_id', 20)->nullable()->index()->comment($field['name'].'的区、县编码')->change();
+                            $table->text($field['key'].'_address')->nullable()->comment($field['name'].'的详细地址')->change();
+                            break;
+                    }
+                    break;
+                case 'api':
+                    $table->text($field['key'])->nullable()->comment($field['name'])->change();
+                    break;
+                default :
+                    $table->text($field['key'])->nullable()->comment($field['name'])->change();
+            }
+        });
+    }
+
+    /**
      * 表单控件表修改（追加字段）
      * @param array $data
      */
@@ -277,5 +359,15 @@ class FormDataTableService
     {
         $this->tableName = $this->tableName . '_' . $data['key'];
         $this->saveFormFieldTable($data['field']);
+    }
+
+    /**
+     * 表单控件表修改（修改注释）
+     * @param array $data
+     */
+    public function saveFormGridTableComment(array $data)
+    {
+        $this->tableName = $this->tableName . '_' . $data['key'];
+        $this->saveFormFieldTableComment($data['field']);
     }
 }

@@ -47,7 +47,7 @@ trait Update
         $formFieldUpdate = (bool)$this->formFieldsDiff($form->formFields);
         $gridFieldUpdate = $this->gridDiff($form->grids);
         //判断表单、控件字段改动
-        if($formFieldUpdate && $gridFieldUpdate){
+        if ($formFieldUpdate && $gridFieldUpdate) {
             //修改当前数据
             //表单修改
             $form->update(request()->input());
@@ -55,7 +55,7 @@ trait Update
             $this->formDataIsTrueFormFieldsUpdate($form);
             //控件字段修改
             $this->formDataIsTrueGridUpdate($form);
-        }else{
+        } else {
             //新增全部数据
             $oldForm = $form;
             $form->delete();
@@ -76,15 +76,15 @@ trait Update
     protected function formFieldsDiff(object $fields)
     {
         $requestFields = request()->input('fields');
-        $requestIds = array_pluck($requestFields,'id');
+        $requestIds = array_pluck($requestFields, 'id');
         //去除空值
         $requestIds = array_filter($requestIds);
         $dbIds = $fields->pluck('id')->all();
-        if(array_diff($dbIds,$requestIds)){
+        if (array_diff($dbIds, $requestIds)) {
             //request 提交的字段少了
             return false;
         }
-        return $this->dbFieldAndRequestFieldDiff($requestFields,$fields);
+        return $this->dbFieldAndRequestFieldDiff($requestFields, $fields);
     }
 
     /**
@@ -93,21 +93,21 @@ trait Update
      * @param object $dbFields
      * @return bool
      */
-    protected function dbFieldAndRequestFieldDiff(array $requestFields,object $dbFields)
+    protected function dbFieldAndRequestFieldDiff(array $requestFields, object $dbFields)
     {
         $fieldsKeyBy = $dbFields->keyBy('id');
-        foreach($requestFields as $field){
-            if(array_has($field,'id') && $field['id']){
+        foreach ($requestFields as $field) {
+            if (array_has($field, 'id') && $field['id']) {
                 $db = $fieldsKeyBy[$field['id']];
-                if($db->key != $field['key'] ||
+                if ($db->key != $field['key'] ||
                     $db->type != $field['type'] ||
                     $db->is_checkbox != $field['is_checkbox'] ||
                     $db->region_level != $field['region_level'] ||
                     $db->min != $field['min'] ||
                     $db->max != $field['max'] ||
                     $db->scale != $field['scale'] ||
-                    array_diff($db->options,$field['options'])
-                ){
+                    array_diff($db->options, $field['options'])
+                ) {
                     return false;
                     break;
                 }
@@ -122,9 +122,9 @@ trait Update
      */
     protected function gridDiff(object $dbGrids)
     {
-        if($dbGrids->count() >0){
+        if ($dbGrids->count() > 0) {
             $check = $this->dbGridAndRequestGridDiff($dbGrids);
-            if($check == false){
+            if ($check == false) {
                 return false;
             }
         }
@@ -133,15 +133,15 @@ trait Update
 
     protected function dbGridAndRequestGridDiff($dbGrids)
     {
-        $rqGrids = request()->input('grids',[]);
-        if(count($rqGrids) == 0){
+        $rqGrids = request()->input('grids', []);
+        if (count($rqGrids) == 0) {
             return false;
         }
-        $rqGridIds = array_pluck($rqGrids,'id');
+        $rqGridIds = array_pluck($rqGrids, 'id');
         //去除空值
         $rqGridIds = array_filter($rqGridIds);
         $dbGridIds = $dbGrids->pluck('id')->all();
-        if(array_diff($dbGridIds,$rqGridIds)){
+        if (array_diff($dbGridIds, $rqGridIds)) {
             //数据库控件多于request控件
             return false;
         }
@@ -149,45 +149,45 @@ trait Update
         //request控件大于或等于数据库控件
 
         //比较控件data
-        $checkGrid = $this->checkGridDiff($rqGrids,$dbGrids);
-        if($checkGrid == false){
+        $checkGrid = $this->checkGridDiff($rqGrids, $dbGrids);
+        if ($checkGrid == false) {
             return false;
         }
-        return $this->checkGridFieldsDiff($rqGrids,$dbGrids);
+        return $this->checkGridFieldsDiff($rqGrids, $dbGrids);
 //        return true;
     }
 
-    protected function checkGridDiff(array $rqGrids,object $dbGrids)
+    protected function checkGridDiff(array $rqGrids, object $dbGrids)
     {
         $rqGridArray = [];
-        foreach ($rqGrids as $grid){
-            if(array_has($grid,'id') && $grid['id']){
-                array_push($rqGridArray,$grid['id'].$grid['key']);
+        foreach ($rqGrids as $grid) {
+            if (array_has($grid, 'id') && $grid['id']) {
+                array_push($rqGridArray, $grid['id'] . $grid['key']);
             }
         }
-        $dbGridArray = $dbGrids->map(function($grid){
-            return $grid->id.$grid->key;
+        $dbGridArray = $dbGrids->map(function ($grid) {
+            return $grid->id . $grid->key;
         })->all();
 
-        if(array_diff($dbGridArray,$rqGridArray)){
+        if (array_diff($dbGridArray, $rqGridArray)) {
             return false;
         }
         return true;
     }
 
-    protected function checkGridFieldsDiff(array $rqGrids,object $dbGrids)
+    protected function checkGridFieldsDiff(array $rqGrids, object $dbGrids)
     {
         $dbGridsKeyBy = $dbGrids->keyBy('id');
-        foreach($rqGrids as $grid){
-            $rqFieldIds = array_pluck($grid['fields'],'id');
+        foreach ($rqGrids as $grid) {
+            $rqFieldIds = array_pluck($grid['fields'], 'id');
             $rqFieldIds = array_filter($rqFieldIds);
             $dbFieldIds = $dbGridsKeyBy[$grid['id']]->fields->pluck('id')->all();
-            if(array_diff($dbFieldIds,$rqFieldIds)){
+            if (array_diff($dbFieldIds, $rqFieldIds)) {
                 return false;
                 break;
             }
-            $check = $this->dbFieldAndRequestFieldDiff($grid['fields'],$dbGridsKeyBy[$grid['id']]->fields);
-            if($check == false){
+            $check = $this->dbFieldAndRequestFieldDiff($grid['fields'], $dbGridsKeyBy[$grid['id']]->fields);
+            if ($check == false) {
                 return false;
                 break;
             }
@@ -203,9 +203,9 @@ trait Update
     {
         $formDataTable = new FormDataTableService($form->id);
 
-        foreach(request()->input('fields') as $k=>$v){
+        foreach (request()->input('fields') as $k => $v) {
             $v['sort'] = $k;
-            if (array_has($v,'id') && $v['id']) {
+            if (array_has($v, 'id') && $v['id']) {
                 //编辑
                 $field = Field::find($v['id']);
                 $field->update($v);
@@ -213,6 +213,8 @@ trait Update
                 if ($field->widgets->count() > 0) {
                     $field->widgets()->delete();
                 }
+                //修改form_data表注释
+                $formDataTable->saveFormFieldTableComment($field->toArray());
             } else {
                 //新增
                 $v['form_id'] = $form->id;
@@ -235,8 +237,8 @@ trait Update
      */
     protected function formDataIsTrueGridUpdate($form)
     {
-        $rqGrids = request()->input('grids',[]);
-        if($rqGrids){
+        $rqGrids = request()->input('grids', []);
+        if ($rqGrids) {
             foreach ($rqGrids as $k => $grid) {
                 if (array_has($grid, 'id') && $grid['id']) {
                     //编辑
@@ -254,7 +256,7 @@ trait Update
         }
     }
 
-    protected function formDataIsTrueGridFieldsUpdate(array $fields,$formGrid)
+    protected function formDataIsTrueGridFieldsUpdate(array $fields, $formGrid)
     {
         $formDataTable = new FormDataTableService($formGrid->form_id);
 
@@ -273,6 +275,9 @@ trait Update
                     data_fill($field['available_options'], '*.field_id', $fieldData->id);
                     $fieldData->widgets()->createMany($field['available_options']);
                 }
+                $data['key'] = $formGrid->key;
+                $data['field'] = $fieldData->toArray();
+                $formDataTable->saveFormGridTableComment($data);
             } else {
                 //新增
                 $fieldData = (array)$this->fieldsItemSave($field);//新增控件字段
@@ -517,8 +522,6 @@ trait Update
         });
     }
     /*-------------------------------表单data无数据修改end----------------------------------------------*/
-
-
 
 
     /*------------------------修改流程的步骤表的隐藏、可写、必填字段start------------------*/
