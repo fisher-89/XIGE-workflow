@@ -29,7 +29,13 @@ trait Update
             $this->formDataIsNullUpdateSave($form);
         }
         $this->updateStepFieldsKey($request);//修改步骤字段 (可以、必填、编辑、隐藏字段)
-        $data = Form::with(['fields.validator', 'grids.fields.validator'])->find($form->id);
+        $data = Form::with([
+            'fields' => function ($query) {
+                $query->whereNull('form_grid_id')->orderBy('sort', 'asc');
+            },
+            'fields.validator',
+            'grids.fields.validator'
+        ])->find($form->id);
         return $data;
     }
 
