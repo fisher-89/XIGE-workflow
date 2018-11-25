@@ -215,9 +215,11 @@ class CreateWorkflowTable extends Migration
         Schema::create('flow_run', function (Blueprint $table) {
             $table->increments('id');
             $table->unsignedInteger('flow_id')->comment('流程ID');
-            $table->unsignedInteger('flow_type_id')->comment('流程分类ID');
+            $table->unsignedInteger('flow_number')->comment('流程编号')->index();
+            $table->char('name', 20)->comment('流程名称')->index();
+            $table->unsignedInteger('flow_type_id')->comment('流程分类ID')->index();
             $table->unsignedInteger('form_id')->comment('表单ID');
-            $table->char('name', 20)->comment('流程名称');
+            $table->unsignedInteger('form_number')->comment('表单编号')->index();
             $table->unsignedMediumInteger('creator_sn')->comment('发起人编号');
             $table->char('creator_name', 10)->comment('发起人姓名');
             $table->tinyInteger('status')->comment('流程状态 0:运行中 1:结束 -2:撤回 -1:驳回')->default(0);
@@ -225,7 +227,6 @@ class CreateWorkflowTable extends Migration
             $table->char('process_instance_id',50)->nullable()->comment('审批实例id')->index();
             $table->timestamps();
             $table->softDeletes();
-            $table->index('flow_type_id');
             $table->foreign('flow_id')->references('id')->on('flows');
             $table->foreign('form_id')->references('id')->on('forms');
         });
