@@ -21,7 +21,7 @@ class FlowStepChartRepository
         $currentStepRunData = StepRun::findOrFail($stepRunId);
         $allStepRun = StepRun::where('flow_run_id',$currentStepRunData->flow_run_id)
             ->where('action_type','<>',-3)
-            ->select('id','step_id','step_key','approver_sn','approver_name','action_type','next_id','prev_id','acted_at')
+            ->select('id','step_id','step_key','approver_sn','approver_name','action_type','next_id','prev_id','acted_at','remark')
             ->orderBy('acted_at','asc')
             ->get();
         //未处理的
