@@ -24,6 +24,7 @@ class StepDepartmentApproverRequest extends FormRequest
      */
     public function rules()
     {
+        dd($this->route('id'));
         return [
             'step_approver_id' => [
                 Rule::exists('step_approvers', 'id')->whereNull('deleted_at')
@@ -33,7 +34,7 @@ class StepDepartmentApproverRequest extends FormRequest
                 'required',
                 Rule::unique('step_department_approvers', 'department_id')
                     ->where('step_approver_id', $this->step_approver_id)
-                    ->ignore($this->route('step_department_approver'))
+                    ->ignore($this->route('id'))
             ],
             'department_name' => [
                 'string',

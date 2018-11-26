@@ -28,7 +28,7 @@ class StepApproverRequest extends FormRequest
             'name' => [
                 'required',
                 'max:50',
-                Rule::unique('step_approvers')->whereNull('deleted_at')->ignore($this->route('step_approver'))
+                Rule::unique('step_approvers')->whereNull('deleted_at')->ignore($this->route('id'))
             ],
             'description' => [
                 'nullable',

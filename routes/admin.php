@@ -40,9 +40,13 @@ Route::namespace('Api\Admin')->middleware('auth:api')->group(function(){
     Route::get('flow-old/{id}','FlowController@getOldFlow');
 
     //步骤审批配置
-    Route::apiResource('step-approver','StepApproverController');
+    Route::apiResource('step-approver','StepApproverController')->parameter('step-approver','id');
     //步骤部门审批配置
-    Route::apiResource('step-department-approver','StepDepartmentApproverController');
+    Route::apiResource('step-department-approver','StepDepartmentApproverController',[
+        'parameters'=>[
+            'step-department-approver'=>'id'
+        ]
+    ]);
 
     Route::get('variate-calculation','VariateController@index');//获取默认值的变量数据与计算公式数据
     /**
