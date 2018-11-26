@@ -110,6 +110,7 @@ class OperationLog
     protected function delete()
     {
         $data = $this->getData();
+        $data = array_except($data,'after');
         $data['request_id'] = request()->route('id');
         Log::create($data);
     }
