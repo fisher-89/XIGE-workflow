@@ -27,4 +27,9 @@ class StepCc extends Model
     {
         return $this->belongsTo(Step::class);
     }
+
+    public function flowRun()
+    {
+        return $this->belongsTo(FlowRun::class);
+    }
 }
