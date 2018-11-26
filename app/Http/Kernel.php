@@ -46,6 +46,8 @@ class Kernel extends HttpKernel
         'admin' => [
             'throttle:200,1',
             'bindings',
+            //操作日志
+            \App\Http\Middleware\OperationLog::class,
         ],
     ];
 
