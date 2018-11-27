@@ -85,6 +85,12 @@ class FieldApiConfigurationController extends Controller
     public function update(FieldApiConfigurationRequest $request, $id)
     {
         $data = FieldApiConfiguration::findOrFail($id);
+        //运行编辑
+        if($request->has('confirm') && $request->query('confirm')== 1){
+            $data->update($request->input());
+            return $this->response->put($data->makeHidden('fields'));
+        }
+
         if ($data->fields->count() > 0) {
             abort(400, '该接口配置已被表单ID为 ' . implode(',', $data->fields->pluck('form_id')->all()) . '使用了');
         }
