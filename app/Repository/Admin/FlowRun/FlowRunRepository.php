@@ -9,14 +9,13 @@
 namespace App\Repository\Admin\FlowRun;
 
 use App\Exports\Admin\FlowRun\FormExport;
+use App\Jobs\Admin\FlowRunLogDownload;
 use App\Models\Flow;
 use App\Models\FlowRun;
 use App\Models\Form;
 use Illuminate\Support\Facades\Artisan;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Cache;
-use Illuminate\Support\Facades\Storage;
-use Maatwebsite\Excel\Facades\Excel;
 
 class FlowRunRepository
 {
@@ -88,8 +87,32 @@ class FlowRunRepository
             '--flowRunId' => $flowRunIds,
             '--code' => $code
         ]);
+
+//        FlowRunLogDownload::dispatch($this->jobExport($formIds,$flowRunIds,$code));
         return $code;
+
+
     }
+    protected function jobExport($formIds,$flowRunIds,$code)
+    {
+        $form = Form::withTrashed()->findOrFail($formIds[0]);
+        $filePath = 'excel/' . $form->name . '-' . $code . '.xlsx';
+        $excel = new FormExport($formIds, $flowRunIds, $code, $filePath);
+
+//        $excel->queue($filePath,'public');
+
+        $excel->store($filePath, 'public');
+
+        $data = Cache::get($code);
+        Cache::put($code, [
+            'progress' => 100,
+            'type' => 'finish',
+            'message' => '完成',
+            'path' => $data['path'],
+            'url' => $data['url']
+        ], 120);
+    }
+
 
     /**
      * 获取导出进度
