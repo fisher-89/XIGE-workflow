@@ -69,7 +69,6 @@ class FlowService
 
         //图标移动到正式目录
         $this->moveIcon($flow,$request['icon']);
-        dd($flow->toArray());
 
         //流程发起人data
         $this->createFlowSponsor($flow, $request);
