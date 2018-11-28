@@ -78,14 +78,14 @@ class OperationLog
                 $data['before'] = Validator::findOrFail($data['request_id'])->toArray();
                 break;
             case 'admin/form/'.$data['request_id']:
-                $data = Form::withTrashed()->with([
+                $form = Form::withTrashed()->with([
                     'fields' => function ($query) {
                         $query->whereNull('form_grid_id')->orderBy('sort', 'asc');
                     },
                     'fields.validator',
                     'grids.fields.validator'
                 ])->findOrFail($data['request_id']);
-                $data['before'] = $data->toArray();
+                $data['before'] = $form->toArray();
                 break;
             case 'admin/flow/'.$data['request_id']:
                 $flow = Flow::withTrashed()->with('steps')->findOrFail($data['request_id']);
