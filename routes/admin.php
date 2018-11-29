@@ -22,7 +22,7 @@ Route::namespace('Api\Admin')->middleware('auth:api')->group(function(){
     //字段接口配置
     Route::apiResource('field-api-configuration','FieldApiConfigurationController',[
         'only'=>['index','store','update','destroy','show']
-    ])->parameter('field_api_configuration','id');
+    ])->parameter('field-api-configuration','id');
     //检查OA接口地址测试
     Route::post('check-oa-api','FieldApiConfigurationController@checkOaApi');
     //获取接口配置oa接口数据
