@@ -92,7 +92,7 @@ class FieldApiConfigurationController extends Controller
         }
 
         if ($data->fields->count() > 0) {
-            abort(400, '该接口配置已被表单ID为 ' . implode(',', $data->fields->pluck('form_id')->all()) . '使用了');
+            abort(400, '该接口配置已被表单ID为 ' . implode(',', array_unique($data->fields->pluck('form_id')->all())) . '使用了');
         }
         $data->update($request->input());
         return $this->response->put($data->makeHidden('fields'));
