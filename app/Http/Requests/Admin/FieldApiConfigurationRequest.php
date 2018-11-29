@@ -31,7 +31,7 @@ class FieldApiConfigurationRequest extends FormRequest
             'name' => [
                 'required',
                 'max:20',
-                Rule::unique('field_api_configuration')->ignore($this->route('id'))
+                Rule::unique('field_api_configuration')->ignore($this->route('id'))->whereNull('deleted_at')
             ],
             'url' => [
                 'required',

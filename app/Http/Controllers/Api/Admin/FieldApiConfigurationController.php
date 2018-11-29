@@ -86,7 +86,7 @@ class FieldApiConfigurationController extends Controller
     {
         $data = FieldApiConfiguration::findOrFail($id);
         //运行编辑
-        if($request->has('confirm') && $request->query('confirm')== 1){
+        if ($request->has('confirm') && $request->query('confirm') == 1) {
             $data->update($request->input());
             return $this->response->put($data->makeHidden('fields'));
         }
@@ -129,11 +129,11 @@ class FieldApiConfigurationController extends Controller
         ], [], ['url' => '接口地址']);
         try {
             $result = app('curl')->get($request->input('url'));
+            $columns = array_keys($result[0]);
+            return $this->response->post($columns);
         } catch (\Exception $e) {
             abort(400, '接口地址错误');
         }
-        $columns = array_keys($result[0]);
-        return $this->response->post($columns);
     }
 
     /**
