@@ -9,7 +9,7 @@
 namespace App\Repository\Admin\FlowRun;
 
 use App\Exports\Admin\FlowRun\FormExport;
-use App\Jobs\Admin\FlowRunLogDownload;
+use App\Jobs\FlowRunLogDownloadJob;
 use App\Models\Flow;
 use App\Models\FlowRun;
 use App\Models\Form;
@@ -88,7 +88,7 @@ class FlowRunRepository
             '--code' => $code
         ]);
 
-//        FlowRunLogDownload::dispatch($this->jobExport($formIds,$flowRunIds,$code));
+//        FlowRunLogDownloadJob::dispatch($this->jobExport($formIds,$flowRunIds,$code));
         return $code;
 
 

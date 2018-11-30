@@ -1,7 +1,6 @@
 <?php
 
-namespace App\Jobs\Admin;
-
+namespace App\Jobs;
 
 use Illuminate\Bus\Queueable;
 use Illuminate\Queue\SerializesModels;
@@ -9,17 +8,18 @@ use Illuminate\Queue\InteractsWithQueue;
 use Illuminate\Contracts\Queue\ShouldQueue;
 use Illuminate\Foundation\Bus\Dispatchable;
 
-class FlowRunLogDownload implements ShouldQueue
+class FlowRunLogDownloadJob implements ShouldQueue
 {
     use Dispatchable, InteractsWithQueue, Queueable, SerializesModels;
 
+
+    protected $fun;
     /**
      * Create a new job instance.
      *
      * @return void
      */
-    protected $fun;
-    public function __construct($fun)
+    public function __construct()
     {
         $this->fun = $fun;
     }
