@@ -9,7 +9,29 @@ class Field extends Model
 {
     use SoftDeletes;
 
-    protected $fillable = ['key', 'name', 'description', 'type', 'is_checkbox', 'condition', 'region_level', 'max', 'min', 'scale', 'default_value', 'options', 'form_id', 'form_grid_id', 'sort', 'field_api_configuration_id'];
+    protected $fillable = [
+        'key',
+        'name',
+        'description',
+        'type',
+        'is_checkbox',
+        'condition',
+        'region_level',
+        'max',
+        'min',
+        'scale',
+        'default_value',
+        'options',
+        'form_id',
+        'form_grid_id',
+        'sort',
+        'field_api_configuration_id',
+        'width',
+        'height',
+        'x',
+        'y',
+        'mobile_sort'
+    ];
     protected $appends = ['validator_id', 'available_options'];
 
     protected $hidden = ['created_at', 'updated_at', 'deleted_at'];

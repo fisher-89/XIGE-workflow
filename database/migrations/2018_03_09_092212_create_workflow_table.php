@@ -33,6 +33,8 @@ class CreateWorkflowTable extends Migration
             $table->unsignedSmallInteger('form_type_id')->comment('分类ID');
             $table->unsignedInteger('number')->nullable()->index()->comment('表单编号');
             $table->unsignedTinyInteger('sort')->comment('排序')->default(0);
+            $table->unsignedTinyInteger('pc_template')->comment('启用PC模板 1是 0否')->default(0);
+            $table->unsignedTinyInteger('mobile_template')->comment('启用移动端模板 1是 0否')->default(0);
             $table->timestamps();
             $table->softDeletes();
             $table->foreign('form_type_id')->references('id')->on('form_types');
@@ -71,6 +73,11 @@ class CreateWorkflowTable extends Migration
             $table->unsignedInteger('form_grid_id')->comment('列表控件ID')->nullable();
             $table->unsignedTinyInteger('sort')->default(0)->comment('字段排序');
             $table->unsignedInteger('field_api_configuration_id')->nullable()->comment('字段接口配置ID');
+            $table->unsignedTinyInteger('width')->comment('字段宽度')->nullable();
+            $table->unsignedTinyInteger('height')->comment('字段高度')->nullable();
+            $table->unsignedSmallInteger('x')->comment('字段x轴')->nullable();
+            $table->unsignedSmallInteger('y')->comment('字段y轴')->nullable();
+            $table->unsignedTinyInteger('mobile_sort')->comment('移动端字段排序')->nullable();
             $table->timestamps();
             $table->softDeletes();
             $table->foreign('form_id')->references('id')->on('forms');

@@ -32,6 +32,8 @@ class FormValidator
         'description' => '描述',
         'form_type_id' => '表单分类',
         'sort' => '排序',
+        'pc_template'=>'启用PC模板',
+        'mobile_template'=>'启用移动端模板',
         //字段
         'fields' => '字段',
         'fields.*.id' => '字段ID',
@@ -51,6 +53,11 @@ class FormValidator
         'fields.*.default_value' => '默认值',
         'fields.*.options' => '可选值',
         'fields.*.field_api_configuration_id' => '字段接口配置ID',
+        'fields.*.width' => '字段宽度',
+        'fields.*.height' => '字段高度',
+        'fields.*.x' => '字段x轴',
+        'fields.*.y' => '字段y轴',
+        'fields.*.mobile_sort' => '移动端字段排序',
         'fields.*.validator_id' => '验证规则',
         'fields.*.validator_id.*' => '验证规则ID',
         //字段列表
@@ -75,6 +82,11 @@ class FormValidator
         'grids.*.fields.*.default_value' => '默认值',
         'grids.*.fields.*.options' => '可选值',
         'grids.*.fields.*.field_api_configuration_id' => '字段接口配置ID',
+        'grids.*.fields.*.width' => '字段宽度',
+        'grids.*.fields.*.height' => '字段高度',
+        'grids.*.fields.*.x' => '字段x轴',
+        'grids.*.fields.*.y' => '字段y轴',
+        'grids.*.fields.*.mobile_sort' => '移动端字段排序',
         'grids.*.fields.*.validator_id' => '验证规则',
         'grids.*.fields.*.validator_id.*' => '验证规则ID',
     ];
@@ -107,6 +119,16 @@ class FormValidator
             'sort' => [
                 'integer',
                 'between:0,255',
+            ],
+            'pc_template'=>[
+                'required',
+                'integer',
+                Rule::in([0,1])
+            ],
+            'mobile_template'=>[
+                'required',
+                'integer',
+                Rule::in([0,1])
             ]
         ];
     }
@@ -169,6 +191,39 @@ class FormValidator
                 Rule::exists('field_api_configuration', 'id')
                     ->whereNull('deleted_at'),
                 'required_if:fields.*.type,api'
+            ],
+            'fields.*.width' => [
+                'integer',
+                'nullable',
+                'between:1,255',
+                'required_if:pc_template,1'
+            ],
+            'fields.*.height' => [
+                'integer',
+                'nullable',
+                'between:1,255',
+                'required_if:pc_template,1'
+            ],
+            'fields.*.x' => [
+                'integer',
+                'nullable',
+                'between:1,65535',
+                'required_if:pc_template,1',
+                'distinct'
+            ],
+            'fields.*.y' => [
+                'integer',
+                'nullable',
+                'between:1,65535',
+                'required_if:pc_template,1',
+                'distinct'
+            ],
+            'fields.*.mobile_sort' => [
+                'integer',
+                'nullable',
+                'between:0,255',
+                'required_if:mobile_template,1',
+                'distinct'
             ],
             'fields.*.validator_id' => [
                 'nullable',
@@ -244,6 +299,39 @@ class FormValidator
                 Rule::exists('field_api_configuration', 'id')
                     ->whereNull('deleted_at'),
                 'required_if:fields.*.type,api'
+            ],
+            'grids.*.fields.*.width' => [
+                'integer',
+                'nullable',
+                'between:1,255',
+                'required_if:pc_template,1'
+            ],
+            'grids.*.fields.*.height' => [
+                'integer',
+                'nullable',
+                'between:1,255',
+                'required_if:pc_template,1'
+            ],
+            'grids.*.fields.*.x' => [
+                'integer',
+                'nullable',
+                'between:1,65535',
+                'required_if:pc_template,1',
+                'distinct'
+            ],
+            'grids.*.fields.*.y' => [
+                'integer',
+                'nullable',
+                'between:1,65535',
+                'required_if:pc_template,1',
+                'distinct'
+            ],
+            'grids.*.fields.*.mobile_sort' => [
+                'integer',
+                'nullable',
+                'between:0,255',
+                'required_if:mobile_template,1',
+                'distinct'
             ],
             'grids.*.fields.*.validator_id' => [
                 'nullable',
