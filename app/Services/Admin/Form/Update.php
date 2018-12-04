@@ -52,7 +52,7 @@ trait Update
             //表单修改
             $form->update(request()->input());
             //表单字段修改
-            $this->formDataIsTrueFormFieldsUpdate($form);
+//            $this->formDataIsTrueFormFieldsUpdate($form);
             //控件字段修改
             $this->formDataIsTrueGridUpdate($form);
         } else {
@@ -258,8 +258,6 @@ trait Update
 
     protected function formDataIsTrueGridFieldsUpdate(array $fields, $formGrid)
     {
-        $formDataTable = new FormDataTableService($formGrid->form_id);
-
         foreach ($fields as $k => $field) {
             $field['sort'] = $k;
             if (array_has($field, 'id') && $field['id']) {
@@ -277,12 +275,14 @@ trait Update
                 }
                 $data['key'] = $formGrid->key;
                 $data['field'] = $fieldData->toArray();
+                $formDataTable = new FormDataTableService($formGrid->form_id);
                 $formDataTable->saveFormGridTableComment($data);
             } else {
                 //新增
                 $fieldData = (array)$this->fieldsItemSave($field);//新增控件字段
                 $data['key'] = $formGrid->key;
                 $data['field'] = $fieldData;
+                $formDataTable = new FormDataTableService($formGrid->form_id);
                 $formDataTable->saveFormGridTable($data);//创建列表控件表
             }
         }
