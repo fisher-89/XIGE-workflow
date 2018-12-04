@@ -17,9 +17,9 @@ Route::middleware('auth:api')->get('/user', function (Request $request) {
     return $request->user();
 });
 //文件上传跨域
-Route::options('{a?}/{b?}/{c?}', function () {
-    return response('', 204);
-})->middleware('crossDomain');
+//Route::options('{a?}/{b?}/{c?}', function () {
+//    return response('', 204);
+//})->middleware('crossDomain');
 
 Route::middleware('auth:api')->namespace('Api\Web')->group(function () {
     Route::get('list', 'ResourceController@getFlowList');//获取可发起的流程

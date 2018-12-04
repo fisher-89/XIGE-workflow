@@ -119,7 +119,7 @@ class FormDataTableService
                             break;
                         case 'text':
                             if ($v['max'] && $v['max'] < 255) {
-                                $table->char($v['key'], $v['max'])->nullable()->comment($v['name']);
+                                $table->string($v['key'])->nullable()->comment($v['name']);
                             } else {
                                 $table->text($v['key'])->nullable()->comment($v['name']);
                             }
@@ -155,21 +155,21 @@ class FormDataTableService
                             $table->text($v['key'])->nullable()->comment($v['name']);
                             switch ($v['region_level']) {
                                 case 1:
-                                    $table->char($v['key'].'_province_id', 20)->nullable()->index()->comment($v['name'].'的省编码');
+                                    $table->string($v['key'].'_province_id')->nullable()->index()->comment($v['name'].'的省编码');
                                     break;
                                 case 2:
-                                    $table->char($v['key'].'_province_id', 20)->nullable()->index()->comment($v['name'].'的省编码');
-                                    $table->char($v['key'].'_city_id', 20)->nullable()->index()->comment($v['name'].'的市编码');
+                                    $table->string($v['key'].'_province_id')->nullable()->index()->comment($v['name'].'的省编码');
+                                    $table->string($v['key'].'_city_id')->nullable()->index()->comment($v['name'].'的市编码');
                                     break;
                                 case 3:
-                                    $table->char($v['key'].'_province_id', 20)->nullable()->index()->comment($v['name'].'的省编码');
-                                    $table->char($v['key'].'_city_id', 20)->nullable()->index()->comment($v['name'].'的市编码');
-                                    $table->char($v['key'].'_county_id', 20)->nullable()->index()->comment($v['name'].'的区、县编码');
+                                    $table->string($v['key'].'_province_id')->nullable()->index()->comment($v['name'].'的省编码');
+                                    $table->string($v['key'].'_city_id')->nullable()->index()->comment($v['name'].'的市编码');
+                                    $table->string($v['key'].'_county_id')->nullable()->index()->comment($v['name'].'的区、县编码');
                                     break;
                                 case 4:
-                                    $table->char($v['key'].'_province_id', 20)->nullable()->index()->comment($v['name'].'的省编码');
-                                    $table->char($v['key'].'_city_id', 20)->nullable()->index()->comment($v['name'].'的市编码');
-                                    $table->char($v['key'].'_county_id', 20)->nullable()->index()->comment($v['name'].'的区、县编码');
+                                    $table->string($v['key'].'_province_id')->nullable()->index()->comment($v['name'].'的省编码');
+                                    $table->string($v['key'].'_city_id')->nullable()->index()->comment($v['name'].'的市编码');
+                                    $table->string($v['key'].'_county_id')->nullable()->index()->comment($v['name'].'的区、县编码');
                                     $table->text($v['key'].'_address')->nullable()->comment($v['name'].'的详细地址');
                                     break;
                             }
@@ -205,7 +205,7 @@ class FormDataTableService
                     break;
                 case 'text':
                     if ($field['max'] && $field['max'] < 255) {
-                        $table->char($field['key'], $field['max'])->nullable()->comment($field['name']);
+                        $table->string($field['key'])->nullable()->comment($field['name']);
                     } else {
                         $table->text($field['key'])->nullable()->comment($field['name']);
                     }
@@ -241,21 +241,21 @@ class FormDataTableService
                     $table->text($field['key'])->nullable()->comment($field['name']);
                     switch ($field['region_level']) {
                         case 1:
-                            $table->char($field['key'].'_province_id', 20)->nullable()->index()->comment($field['name'].'的省编码');
+                            $table->string($field['key'].'_province_id')->nullable()->index()->comment($field['name'].'的省编码');
                             break;
                         case 2:
-                            $table->char($field['key'].'_province_id', 20)->nullable()->index()->comment($field['name'].'的省编码');
-                            $table->char($field['key'].'_city_id', 20)->nullable()->index()->comment($field['name'].'的市编码');
+                            $table->string($field['key'].'_province_id')->nullable()->index()->comment($field['name'].'的省编码');
+                            $table->string($field['key'].'_city_id')->nullable()->index()->comment($field['name'].'的市编码');
                             break;
                         case 3:
-                            $table->char($field['key'].'_province_id', 20)->nullable()->index()->comment($field['name'].'的省编码');
-                            $table->char($field['key'].'_city_id', 20)->nullable()->index()->comment($field['name'].'的市编码');
-                            $table->char($field['key'].'_county_id', 20)->nullable()->index()->comment($field['name'].'的区、县编码');
+                            $table->string($field['key'].'_province_id')->nullable()->index()->comment($field['name'].'的省编码');
+                            $table->string($field['key'].'_city_id')->nullable()->index()->comment($field['name'].'的市编码');
+                            $table->string($field['key'].'_county_id')->nullable()->index()->comment($field['name'].'的区、县编码');
                             break;
                         case 4:
-                            $table->char($field['key'].'_province_id', 20)->nullable()->index()->comment($field['name'].'的省编码');
-                            $table->char($field['key'].'_city_id', 20)->nullable()->index()->comment($field['name'].'的市编码');
-                            $table->char($field['key'].'_county_id', 20)->nullable()->index()->comment($field['name'].'的区、县编码');
+                            $table->string($field['key'].'_province_id')->nullable()->index()->comment($field['name'].'的省编码');
+                            $table->string($field['key'].'_city_id')->nullable()->index()->comment($field['name'].'的市编码');
+                            $table->string($field['key'].'_county_id')->nullable()->index()->comment($field['name'].'的区、县编码');
                             $table->text($field['key'].'_address')->nullable()->comment($field['name'].'的详细地址');
                             break;
                     }
@@ -280,73 +280,73 @@ class FormDataTableService
                 case 'int':
                     if ($field['scale']) {
                         $max = $field['max']?strlen($field['max']) - 1:20;
-                        $table->decimal($field['key'], $max, $field['scale'])->nullable()->comment($field['name'])->change();
+                        $table->decimal($field['key'], $max, $field['scale'])->comment($field['name'])->change();
                     } else {
-                        $table->bigInteger($field['key'])->nullable()->comment($field['name'])->change();
+                        $table->bigInteger($field['key'])->comment($field['name'])->change();
                     }
                     break;
                 case 'text':
                     if ($field['max'] && $field['max'] < 255) {
-                        $table->char($field['key'], $field['max'])->nullable()->comment($field['name'])->change();
+                        $table->string($field['key'])->comment($field['name'])->change();
                     } else {
-                        $table->text($field['key'])->nullable()->comment($field['name'])->change();
+                        $table->text($field['key'])->comment($field['name'])->change();
                     }
                     break;
                 case 'date':
-                    $table->date($field['key'])->nullable()->comment($field['name'])->change();
+                    $table->date($field['key'])->comment($field['name'])->change();
                     break;
                 case 'datetime':
-                    $table->dateTime($field['key'])->nullable()->comment($field['name'])->change();
+                    $table->dateTime($field['key'])->comment($field['name'])->change();
                     break;
                 case 'time':
-                    $table->time($field['key'])->nullable()->comment($field['name'])->change();
+                    $table->time($field['key'])->comment($field['name'])->change();
                     break;
                 case 'array':
-                    $table->text($field['key'])->nullable()->comment($field['name'])->change();
+                    $table->text($field['key'])->comment($field['name'])->change();
                     break;
                 case 'select':
-                    $table->text($field['key'])->nullable()->comment($field['name'])->change();
+                    $table->text($field['key'])->comment($field['name'])->change();
                     break;
                 case 'file':
-                    $table->text($field['key'])->nullable()->comment($field['name'])->change();
+                    $table->text($field['key'])->comment($field['name'])->change();
                     break;
                 case 'staff':
-                    $table->text($field['key'])->nullable()->comment($field['name'])->change();
+                    $table->text($field['key'])->comment($field['name'])->change();
                     break;
                 case 'department':
-                    $table->text($field['key'])->nullable()->comment($field['name'])->change();
+                    $table->text($field['key'])->comment($field['name'])->change();
                     break;
                 case 'shop':
-                    $table->text($field['key'])->nullable()->comment($field['name'])->change();
+                    $table->text($field['key'])->comment($field['name'])->change();
                     break;
                 case 'region':
-                    $table->text($field['key'])->nullable()->comment($field['name'])->change();
+                    $table->text($field['key'])->comment($field['name'])->change();
                     switch ($field['region_level']) {
                         case 1:
-                            $table->char($field['key'].'_province_id', 20)->nullable()->index()->comment($field['name'].'的省编码')->change();
+                            $table->string($field['key'].'_province_id')->comment($field['name'].'的省编码')->change();
                             break;
                         case 2:
-                            $table->char($field['key'].'_province_id', 20)->nullable()->index()->comment($field['name'].'的省编码')->change();
-                            $table->char($field['key'].'_city_id', 20)->nullable()->index()->comment($field['name'].'的市编码')->change();
+                            $table->string($field['key'].'_province_id')->comment($field['name'].'的省编码')->change();
+                            $table->string($field['key'].'_city_id')->comment($field['name'].'的市编码')->change();
                             break;
                         case 3:
-                            $table->char($field['key'].'_province_id', 20)->nullable()->index()->comment($field['name'].'的省编码')->change();
-                            $table->char($field['key'].'_city_id', 20)->nullable()->index()->comment($field['name'].'的市编码')->change();
-                            $table->char($field['key'].'_county_id', 20)->nullable()->index()->comment($field['name'].'的区、县编码')->change();
+                            $table->string($field['key'].'_province_id')->comment($field['name'].'的省编码')->change();
+                            $table->string($field['key'].'_city_id')->comment($field['name'].'的市编码')->change();
+                            $table->string($field['key'].'_county_id')->comment($field['name'].'的区、县编码')->change();
                             break;
                         case 4:
-                            $table->char($field['key'].'_province_id', 20)->nullable()->index()->comment($field['name'].'的省编码')->change();
-                            $table->char($field['key'].'_city_id', 20)->nullable()->index()->comment($field['name'].'的市编码')->change();
-                            $table->char($field['key'].'_county_id', 20)->nullable()->index()->comment($field['name'].'的区、县编码')->change();
-                            $table->text($field['key'].'_address')->nullable()->comment($field['name'].'的详细地址')->change();
+                            $table->string($field['key'].'_province_id')->comment($field['name'].'的省编码')->change();
+                            $table->string($field['key'].'_city_id')->comment($field['name'].'的市编码')->change();
+                            $table->string($field['key'].'_county_id')->comment($field['name'].'的区、县编码')->change();
+                            $table->text($field['key'].'_address')->comment($field['name'].'的详细地址')->change();
                             break;
                     }
                     break;
                 case 'api':
-                    $table->text($field['key'])->nullable()->comment($field['name'])->change();
+                    $table->text($field['key'])->comment($field['name'])->change();
                     break;
                 default :
-                    $table->text($field['key'])->nullable()->comment($field['name'])->change();
+                    $table->text($field['key'])->comment($field['name'])->change();
             }
         });
     }
