@@ -30,19 +30,23 @@ class Images
         $name = $this->setFileName();
         $newFileName = $name . '.' . $originalExtension;//新的文件名
         $path = 'uploads/temporary/' . date('Y') . '/' . date('m') . '/' . date('d') . '/';//新的文件路径
-        $file->storeAs($path, $newFileName, 'public');//图片存储
-
-        //缩略图处理
-        $newThumbFileName = $name . '_thumb' . '.' . $originalExtension;//缩略图文件名
-        Image::make($file)->resize(100,100)->save(storage_path('app/public/'.$path.$newThumbFileName));
-
+        $file->storeAs($path, $newFileName, 'public');//文件存储
 
         $responsePath = '/storage/' . $path;
-        return [
+        $response = [
             'path' => $responsePath.$newFileName,
             'url' => config('app.url') . $responsePath.$newFileName,
-            'thumb_url' => config('app.url') .$responsePath . $newThumbFileName
         ];
+
+        $images = ['jpeg','jpg','png','gif','psd','swf','bmp','emf'];
+        if(in_array($originalExtension,$images)){
+            //缩略图处理
+            $newThumbFileName = $name . '_thumb' . '.' . $originalExtension;//缩略图文件名
+            Image::make($file)->resize(100,100)->save(storage_path('app/public/'.$path.$newThumbFileName));
+            $response['thumb_url'] = config('app.url') .$responsePath . $newThumbFileName;
+        }
+
+        return $response;
     }
 
     /**
@@ -67,17 +71,9 @@ class Images
     public function copyTempFile($path)
     {
         $fileTemp = str_replace('/storage/', '', $path);
-        $sub = explode('.', $fileTemp);
-        $thumbFileTemp = $sub[0] . '_thumb.' . $sub[1];//缩略临时路径
-
         $checkFileTemp = Storage::disk('public')->exists($fileTemp);
-        $checkThumbFileTemp = Storage::disk('public')->exists($thumbFileTemp);
-
         if (!$checkFileTemp) {
             abort(404, $fileTemp . '该文件不存在');
-        }
-        if (!$checkThumbFileTemp) {
-            abort(404, $thumbFileTemp . '该缩略图不存在');
         }
         $newPath = 'uploads/perpetual/';
         if (!Storage::disk('public')->exists($newPath)) {
@@ -88,9 +84,21 @@ class Images
         if (!Storage::disk('public')->exists($filePermanent)) {
             Storage::disk('public')->copy($fileTemp, $filePermanent);
         }
-        $thumbFilePermanent = str_replace('uploads/temporary/', $newPath, $thumbFileTemp);
-        if (!Storage::disk('public')->exists($thumbFilePermanent)) {
-            Storage::disk('public')->copy($thumbFileTemp, $thumbFilePermanent);
+
+        //缩略图处理
+        $sub = explode('.', $fileTemp);
+        $images = ['jpeg','jpg','png','gif','psd','swf','bmp','emf'];
+        if(in_array($sub[1],$images)){
+            //缩略图片
+            $thumbFileTemp = $sub[0] . '_thumb.' . $sub[1];//缩略临时路径
+            $checkThumbFileTemp = Storage::disk('public')->exists($thumbFileTemp);
+            if (!$checkThumbFileTemp) {
+                abort(404, $thumbFileTemp . '该缩略图不存在');
+            }
+            $thumbFilePermanent = str_replace('uploads/temporary/', $newPath, $thumbFileTemp);
+            if (!Storage::disk('public')->exists($thumbFilePermanent)) {
+                Storage::disk('public')->copy($thumbFileTemp, $thumbFilePermanent);
+            }
         }
         return '/storage/' . $filePermanent;
     }
