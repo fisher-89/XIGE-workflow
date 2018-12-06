@@ -79,6 +79,12 @@ Route::namespace('Api\Admin')->middleware('auth:api')->group(function(){
     Route::apiResource('job','Job\JobController',[
         'only'=>['index','update'],
     ])->parameter('job','id');
+
+    //权限
+    Route::prefix('auth')->namespace('Auth')->group(function(){
+//        角色
+        Route::apiResource('role','RoleController')->parameter('role','id');
+    });
 });
 
 //测试导出

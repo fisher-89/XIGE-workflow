@@ -10,6 +10,7 @@
 namespace App\Services\Admin\Log;
 
 
+use App\Models\Auth\AuthRole;
 use App\Models\FieldApiConfiguration;
 use App\Models\Flow;
 use App\Models\FlowType;
@@ -99,6 +100,9 @@ class OperationLog
                 break;
             case 'admin/step-department-approver/'.$data['request_id']:
                 $data['before'] = StepDepartmentApprover::findOrFail($data['request_id'])->toArray();
+                break;
+            case 'admin/auth/role/'.$data['request_id']:
+                $data['before'] = AuthRole::with('staff','handle','flowAuth.flow','formAuth.form')->findOrFail($data['request_id']);
                 break;
             default:
                 $data['before'] = [];
