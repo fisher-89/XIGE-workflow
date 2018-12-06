@@ -92,4 +92,20 @@ class RoleService
         });
         return $role->load('staff', 'handle', 'flowAuth.flow', 'formAuth.form');
     }
+
+    /**
+     * 删除
+     * @param $id
+     */
+    public function delete($id)
+    {
+        DB::transaction(function () use ($id) {
+            $role = AuthRole::findOrFail($id);
+            $role->staff()->sync([]);
+            $role->handle()->sync([]);
+            $role->flowAuth()->delete();
+            $role->formAuth()->delete();
+            $role->delete();
+        });
+    }
 }

@@ -98,7 +98,7 @@ class RoleController extends Controller
      */
     public function destroy($id)
     {
-        AuthRole::destroy($id);
+        $this->role->delete($id);
         return $this->response->delete();
     }
 }
