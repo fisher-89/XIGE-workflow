@@ -16,6 +16,7 @@ class CreateAuthRolesTable extends Migration
         Schema::create('auth_roles', function (Blueprint $table) {
             $table->increments('id');
             $table->string('name')->comment('角色名称')->unique();
+            $table->unsignedTinyInteger('is_super')->comment('是否超级管理员 0否 1是')->index()->default(0);
             $table->timestamps();
             $table->softDeletes();
         });
