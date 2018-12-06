@@ -10,7 +10,8 @@ class AuthRole extends Model
     use SoftDeletes;
 
     protected $fillable = [
-        'name'
+        'name',
+        'is_super'
     ];
 
 
