@@ -52,7 +52,7 @@ trait Update
             //表单修改
             $form->update(request()->input());
             //表单字段修改
-//            $this->formDataIsTrueFormFieldsUpdate($form);
+            $this->formDataIsTrueFormFieldsUpdate($form);
             //控件字段修改
             $this->formDataIsTrueGridUpdate($form);
         } else {
