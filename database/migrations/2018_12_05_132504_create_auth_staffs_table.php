@@ -18,7 +18,6 @@ class CreateAuthStaffsTable extends Migration
             $table->unsignedMediumInteger('staff_sn')->comment('员工编号');
             $table->primary('staff_sn');
             $table->string('name')->comment('员工姓名')->index();
-            $table->unsignedTinyInteger('is_super')->comment('是否超级管理员 0否 1是')->default(0)->index();
             $table->timestamps();
             $table->softDeletes();
         });
