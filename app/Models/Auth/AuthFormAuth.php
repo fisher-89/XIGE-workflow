@@ -22,4 +22,8 @@ class AuthFormAuth extends Model
             ->orderBy('created_at','desc')
             ->limit(1);
     }
+    public function roleHasHandles()
+    {
+        return $this->hasMany(AuthRoleHasHandle::class,'role_id','role_id');
+    }
 }
