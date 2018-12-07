@@ -28,6 +28,9 @@ Route::namespace('Api\Admin')->middleware('auth:api')->group(function(){
     //获取接口配置oa接口数据
     Route::get('get-oa-api/{id}','FieldApiConfigurationController@getOaApi');
 
+    //流程权限获取
+    Route::get('flow/auth','FlowController@getFlowAuth');
+
     //流程
     Route::apiResource('flow', 'FlowController')->parameter('flow', 'id');
 

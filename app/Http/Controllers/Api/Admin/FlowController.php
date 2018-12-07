@@ -137,4 +137,14 @@ class FlowController extends Controller
         $data = $flowIcon->upload();
         return $this->response->post($data);
     }
+
+    /**
+     * 获取流程权限
+     * @return \Illuminate\Contracts\Routing\ResponseFactory|\Symfony\Component\HttpFoundation\Response
+     */
+    public function getFlowAuth()
+    {
+        $data = $this->flowService->getFlowAuth();
+        return $this->response->get($data);
+    }
 }

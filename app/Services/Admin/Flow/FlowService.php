@@ -18,8 +18,8 @@ use Illuminate\Support\Facades\Storage;
 
 class FlowService
 {
-    //流程克隆
-    use FlowClone;
+    //流程克隆,流程权限
+    use FlowClone,FlowAuth;
 
     protected $flowIcon;
 
