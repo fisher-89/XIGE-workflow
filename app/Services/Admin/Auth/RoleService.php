@@ -9,8 +9,11 @@
 namespace App\Services\Admin\Auth;
 
 
+use App\Models\Auth\AuthFlowAuth;
 use App\Models\Auth\AuthRole;
 use App\Models\Auth\AuthStaff;
+use App\Models\Auth\AuthStaffHasRole;
+use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
 
 class RoleService
@@ -107,5 +110,57 @@ class RoleService
             $role->formAuth()->delete();
             $role->delete();
         });
+    }
+
+    /**
+     * 获取超级管理员用户
+     */
+    public function getSuperStaff()
+    {
+        $role = AuthRole::with('staff')->where('is_super', 1)->get();
+        $staff = $role->pluck('staff')->toArray();
+        $staff = array_collapse($staff);
+        $super = array_pluck($staff, 'staff_sn');
+        $super = array_unique($super);
+        return $super;
+    }
+
+    /**
+     * 获取流程权限
+     * @return AuthFlowAuth[]|\Illuminate\Database\Eloquent\Builder[]|\Illuminate\Database\Eloquent\Collection
+     */
+    public function getFlowAuth()
+    {
+        $roleIds = AuthStaffHasRole::where('staff_sn', Auth::id())->pluck('role_id')->all();
+        $flowAuth = AuthFlowAuth::with('roleHasHandles')->whereIn('role_id', $roleIds)->get();
+        return $flowAuth;
+    }
+
+    /**
+     * 获取流程编号
+     * @return array
+     */
+    public function getFlowNumber()
+    {
+        $flowAuth = $this->getFlowAuth();
+        $flowNumber = $flowAuth->pluck('flow_number')->all();
+        return $flowNumber;
+    }
+
+    /**
+     * 获取流程操作ID
+     * @param int $flowNumber
+     * @return array
+     */
+    public function getFlowHandleId(int $flowNumber)
+    {
+        $flowAuth = $this->getFlowAuth();
+        $flowAuthKeyBy = $flowAuth->keyBy('flow_number')->toArray();
+        $handleIds = [];
+        if(array_has($flowAuthKeyBy,$flowNumber)){
+            $roleHasHandle = $flowAuthKeyBy[$flowNumber]['role_has_handles'];
+            $handleIds = array_pluck($roleHasHandle,'handle_id');
+        }
+        return $handleIds;
     }
 }

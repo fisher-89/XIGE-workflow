@@ -1,15 +1,17 @@
 <?php
 
-namespace App\Http\Requests\Admin;
+namespace App\Http\Requests\Admin\Flow;
 
+use App\Models\Flow;
 use App\Rules\Admin\DepartmentExists;
 use App\Rules\Admin\Flow\FormFields;
 use App\Rules\Admin\Flow\MergeType;
 use App\Rules\Admin\RoleExists;
 use App\Rules\Admin\StaffExists;
-use App\Rules\Admin\Flow\StepApprover;
 use App\Rules\Admin\Flow\StepGroup;
+use App\Services\Admin\Auth\RoleService;
 use Illuminate\Foundation\Http\FormRequest;
+use Illuminate\Support\Facades\Auth;
 use Illuminate\Validation\Rule;
 
 class FlowRequest extends FormRequest
@@ -21,7 +23,27 @@ class FlowRequest extends FormRequest
      */
     public function authorize()
     {
-        return true;
+        $role = new RoleService();
+        //超级管理员
+        $super = $role->getSuperStaff();
+
+        $method = $this->method();
+        switch($method){
+            case 'POST':
+                if(in_array(Auth::id(),$super)){
+                    return true;
+                }
+                break;
+            case 'PUT':
+                $requestId = $this->route('id');
+                $flow = Flow::findOrFail($requestId);
+                $flowNumber = $role->getFlowNumber();
+                $handleIds = $role->getFlowHandleId($flow->number);
+                if(in_array(Auth::id(),$super) || (in_array($flow->number,$flowNumber) && in_array(3,$handleIds)))
+                    return true;
+                break;
+        }
+        return false;
     }
 
     /**

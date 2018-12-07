@@ -2,24 +2,28 @@
 
 namespace App\Http\Controllers\Api\Admin;
 
-use App\Http\Requests\Admin\FlowRequest;
+use App\Http\Requests\Admin\Flow\FlowRequest;
+use App\Http\Requests\Admin\Flow\FlowShowAndDestroyRequest;
 use App\Models\Flow;
+use App\Services\Admin\Auth\RoleService;
 use App\Services\Admin\Flow\FlowIcon;
 use App\Services\Admin\Flow\FlowService;
 use App\Services\ResponseService;
 use Illuminate\Http\Request;
 use App\Http\Controllers\Controller;
+use Illuminate\Support\Facades\Auth;
 use Illuminate\Validation\Rule;
 
 class FlowController extends Controller
 {
     protected $flowService;
     protected $response;
-
-    public function __construct(FlowService $flowService, ResponseService $responseService)
+    protected $role;
+    public function __construct(FlowService $flowService, ResponseService $responseService,RoleService $roleService)
     {
         $this->flowService = $flowService;
         $this->response = $responseService;
+        $this->role = $roleService;
     }
 
     /**
@@ -50,7 +54,16 @@ class FlowController extends Controller
      */
     public function index()
     {
-        $data = Flow::with('steps')->orderBy('sort', 'asc')->get();
+        $query = Flow::with('steps');
+        //超级管理员
+        $super = $this->role->getSuperStaff();
+        $flowNumber = $this->role->getFlowNumber();
+
+        if(empty($super) || ($super && (!in_array(Auth::id(),$super)))){
+            //没有超级管理员 或 有超级管理员 并且不在超级管理员中
+            $query = $query->whereIn('number',$flowNumber);
+        }
+        $data = $query->orderBy('sort', 'asc')->get();
         return $this->response->get($data);
     }
 
@@ -58,7 +71,7 @@ class FlowController extends Controller
      * 删除
      * @param Request $request
      */
-    public function destroy($id)
+    public function destroy(FlowShowAndDestroyRequest $request, $id)
     {
         $flow = Flow::findOrFail($id);
         if ($flow->is_active == 1)
@@ -72,7 +85,7 @@ class FlowController extends Controller
      * 详情
      * @param Request $request
      */
-    public function show($id)
+    public function show(FlowShowAndDestroyRequest $request,$id)
     {
         $flow = Flow::withTrashed()->detail()->findOrFail($id);
         return $this->response->get($flow);
