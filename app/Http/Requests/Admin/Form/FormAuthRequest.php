@@ -38,7 +38,7 @@ class FormAuthRequest extends FormRequest
             case 'GET':
                 // 详情
                 $requestId = $this->route('id');
-                $form = Form::findOrFail($requestId);
+                $form = Form::withTrashed()->findOrFail($requestId);
                 $formNumber = $role->getFormNumber();
                 $handleIds = $role->getFormHandleId($form->number);
                 if(in_array(Auth::id(),$super) || (in_array($form->number,$formNumber) && in_array(1,$handleIds))){
