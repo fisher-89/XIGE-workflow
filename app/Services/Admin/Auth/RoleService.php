@@ -10,6 +10,7 @@ namespace App\Services\Admin\Auth;
 
 
 use App\Models\Auth\AuthFlowAuth;
+use App\Models\Auth\AuthFormAuth;
 use App\Models\Auth\AuthRole;
 use App\Models\Auth\AuthStaff;
 use App\Models\Auth\AuthStaffHasRole;
@@ -125,6 +126,7 @@ class RoleService
         return $super;
     }
 
+    /*-----------------------流程start----------------*/
     /**
      * 获取流程权限
      * @return AuthFlowAuth[]|\Illuminate\Database\Eloquent\Builder[]|\Illuminate\Database\Eloquent\Collection
@@ -163,4 +165,46 @@ class RoleService
         }
         return $handleIds;
     }
+    /*-----------------------流程end----------------*/
+
+    /*-----------------------表单start----------------*/
+    /**
+     * 获取表单权限
+     * @return AuthFormAuth[]|\Illuminate\Database\Eloquent\Builder[]|\Illuminate\Database\Eloquent\Collection
+     */
+    public function getFormAuth()
+    {
+        $roleIds = AuthStaffHasRole::where('staff_sn', Auth::id())->pluck('role_id')->all();
+        $formAuth = AuthFormAuth::with('roleHasHandles')->whereIn('role_id', $roleIds)->get();
+        return $formAuth;
+    }
+
+    /**
+     * 获取表单编号
+     * @return array
+     */
+    public function getFormNumber()
+    {
+        $formAuth = $this->getFormAuth();
+        $formNumber = $formAuth->pluck('form_number')->all();
+        return $formNumber;
+    }
+
+    /**
+     * 获取表单权限操作ID
+     * @param int $formNumber
+     * @return array
+     */
+    public function getFormHandleId(int $formNumber)
+    {
+        $formAuth = $this->getFormAuth();
+        $formAuthKeyBy = $formAuth->keyBy('form_number')->toArray();
+        $handleIds = [];
+        if(array_has($formAuthKeyBy,$formNumber)){
+            $roleHasHandle = $formAuthKeyBy[$formNumber]['role_has_handles'];
+            $handleIds = array_pluck($roleHasHandle,'handle_id');
+        }
+        return $handleIds;
+    }
+    /*-----------------------表单end----------------*/
 }

@@ -2,12 +2,15 @@
 
 namespace App\Http\Controllers\Api\Admin;
 
+use App\Http\Requests\Admin\Form\FormAuthRequest;
 use App\Http\Requests\Admin\Form\FormValidator;
 use App\Models\Form;
+use App\Services\Admin\Auth\RoleService;
 use App\Services\Admin\Form\FormService;
 use App\Services\ResponseService;
 use Illuminate\Http\Request;
 use App\Http\Controllers\Controller;
+use Illuminate\Support\Facades\Auth;
 
 class FormController extends Controller
 {
@@ -17,12 +20,15 @@ class FormController extends Controller
     protected $formService;
     //表单验证
     protected $formValidator;
+    //角色权限
+    protected $role;
 
-    public function __construct(ResponseService $responseService, FormService $formService, FormValidator $formValidator)
+    public function __construct(ResponseService $responseService, FormService $formService, FormValidator $formValidator,RoleService $roleService)
     {
         $this->response = $responseService;
         $this->formService = $formService;
         $this->formValidator = $formValidator;
+        $this->role = $roleService;
     }
 
     /**
@@ -30,7 +36,7 @@ class FormController extends Controller
      * @param Request $request
      * @return mixed
      */
-    public function store(Request $request)
+    public function store(FormAuthRequest $request)
     {
         //表单验证
         $rules = $this->formValidator->rules($request);
@@ -45,7 +51,7 @@ class FormController extends Controller
      * @param Request $request
      * @return mixed
      */
-    public function update(Request $request)
+    public function update(FormAuthRequest $request)
     {
         //表单验证
         $rules = $this->formValidator->rules($request);
@@ -61,7 +67,17 @@ class FormController extends Controller
      */
     public function index()
     {
-        $data = Form::orderBy('sort', 'asc')->get();
+        //超级管理员
+        $super = $this->role->getSuperStaff();
+        $formNumber = $this->role->getFormNumber();
+
+        if(empty($super) || ($super && (!in_array(Auth::id(),$super)))){
+            //没有超级管理员 或 有超级管理员 并且不在超级管理员中
+            $data = Form::whereIn('number',$formNumber)->orderBy('sort', 'asc')->get();
+        }else{
+            $data = Form::orderBy('sort', 'asc')->get();
+        }
+
         return $this->response->get($data);
     }
 
@@ -70,7 +86,7 @@ class FormController extends Controller
      * 删除
      * @param Request $request
      */
-    public function destroy($id)
+    public function destroy(FormAuthRequest $request,$id)
     {
         $data = Form::withCount('flows')->findOrFail($id);
         if ($data->flows_count > 0)
@@ -83,7 +99,7 @@ class FormController extends Controller
      * 详情
      * @param Request $request
      */
-    public function show($id)
+    public function show(FormAuthRequest $request,$id)
     {
         $data = Form::withTrashed()->with([
             'fields' => function ($query) {
