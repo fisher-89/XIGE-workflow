@@ -2,8 +2,8 @@
 
 namespace App\Http\Controllers\Api\Admin;
 
+use App\Http\Requests\Admin\Flow\FlowAuthRequest;
 use App\Http\Requests\Admin\Flow\FlowRequest;
-use App\Http\Requests\Admin\Flow\FlowShowAndDestroyRequest;
 use App\Models\Flow;
 use App\Services\Admin\Auth\RoleService;
 use App\Services\Admin\Flow\FlowIcon;
@@ -31,7 +31,7 @@ class FlowController extends Controller
      * @param FlowRequest $request
      * @return mixed
      */
-    public function store(FlowRequest $request)
+    public function store(FlowAuthRequest $flowAuthRequest,FlowRequest $request)
     {
         $data = $this->flowService->store($request);
         return $this->response->post($data);
@@ -42,7 +42,7 @@ class FlowController extends Controller
      * @param FlowRequest $request
      * @return mixed
      */
-    public function update(FlowRequest $request)
+    public function update(FlowAuthRequest $flowAuthRequest,FlowRequest $request)
     {
         $data = $this->flowService->update($request);
         return $this->response->put($data);
@@ -71,7 +71,7 @@ class FlowController extends Controller
      * 删除
      * @param Request $request
      */
-    public function destroy(FlowShowAndDestroyRequest $request, $id)
+    public function destroy(FlowAuthRequest $flowAuthRequest, $id)
     {
         $flow = Flow::findOrFail($id);
         if ($flow->is_active == 1)
@@ -85,7 +85,7 @@ class FlowController extends Controller
      * 详情
      * @param Request $request
      */
-    public function show(FlowShowAndDestroyRequest $request,$id)
+    public function show(FlowAuthRequest $flowAuthRequest,$id)
     {
         $flow = Flow::withTrashed()->detail()->findOrFail($id);
         return $this->response->get($flow);

@@ -23,27 +23,7 @@ class FlowRequest extends FormRequest
      */
     public function authorize()
     {
-        $role = new RoleService();
-        //超级管理员
-        $super = $role->getSuperStaff();
-
-        $method = $this->method();
-        switch($method){
-            case 'POST':
-                if(in_array(Auth::id(),$super)){
-                    return true;
-                }
-                break;
-            case 'PUT':
-                $requestId = $this->route('id');
-                $flow = Flow::findOrFail($requestId);
-                $flowNumber = $role->getFlowNumber();
-                $handleIds = $role->getFlowHandleId($flow->number);
-                if(in_array(Auth::id(),$super) || (in_array($flow->number,$flowNumber) && in_array(3,$handleIds)))
-                    return true;
-                break;
-        }
-        return false;
+        return true;
     }
 
     /**
