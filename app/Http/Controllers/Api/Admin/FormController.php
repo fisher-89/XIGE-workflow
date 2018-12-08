@@ -23,7 +23,7 @@ class FormController extends Controller
     //角色权限
     protected $role;
 
-    public function __construct(ResponseService $responseService, FormService $formService, FormValidator $formValidator,RoleService $roleService)
+    public function __construct(ResponseService $responseService, FormService $formService, FormValidator $formValidator, RoleService $roleService)
     {
         $this->response = $responseService;
         $this->formService = $formService;
@@ -71,10 +71,10 @@ class FormController extends Controller
         $super = $this->role->getSuperStaff();
         $formNumber = $this->role->getFormNumber();
 
-        if(empty($super) || ($super && (!in_array(Auth::id(),$super)))){
+        if (empty($super) || ($super && (!in_array(Auth::id(), $super)))) {
             //没有超级管理员 或 有超级管理员 并且不在超级管理员中
-            $data = Form::whereIn('number',$formNumber)->orderBy('sort', 'asc')->get();
-        }else{
+            $data = Form::whereIn('number', $formNumber)->orderBy('sort', 'asc')->get();
+        } else {
             $data = Form::orderBy('sort', 'asc')->get();
         }
 
@@ -86,7 +86,7 @@ class FormController extends Controller
      * 删除
      * @param Request $request
      */
-    public function destroy(FormAuthRequest $request,$id)
+    public function destroy(FormAuthRequest $request, $id)
     {
         $data = Form::withCount('flows')->findOrFail($id);
         if ($data->flows_count > 0)
@@ -99,7 +99,7 @@ class FormController extends Controller
      * 详情
      * @param Request $request
      */
-    public function show(FormAuthRequest $request,$id)
+    public function show(FormAuthRequest $request, $id)
     {
         $data = Form::withTrashed()->with([
             'fields' => function ($query) {
@@ -123,5 +123,11 @@ class FormController extends Controller
             ->orderBy('created_at', 'desc')
             ->get();
         return $this->response->get($oldForm);
+    }
+
+    public function getFormAuth()
+    {
+        $data = $this->formService->getFormAuth();
+        return $this->response->get($data);
     }
 }

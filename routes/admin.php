@@ -13,6 +13,10 @@ Route::namespace('Api\Admin')->middleware('auth:api')->group(function(){
     Route::apiResource('flow-type', 'FlowTypeController')->parameter('flow-type','id');
     //验证规则
     Route::apiResource('validator', 'ValidatorController')->parameter('validator','id');
+
+    //表单权限获取
+    Route::get('form/auth','FormController@getFormAuth');
+
     //表单
     Route::apiResource('form', 'FormController')->parameter('form', 'id');
 
