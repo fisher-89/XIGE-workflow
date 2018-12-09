@@ -19,8 +19,7 @@ class AuthFlowAuth extends Model
         return $this->belongsTo(Flow::class, 'flow_number', 'number')
             ->whereNull('deleted_at')
             ->select('id', 'name', 'description', 'number')
-            ->orderBy('created_at', 'desc')
-            ->limit(1);
+            ->orderBy('created_at', 'desc');
     }
 
     public function roleHasHandles()
