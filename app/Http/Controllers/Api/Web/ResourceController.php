@@ -81,6 +81,7 @@ class ResourceController extends Controller
             'step' => new StepResource($firstStepData),
             'form_data' => $filterFormData,
             'fields' => $fields,
+            'flow'=>$flow->toArray(),
         ];
         return $this->response->get($data);
     }
