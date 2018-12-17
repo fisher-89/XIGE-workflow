@@ -17,7 +17,7 @@ class CreateAuthStaffsTable extends Migration
 //            $table->increments('id');
             $table->unsignedMediumInteger('staff_sn')->comment('员工编号');
             $table->primary('staff_sn');
-            $table->string('name')->comment('员工姓名')->index();
+            $table->string('realname')->comment('员工姓名')->index();
             $table->timestamps();
             $table->softDeletes();
         });

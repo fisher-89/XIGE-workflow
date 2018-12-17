@@ -57,7 +57,7 @@ class RoleService
     protected function staffHandle($staff)
     {
         return array_map(function ($item) {
-            $item = array_only($item, ['staff_sn', 'name']);
+            $item = array_only($item, ['staff_sn', 'realname']);
             AuthStaff::firstOrCreate($item);
             return $item['staff_sn'];
         }, $staff);

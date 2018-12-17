@@ -13,7 +13,7 @@ class AuthStaff extends Model
 
     protected $fillable = [
         'staff_sn',
-        'name'
+        'realname'
     ];
 
     public function roles()
