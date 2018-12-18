@@ -54,7 +54,7 @@ class FormValidator
         'fields.*.options' => '可选值',
         'fields.*.field_api_configuration_id' => '字段接口配置ID',
         'fields.*.row' => '字段行',
-        'fields.*.column' => '字段列',
+        'fields.*.col' => '字段列',
         'fields.*.x' => '字段x轴',
         'fields.*.y' => '字段y轴',
         'fields.*.mobile_sort' => '移动端字段排序',
@@ -83,7 +83,7 @@ class FormValidator
         'grids.*.fields.*.options' => '可选值',
         'grids.*.fields.*.field_api_configuration_id' => '字段接口配置ID',
         'grids.*.fields.*.row' => '字段行',
-        'grids.*.fields.*.column' => '字段列',
+        'grids.*.fields.*.col' => '字段列',
         'grids.*.fields.*.x' => '字段x轴',
         'grids.*.fields.*.y' => '字段y轴',
         'grids.*.fields.*.mobile_sort' => '移动端字段排序',
@@ -198,7 +198,7 @@ class FormValidator
                 'between:1,255',
                 'required_if:pc_template,1'
             ],
-            'fields.*.column' => [
+            'fields.*.col' => [
                 'integer',
                 'nullable',
                 'between:1,255',
@@ -306,7 +306,7 @@ class FormValidator
                 'between:1,255',
                 'required_if:pc_template,1'
             ],
-            'grids.*.fields.*.column' => [
+            'grids.*.fields.*.col' => [
                 'integer',
                 'nullable',
                 'between:1,255',

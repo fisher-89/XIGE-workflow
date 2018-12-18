@@ -27,7 +27,7 @@ class Field extends Model
         'sort',
         'field_api_configuration_id',
         'row',
-        'column',
+        'col',
         'x',
         'y',
         'mobile_sort'

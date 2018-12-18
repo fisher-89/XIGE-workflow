@@ -74,7 +74,7 @@ class CreateWorkflowTable extends Migration
             $table->unsignedTinyInteger('sort')->default(0)->comment('字段排序');
             $table->unsignedInteger('field_api_configuration_id')->nullable()->comment('字段接口配置ID');
             $table->unsignedTinyInteger('row')->comment('字段行')->nullable();
-            $table->unsignedTinyInteger('column')->comment('字段列')->nullable();
+            $table->unsignedTinyInteger('col')->comment('字段列')->nullable();
             $table->unsignedSmallInteger('x')->comment('字段x轴')->nullable();
             $table->unsignedSmallInteger('y')->comment('字段y轴')->nullable();
             $table->unsignedTinyInteger('mobile_sort')->comment('移动端字段排序')->nullable();
