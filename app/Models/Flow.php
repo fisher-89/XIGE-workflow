@@ -2,12 +2,15 @@
 
 namespace App\Models;
 
+use App\Models\Traits\ListScopes;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\SoftDeletes;
 
 class Flow extends Model
 {
     use SoftDeletes;
+    use ListScopes;
+
     protected $fillable = ['name', 'description', 'icon', 'flow_type_id', 'form_id', 'sort', 'number', 'is_active', 'start_callback_uri', 'accept_start_callback', 'end_callback_uri', 'accept_end_callback', 'send_message', 'is_client'];
     protected $hidden = ['deleted_at'];
     protected $appends = ['flows_has_staff', 'flows_has_roles', 'flows_has_departments'];

@@ -46,6 +46,9 @@ Route::namespace('Api\Admin')->middleware('auth:api')->group(function(){
     //旧流程获取
     Route::get('flow-old/{id}','FlowController@getOldFlow');
 
+    // 获取流程列表（不带权限）
+    Route::get('flow-list','FlowController@getFlowList');
+
     //步骤审批配置
     Route::apiResource('step-approver','StepApproverController')->parameter('step-approver','id');
     //步骤部门审批配置

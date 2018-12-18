@@ -19,7 +19,8 @@ class FlowController extends Controller
     protected $flowService;
     protected $response;
     protected $role;
-    public function __construct(FlowService $flowService, ResponseService $responseService,RoleService $roleService)
+
+    public function __construct(FlowService $flowService, ResponseService $responseService, RoleService $roleService)
     {
         $this->flowService = $flowService;
         $this->response = $responseService;
@@ -31,7 +32,7 @@ class FlowController extends Controller
      * @param FlowRequest $request
      * @return mixed
      */
-    public function store(FlowAuthRequest $flowAuthRequest,FlowRequest $request)
+    public function store(FlowAuthRequest $flowAuthRequest, FlowRequest $request)
     {
         $data = $this->flowService->store($request);
         return $this->response->post($data);
@@ -42,7 +43,7 @@ class FlowController extends Controller
      * @param FlowRequest $request
      * @return mixed
      */
-    public function update(FlowAuthRequest $flowAuthRequest,FlowRequest $request)
+    public function update(FlowAuthRequest $flowAuthRequest, FlowRequest $request)
     {
         $data = $this->flowService->update($request);
         return $this->response->put($data);
@@ -59,9 +60,9 @@ class FlowController extends Controller
         $super = $this->role->getSuperStaff();
         $flowNumber = $this->role->getFlowNumber();
 
-        if(empty($super) || ($super && (!in_array(Auth::id(),$super)))){
+        if (empty($super) || ($super && (!in_array(Auth::id(), $super)))) {
             //没有超级管理员 或 有超级管理员 并且不在超级管理员中
-            $query = $query->whereIn('number',$flowNumber);
+            $query = $query->whereIn('number', $flowNumber);
         }
         $data = $query->orderBy('sort', 'asc')->get();
         return $this->response->get($data);
@@ -85,7 +86,7 @@ class FlowController extends Controller
      * 详情
      * @param Request $request
      */
-    public function show(FlowAuthRequest $flowAuthRequest,$id)
+    public function show(FlowAuthRequest $flowAuthRequest, $id)
     {
         $flow = Flow::withTrashed()->detail()->findOrFail($id);
         return $this->response->get($flow);
@@ -114,7 +115,7 @@ class FlowController extends Controller
     public function getOldFlow($id)
     {
         $flow = Flow::findOrFail($id);
-        $oldFlow = Flow::onlyTrashed()->where('number', $flow->number)->orderBy('created_at','desc')->get();
+        $oldFlow = Flow::onlyTrashed()->where('number', $flow->number)->orderBy('created_at', 'desc')->get();
         return $this->response->get($oldFlow);
     }
 
@@ -124,15 +125,15 @@ class FlowController extends Controller
      * @param FlowIcon $flowIcon
      * @return \Illuminate\Contracts\Routing\ResponseFactory|\Symfony\Component\HttpFoundation\Response
      */
-    public function uploadIcon(Request $request,FlowIcon $flowIcon)
+    public function uploadIcon(Request $request, FlowIcon $flowIcon)
     {
-        $this->validate($request,[
-            'icon'=>[
+        $this->validate($request, [
+            'icon' => [
                 'file',
                 'image'// jpeg、png、bmp、gif、或 svg
             ]
-        ],[],[
-            'icon'=>'图标'
+        ], [], [
+            'icon' => '图标'
         ]);
         $data = $flowIcon->upload();
         return $this->response->post($data);
@@ -145,6 +146,18 @@ class FlowController extends Controller
     public function getFlowAuth()
     {
         $data = $this->flowService->getFlowAuth();
+        return $this->response->get($data);
+    }
+
+    /**
+     * 获取流程列表（不带权限）
+     */
+    public function getFlowList()
+    {
+        $data = Flow::filterByQueryString()
+            ->sortByQueryString()
+            ->select('id', 'name', 'sort', 'number', 'is_active')
+            ->withPagination();
         return $this->response->get($data);
     }
 }
