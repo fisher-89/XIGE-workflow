@@ -53,8 +53,8 @@ class FormValidator
         'fields.*.default_value' => '默认值',
         'fields.*.options' => '可选值',
         'fields.*.field_api_configuration_id' => '字段接口配置ID',
-        'fields.*.width' => '字段宽度',
-        'fields.*.height' => '字段高度',
+        'fields.*.row' => '字段行',
+        'fields.*.column' => '字段列',
         'fields.*.x' => '字段x轴',
         'fields.*.y' => '字段y轴',
         'fields.*.mobile_sort' => '移动端字段排序',
@@ -82,8 +82,8 @@ class FormValidator
         'grids.*.fields.*.default_value' => '默认值',
         'grids.*.fields.*.options' => '可选值',
         'grids.*.fields.*.field_api_configuration_id' => '字段接口配置ID',
-        'grids.*.fields.*.width' => '字段宽度',
-        'grids.*.fields.*.height' => '字段高度',
+        'grids.*.fields.*.row' => '字段行',
+        'grids.*.fields.*.column' => '字段列',
         'grids.*.fields.*.x' => '字段x轴',
         'grids.*.fields.*.y' => '字段y轴',
         'grids.*.fields.*.mobile_sort' => '移动端字段排序',
@@ -192,13 +192,13 @@ class FormValidator
                     ->whereNull('deleted_at'),
                 'required_if:fields.*.type,api'
             ],
-            'fields.*.width' => [
+            'fields.*.row' => [
                 'integer',
                 'nullable',
                 'between:1,255',
                 'required_if:pc_template,1'
             ],
-            'fields.*.height' => [
+            'fields.*.column' => [
                 'integer',
                 'nullable',
                 'between:1,255',
@@ -300,13 +300,13 @@ class FormValidator
                     ->whereNull('deleted_at'),
                 'required_if:fields.*.type,api'
             ],
-            'grids.*.fields.*.width' => [
+            'grids.*.fields.*.row' => [
                 'integer',
                 'nullable',
                 'between:1,255',
                 'required_if:pc_template,1'
             ],
-            'grids.*.fields.*.height' => [
+            'grids.*.fields.*.column' => [
                 'integer',
                 'nullable',
                 'between:1,255',

@@ -26,8 +26,8 @@ class Field extends Model
         'form_grid_id',
         'sort',
         'field_api_configuration_id',
-        'width',
-        'height',
+        'row',
+        'column',
         'x',
         'y',
         'mobile_sort'
