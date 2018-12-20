@@ -42,6 +42,7 @@ class FormController extends Controller
         $rules = $this->formValidator->rules($request);
         $message = $this->formValidator->message();
         $this->validate($request, $rules, [], $message);
+        dd(1);
         $data = $this->formService->store($request);
         return $this->response->post($data);
     }

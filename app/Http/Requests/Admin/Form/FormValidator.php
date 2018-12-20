@@ -32,8 +32,8 @@ class FormValidator
         'description' => '描述',
         'form_type_id' => '表单分类',
         'sort' => '排序',
-        'pc_template'=>'启用PC模板',
-        'mobile_template'=>'启用移动端模板',
+        'pc_template' => '启用PC模板',
+        'mobile_template' => '启用移动端模板',
         //字段
         'fields' => '字段',
         'fields.*.id' => '字段ID',
@@ -64,6 +64,10 @@ class FormValidator
         'grids' => '列表控件',
         'grids.*.name' => '名称',
         'grids.*.key' => '键名',
+        'grids.*.row' => '行',
+        'grids.*.col' => '列',
+        'grids.*.x' => 'x轴',
+        'grids.*.y' => 'y轴',
         'grids.*.fields' => '字段',
         'grids.*.fields.*.id' => '字段ID',
         'grids.*.fields.*.key' => '键名',
@@ -120,15 +124,15 @@ class FormValidator
                 'integer',
                 'between:0,255',
             ],
-            'pc_template'=>[
+            'pc_template' => [
                 'required',
                 'integer',
-                Rule::in([0,1])
+                Rule::in([0, 1])
             ],
-            'mobile_template'=>[
+            'mobile_template' => [
                 'required',
                 'integer',
-                Rule::in([0,1])
+                Rule::in([0, 1])
             ]
         ];
     }
@@ -247,6 +251,26 @@ class FormValidator
                 'distinct',
                 'max:20',
                 Rule::notIn(array_pluck($request->fields, 'key'))//验证控件key与表单key不重复
+            ],
+            'grids.*.row' => [
+                'nullable',
+                'integer',
+                'between:1,65535',
+            ],
+            'grids.*.col' => [
+                'nullable',
+                'integer',
+                'between:1,65535',
+            ],
+            'grids.*.x' => [
+                'nullable',
+                'integer',
+                'between:1,65535',
+            ],
+            'grids.*.y' => [
+                'nullable',
+                'integer',
+                'between:1,65535',
             ],
             'grids.*.fields' => [
                 'required',

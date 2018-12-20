@@ -46,6 +46,10 @@ class CreateWorkflowTable extends Migration
             $table->increments('id');
             $table->char('name',20)->comment('控件名称');
             $table->char('key',20)->comment('键名');
+            $table->unsignedSmallInteger('row')->nullable()->comment('控件行');
+            $table->unsignedSmallInteger('col')->nullable()->comment('控件列');
+            $table->unsignedSmallInteger('x')->nullable()->comment('控件x轴');
+            $table->unsignedSmallInteger('y')->nullable()->comment('控件y轴');
             $table->unsignedInteger('form_id')->comment('表单id');
             $table->foreign('form_id')->references('id')->on('forms');
             $table->timestamps();
