@@ -23,6 +23,9 @@ Route::namespace('Api\Admin')->middleware('auth:api')->group(function(){
     //旧表单获取
     Route::get('form-old/{id}','FormController@getOldForm');
 
+    // 获取表单列表（不带权限）
+    Route::get('form-list','FormController@getFormList');
+
     //字段接口配置
     Route::apiResource('field-api-configuration','FieldApiConfigurationController',[
         'only'=>['index','store','update','destroy','show']
