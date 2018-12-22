@@ -14,14 +14,13 @@ class AuthRole extends Model
         'is_super'
     ];
 
-    protected $appends = ['handle'];
 
     public function staff()
     {
         return $this->belongsToMany(AuthStaff::class,'auth_staff_has_roles','role_id','staff_sn');
     }
 
-    public function roleHasHandle()
+    public function handle()
     {
         return $this->belongsToMany(AuthHandle::class,'auth_role_has_handles','role_id','handle_id');
     }
@@ -34,10 +33,5 @@ class AuthRole extends Model
     public function formAuth()
     {
         return $this->hasMany(AuthFormAuth::class,'role_id');
-    }
-
-    public function getHandleAttribute()
-    {
-        return AuthRoleHasHandle::where('role_id',$this->attributes['id'])->pluck('handle_id');
     }
 }

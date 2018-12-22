@@ -32,7 +32,7 @@ class RoleService
             $staffSn = $this->staffHandle($request['staff']);
             $role->staff()->sync($staffSn);
             //操作
-            $role->roleHasHandle()->sync($request['handle']);
+            $role->handle()->sync($request['handle']);
 
             //流程权限编号
             $flowAuthData = array_map(function ($item) {
@@ -46,7 +46,7 @@ class RoleService
             }, $request['form_auth']);
             $role->formAuth()->createMany($formAuthData);
         });
-        return $role->load('staff', 'flowAuth.flow', 'formAuth.form');
+        return $role->load('staff', 'handle', 'flowAuth.flow', 'formAuth.form');
     }
 
     /**
@@ -78,7 +78,7 @@ class RoleService
             $staffSn = $this->staffHandle($request['staff']);
             $role->staff()->sync($staffSn);
             //操作
-            $role->roleHasHandle()->sync($request['handle']);
+            $role->handle()->sync($request['handle']);
 
             //流程权限编号
             $role->flowAuth()->delete();
@@ -94,7 +94,7 @@ class RoleService
             }, $request['form_auth']);
             $role->formAuth()->createMany($formAuthData);
         });
-        return $role->load('staff', 'flowAuth.flow', 'formAuth.form');
+        return $role->load('staff', 'handle', 'flowAuth.flow', 'formAuth.form');
     }
 
     /**
@@ -106,7 +106,7 @@ class RoleService
         DB::transaction(function () use ($id) {
             $role = AuthRole::findOrFail($id);
             $role->staff()->sync([]);
-            $role->roleHasHandle()->sync([]);
+            $role->handle()->sync([]);
             $role->flowAuth()->delete();
             $role->formAuth()->delete();
             $role->delete();

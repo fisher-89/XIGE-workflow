@@ -28,7 +28,7 @@ class RoleController extends Controller
      */
     public function index()
     {
-        $data = AuthRole::with('staff','flowAuth.flow','formAuth.form')->get();
+        $data = AuthRole::with('staff','handle','flowAuth.flow','formAuth.form')->get();
         return $this->response->get($data);
     }
 
@@ -62,7 +62,7 @@ class RoleController extends Controller
      */
     public function show($id)
     {
-        $data = AuthRole::with('staff','flowAuth.flow','formAuth.form')->findOrFail($id);
+        $data = AuthRole::with('staff','handle','flowAuth.flow','formAuth.form')->findOrFail($id);
         return $this->response->get($data);
     }
 
