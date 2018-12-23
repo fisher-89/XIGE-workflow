@@ -55,16 +55,17 @@ class FlowController extends Controller
      */
     public function index()
     {
-        $query = Flow::with('steps');
         //超级管理员
         $super = $this->role->getSuperStaff();
         $flowNumber = $this->role->getFlowNumber();
 
         if (empty($super) || ($super && (!in_array(Auth::id(), $super)))) {
             //没有超级管理员 或 有超级管理员 并且不在超级管理员中
-            $query = $query->whereIn('number', $flowNumber);
+            $data = $query = Flow::whereIn('number', $flowNumber)->orderBy('sort', 'asc')->get();
+        } else {
+            $data = Flow::orderBy('sort', 'asc')->get();
         }
-        $data = $query->orderBy('sort', 'asc')->get();
+
         return $this->response->get($data);
     }
 
