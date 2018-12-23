@@ -30,7 +30,7 @@ class FlowRunRepository
     public function getSponsor($request)
     {
         $status = $this->status($request->type);
-        $data = FlowRun::where('creator_sn', $this->staffSn)
+        $data = FlowRun::with('stepRun')->where('creator_sn', $this->staffSn)
             //筛选流程状态
             ->whereIn('status', $status)
             //筛选流程
