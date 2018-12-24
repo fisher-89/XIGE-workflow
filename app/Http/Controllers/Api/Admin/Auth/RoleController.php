@@ -107,4 +107,14 @@ class RoleController extends Controller
         $this->role->delete($id);
         return $this->response->delete();
     }
+
+    /**
+     * 获取超级管理员
+     * @return \Illuminate\Contracts\Routing\ResponseFactory|\Symfony\Component\HttpFoundation\Response
+     */
+    public function getSuper()
+    {
+        $super = $this->role->getSuperStaff();
+        return $this->response->get($super);
+    }
 }

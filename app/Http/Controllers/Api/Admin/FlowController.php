@@ -57,13 +57,29 @@ class FlowController extends Controller
     {
         //超级管理员
         $super = $this->role->getSuperStaff();
-        $flowNumber = $this->role->getFlowNumber();
+        // 获取流程权限
+        $flowAuth = $this->role->getFlowAuth();
+        // 流程编号
+        $flowNumber = $flowAuth->pluck('flow_number')->all();
+        // 流程操作数据
+        $flowData = $flowAuth->map(function ($flow) {
+            $handleIds = $flow->roleHasHandles->pluck('handle_id')->all();
+            $flow->handle_id = $handleIds;
+            $newFlow = $flow->only(['flow_number', 'handle_id']);
+            return $newFlow;
+        })->keyBy('flow_number');
 
         if (empty($super) || ($super && (!in_array(Auth::id(), $super)))) {
             //没有超级管理员 或 有超级管理员 并且不在超级管理员中
-            $data = $query = Flow::whereIn('number', $flowNumber)->orderBy('sort', 'asc')->get();
+            $data = $query = Flow::whereIn('number', $flowNumber)->orderBy('sort', 'asc')->get()->map(function($flow) use($flowData){
+                $flow->handle_id = $flowData[$flow->number]['handle_id'];
+                return $flow;
+            });
         } else {
-            $data = Flow::orderBy('sort', 'asc')->get();
+            $data = Flow::orderBy('sort', 'asc')->get()->map(function($flow){
+                $flow->handle_id = [1,2,3,4];
+                return $flow;
+            });
         }
 
         return $this->response->get($data);
