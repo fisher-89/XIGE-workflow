@@ -30,7 +30,7 @@ class Field extends Model
         'col',
         'x',
         'y',
-        'mobile_sort'
+        'mobile_y'
     ];
     protected $appends = ['validator_id', 'available_options'];
 

@@ -57,7 +57,7 @@ class FormValidator
         'fields.*.col' => '字段列',
         'fields.*.x' => '字段x轴',
         'fields.*.y' => '字段y轴',
-        'fields.*.mobile_sort' => '移动端字段排序',
+        'fields.*.mobile_y' => '移动端y轴',
         'fields.*.validator_id' => '验证规则',
         'fields.*.validator_id.*' => '验证规则ID',
         //字段列表
@@ -90,7 +90,7 @@ class FormValidator
         'grids.*.fields.*.col' => '字段列',
         'grids.*.fields.*.x' => '字段x轴',
         'grids.*.fields.*.y' => '字段y轴',
-        'grids.*.fields.*.mobile_sort' => '移动端字段排序',
+        'grids.*.fields.*.mobile_y' => '移动端y轴',
         'grids.*.fields.*.validator_id' => '验证规则',
         'grids.*.fields.*.validator_id.*' => '验证规则ID',
     ];
@@ -222,7 +222,7 @@ class FormValidator
                 'required_if:pc_template,1',
                 'distinct'
             ],
-            'fields.*.mobile_sort' => [
+            'fields.*.mobile_y' => [
                 'integer',
                 'nullable',
                 'between:0,255',
@@ -353,7 +353,7 @@ class FormValidator
             'grids.*.fields.*.mobile_sort' => [
                 'integer',
                 'nullable',
-                'between:0,255',
+                'between:0,65535',
                 'required_if:mobile_template,1',
                 'distinct'
             ],
