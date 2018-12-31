@@ -139,16 +139,6 @@ class FormController extends Controller
     }
 
     /**
-     * 获取表单权限
-     * @return \Illuminate\Contracts\Routing\ResponseFactory|\Symfony\Component\HttpFoundation\Response
-     */
-    public function getFormAuth()
-    {
-        $data = $this->formService->getFormAuth();
-        return $this->response->get($data);
-    }
-
-    /**
      * 获取表单列表（不带权限）
      * @return \Illuminate\Contracts\Routing\ResponseFactory|\Symfony\Component\HttpFoundation\Response
      */

@@ -15,8 +15,6 @@ class FormService
 {
     use Create;//新增保存
     use Update;//编辑
-    //表单权限
-    use FormAuth;
 
 
     /**

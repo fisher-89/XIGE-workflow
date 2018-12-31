@@ -157,16 +157,6 @@ class FlowController extends Controller
     }
 
     /**
-     * 获取流程权限
-     * @return \Illuminate\Contracts\Routing\ResponseFactory|\Symfony\Component\HttpFoundation\Response
-     */
-    public function getFlowAuth()
-    {
-        $data = $this->flowService->getFlowAuth();
-        return $this->response->get($data);
-    }
-
-    /**
      * 获取流程列表（不带权限）
      */
     public function getFlowList()

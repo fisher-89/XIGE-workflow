@@ -14,12 +14,11 @@ use App\Models\FlowRun;
 use App\Models\Step;
 use App\Models\SubStep;
 use Illuminate\Support\Facades\DB;
-use Illuminate\Support\Facades\Storage;
 
 class FlowService
 {
     //流程克隆,流程权限
-    use FlowClone,FlowAuth;
+    use FlowClone;
 
     protected $flowIcon;
 

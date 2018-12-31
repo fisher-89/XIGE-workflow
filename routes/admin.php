@@ -14,9 +14,6 @@ Route::namespace('Api\Admin')->middleware('auth:api')->group(function () {
     //验证规则
     Route::apiResource('validator', 'ValidatorController')->parameter('validator', 'id');
 
-    //表单权限获取
-    Route::get('form/auth', 'FormController@getFormAuth');
-
     //表单
     Route::apiResource('form', 'FormController')->parameter('form', 'id');
 
@@ -34,9 +31,6 @@ Route::namespace('Api\Admin')->middleware('auth:api')->group(function () {
     Route::post('check-oa-api', 'FieldApiConfigurationController@checkOaApi');
     //获取接口配置oa接口数据
     Route::get('get-oa-api/{id}', 'FieldApiConfigurationController@getOaApi');
-
-    //流程权限获取
-    Route::get('flow/auth', 'FlowController@getFlowAuth');
 
     //流程
     Route::apiResource('flow', 'FlowController')->parameter('flow', 'id');
