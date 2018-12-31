@@ -3,6 +3,8 @@
 namespace App\Http\Controllers\Api\Admin;
 
 use App\Http\Requests\Admin\ValidatorRequest;
+use App\Http\Resources\Admin\Validator\ValidatorCollection;
+use App\Http\Resources\Admin\Validator\ValidatorResource;
 use App\Models\Validator;
 use App\Services\ResponseService;
 use Illuminate\Http\Request;
@@ -24,6 +26,7 @@ class ValidatorController extends Controller
     public function store(ValidatorRequest $request)
     {
         $data = Validator::create($request->input());
+        $data = new ValidatorResource($data);
         return $this->response->post($data);
     }
 
@@ -36,6 +39,7 @@ class ValidatorController extends Controller
     {
         $validator = Validator::findOrFail($id);
         $validator->update($request->input());
+        $validator = new ValidatorResource($validator);
         return $this->response->put($validator);
     }
 
@@ -60,6 +64,7 @@ class ValidatorController extends Controller
     public function index()
     {
         $data = Validator::orderBy('id', 'desc')->get();
+        $data = new ValidatorCollection($data);
         return $this->response->get($data);
     }
 
@@ -70,6 +75,7 @@ class ValidatorController extends Controller
     public function show($id)
     {
         $validator = Validator::findOrFail($id);
+        $validator = new ValidatorResource($validator);
         return $this->response->get($validator);
     }
 }
