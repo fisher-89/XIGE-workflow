@@ -16,9 +16,15 @@ class EventServiceProvider extends ServiceProvider
      * @var array
      */
     protected $listen = [
-        'App\Events\Event' => [
-            'App\Listeners\EventListener',
-        ],
+//        'App\Events\Event' => [
+//            'App\Listeners\EventListener',
+//        ],
+        //角色修改事件
+        'App\Events\RoleUpdateEvent' => [],
+        //角色新增事件
+        'App\Events\RoleAddEvent' => [],
+        //角色删除事件
+        'App\Events\RoleDeleteEvent' => [],
     ];
 
     /**

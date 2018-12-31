@@ -2,6 +2,9 @@
 
 namespace App\Http\Controllers\Api\Admin\Auth;
 
+use App\Events\RoleAddEvent;
+use App\Events\RoleDeleteEvent;
+use App\Events\RoleUpdateEvent;
 use App\Http\Requests\Admin\Auth\RoleRequest;
 use App\Http\Resources\Admin\Auth\RoleCollection;
 use App\Http\Resources\Admin\Auth\RoleResource;
@@ -55,6 +58,7 @@ class RoleController extends Controller
     {
         $data = $this->role->store();
         $data = new RoleResource($data);
+        broadcast(new RoleAddEvent($data));
         return $this->response->post($data);
     }
 
@@ -93,6 +97,7 @@ class RoleController extends Controller
     {
         $data = $this->role->update($id);
         $data = new RoleResource($data);
+        broadcast(new RoleUpdateEvent($data));
         return $this->response->put($data);
     }
 
@@ -105,6 +110,7 @@ class RoleController extends Controller
     public function destroy($id)
     {
         $this->role->delete($id);
+        broadcast(new RoleDeleteEvent([]));
         return $this->response->delete();
     }
 
