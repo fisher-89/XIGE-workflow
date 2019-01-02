@@ -29,7 +29,6 @@ class EventServiceProvider extends ServiceProvider
         /**
          * 后台流程事件
          */
-
         //修改
         'App\Events\FlowUpdateEvent'=>[],
         //新增
