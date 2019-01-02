@@ -25,6 +25,17 @@ class EventServiceProvider extends ServiceProvider
         'App\Events\RoleAddEvent' => [],
         //角色删除事件
         'App\Events\RoleDeleteEvent' => [],
+
+        /**
+         * 后台流程事件
+         */
+
+        //修改
+        'App\Events\FlowUpdateEvent'=>[],
+        //新增
+        'App\Events\FlowAddEvent'=>[],
+        //删除
+        'App\Events\FlowDeleteEvent' =>[],
     ];
 
     /**
