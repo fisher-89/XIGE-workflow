@@ -56,7 +56,7 @@ class StartService
         $this->flowId = $request->flow_id;
         $cacheFormData = $this->presetService->getPresetData($request->input('timestamp'));
         if (is_null($cacheFormData))
-            abort(404, '预提交数据已失效，请重新提交数据');
+            abort(400, '预提交数据已失效，请重新提交数据');
 //        $this->checkStartRequest($request, $cacheFormData);//检测审批人数据与step_run_id是否正确、缓存是否失效
 
         DB::transaction(function () use ($request, $cacheFormData, &$stepRunData) {
