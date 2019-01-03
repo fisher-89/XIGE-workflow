@@ -71,24 +71,12 @@ class FormController extends Controller
         $super = $this->role->getSuperStaff();
         $formAuth = $this->role->getFormAuth();
         $formNumber = $formAuth->pluck('form_number')->all();
-        $formData = $formAuth->map(function ($form) {
-            $handleIds = $form->roleHasHandles->pluck('handle_id')->all();
-            $form->handle_id = $handleIds;
-            $newFlow = $form->only(['form_number', 'handle_id']);
-            return $newFlow;
-        })->keyBy('form_number');
 
         if (empty($super) || ($super && (!in_array(Auth::id(), $super)))) {
             //没有超级管理员 或 有超级管理员 并且不在超级管理员中
-            $data = Form::whereIn('number', $formNumber)->orderBy('sort', 'asc')->get()->map(function ($form) use ($formData) {
-                $form->handle_id = $formData[$form->number]['handle_id'];
-                return $form;
-            });
+            $data = Form::whereIn('number', $formNumber)->orderBy('sort', 'asc')->get();
         } else {
-            $data = Form::orderBy('sort', 'asc')->get()->map(function ($form) {
-                $form->handle_id = [1, 2, 3, 4];
-                return $form;
-            });
+            $data = Form::orderBy('sort', 'asc')->get();
         }
 
         return $this->response->get($data);

@@ -2,9 +2,14 @@
 
 namespace App\Models;
 
+use App\Models\Auth\AuthFlowAuth;
+use App\Models\Auth\AuthRoleHasHandle;
+use App\Models\Auth\AuthStaffHasRole;
 use App\Models\Traits\ListScopes;
+use App\Services\Admin\Auth\RoleService;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\SoftDeletes;
+use Illuminate\Support\Facades\Auth;
 
 class Flow extends Model
 {
@@ -13,7 +18,7 @@ class Flow extends Model
 
     protected $fillable = ['name', 'description', 'icon', 'flow_type_id', 'form_id', 'sort', 'number', 'is_active', 'start_callback_uri', 'accept_start_callback', 'end_callback_uri', 'accept_end_callback', 'send_message', 'is_client'];
     protected $hidden = ['deleted_at'];
-    protected $appends = ['flows_has_staff', 'flows_has_roles', 'flows_has_departments'];
+    protected $appends = ['flows_has_staff', 'flows_has_roles', 'flows_has_departments','handle_id'];
 
     public function form()
     {
@@ -75,5 +80,23 @@ class Flow extends Model
         if ($value)
             return config('app.url') . $value;
         return $value;
+    }
+
+    /**
+     * 获取流程操作权限ID
+     * @return array
+     */
+    public function getHandleIdAttribute()
+    {
+        //超级管理员
+        $role = new RoleService();
+        $super = $role->getSuperStaff();
+        $handleIds = [1,2,3,4];
+        if (empty($super) || ($super && (!in_array(Auth::id(), $super)))){
+            $userRoleIds = AuthStaffHasRole::where('staff_sn', Auth::id())->pluck('role_id')->all();
+            $roleIds = AuthFlowAuth::whereIn('role_id',$userRoleIds)->where('flow_number',$this->attributes['number'])->pluck('role_id')->all();
+            $handleIds = AuthRoleHasHandle::whereIn('role_id',$roleIds)->pluck('handle_id')->all();
+        }
+        return $handleIds;
     }
 }
