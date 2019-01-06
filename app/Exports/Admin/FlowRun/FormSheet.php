@@ -29,7 +29,7 @@ class FormSheet implements FromCollection, WithTitle, WithColumnFormatting, With
     protected $code;
     protected $path;
 
-    public function __construct(int $formId, array $runIds, string $code,$path)
+    public function __construct(int $formId, array $runIds, string $code, $path)
     {
         $this->formId = $formId;
         $this->runIds = $runIds;
@@ -44,7 +44,7 @@ class FormSheet implements FromCollection, WithTitle, WithColumnFormatting, With
     public function collection()
     {
 //        $data = DB::table('test')->orderBy('id')->limit(20000)->get();
-        $data =  $this->getData();
+        $data = $this->getData();
         return $data;
     }
 
@@ -82,27 +82,27 @@ class FormSheet implements FromCollection, WithTitle, WithColumnFormatting, With
             BeforeWriting::class => function (BeforeWriting $event) {
 //                dump('BeforeWriting');
             },
-            BeforeSheet::class => function (BeforeSheet $event){
+            BeforeSheet::class => function (BeforeSheet $event) {
                 $data = [
                     'progress' => 2,
                     'type' => 'sheet',
                     'message' => '生成excel中...',
-                    'path'=>$this->path,
-                    'url'=>config('app.url').'/storage/'.$this->path
+                    'path' => $this->path,
+                    'url' => config('app.url') . '/storage/' . $this->path
                 ];
                 $cache = Cache::get($this->code);
                 if (Cache::has($this->code)) {
                     $newProgress = $cache['progress'] + 2;
-                    if($newProgress>=30)
+                    if ($newProgress >= 30)
                         $newProgress = 30;
                     $data['progress'] = $newProgress;
                 }
                 Cache::put($this->code, $data, 120);
             },
-            AfterSheet::class => function (AfterSheet $event){
+            AfterSheet::class => function (AfterSheet $event) {
                 $data = Cache::get($this->code);
                 $data['progress'] = $data['progress'] + 2;
-                if($data['progress']>=30)
+                if ($data['progress'] >= 30)
                     $data['progress'] = 30;
                 Cache::put($this->code, $data, 120);
             },
@@ -127,14 +127,14 @@ class FormSheet implements FromCollection, WithTitle, WithColumnFormatting, With
                                 if (array_has($newValue, 'text')) {
                                     $value = $newValue['text'];
                                 } elseif (array_has($newValue, ['province_id', 'city_id', 'county_id', 'address'])) {
-                                    $regionFullName = $this->getRegionName($newValue['county_id']);
+                                    $regionFullName = $newValue['county_id'] ? $this->getRegionName($newValue['county_id']) : '';
                                     $value = $regionFullName . $newValue['address'];
                                 } elseif (array_has($newValue, ['province_id', 'city_id', 'county_id'])) {
-                                    $value = $this->getRegionName($newValue['county_id']);
+                                    $value = $newValue['county_id'] ? $this->getRegionName($newValue['county_id']) : '';
                                 } elseif (array_has($newValue, ['province_id', 'city_id'])) {
-                                    $value = $this->getRegionName($newValue['city_id']);
+                                    $value = $newValue['city_id'] ? $this->getRegionName($newValue['city_id']) : '';
                                 } elseif (array_has($newValue, ['province_id'])) {
-                                    $value = $this->getRegionName($newValue['province_id']);
+                                    $value = $newValue['province_id'] ? $this->getRegionName($newValue['province_id']) : '';
                                 } else {
                                     $value = implode(',', $newValue);
                                 }
