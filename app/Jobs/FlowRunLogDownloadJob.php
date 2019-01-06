@@ -7,21 +7,26 @@ use Illuminate\Queue\SerializesModels;
 use Illuminate\Queue\InteractsWithQueue;
 use Illuminate\Contracts\Queue\ShouldQueue;
 use Illuminate\Foundation\Bus\Dispatchable;
+use Illuminate\Support\Facades\Artisan;
 
 class FlowRunLogDownloadJob implements ShouldQueue
 {
     use Dispatchable, InteractsWithQueue, Queueable, SerializesModels;
 
 
-    protected $fun;
+    protected $formIds;
+    protected $flowRunIds;
+    protected $code;
     /**
      * Create a new job instance.
      *
      * @return void
      */
-    public function __construct($fun)
+    public function __construct(array $formIds,array $flowRunIds,string $code)
     {
-        $this->fun = $fun;
+        $this->formIds = $formIds;
+        $this->flowRunIds = $flowRunIds;
+        $this->code = $code;
     }
 
     /**
@@ -31,6 +36,10 @@ class FlowRunLogDownloadJob implements ShouldQueue
      */
     public function handle()
     {
-        $this->fun;
+        Artisan::call('excel:flow-run', [
+            '--formId' => $this->formIds,
+            '--flowRunId' => $this->flowRunIds,
+            '--code' => $this->code
+        ]);
     }
 }

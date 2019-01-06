@@ -23,32 +23,35 @@ class FlowRunRepository
 
 
     /**
-     * 通过流程ID获取表单数据（包含旧的）
-     * @param int $flowId
+     * 通过流程number获取表单数据（包含旧的）
+     * @param int $number
      * @return mixed
      */
-    public function getFlowForm(int $flowId)
+    public function getFlowForm(int $number)
     {
-        $flow = Flow::findOrFail($flowId);
+        $formIds = Flow::withTrashed()->where('number', $number)->pluck('form_id')->unique()->all();
+        $formNumbers = Form::withTrashed()->whereIn('id', $formIds)->pluck('number')->unique()->all();
         $form = Form::withTrashed()
-            ->where('number', $flow->form->number)
+            ->whereIn('number', $formNumbers)
             ->orderBy('created_at', 'desc')
             ->get();
+        $form->makeHidden('handle_id')->makeVisible('deleted_at');
         return $form;
     }
 
     /**
      * 通过表单ID获取表单数据（包含旧的）
-     * @param int $formId
+     * @param int $number
      * @return mixed
      */
-    public function getForm(int $formId)
+    public function getForm(int $number)
     {
-        $form = Form::findOrFail($formId);
         $data = Form::withTrashed()
-            ->where('number', $form->number)
+            ->where('number', $number)
             ->orderBy('created_at', 'desc')
             ->get();
+        $data->makeHidden('handle_id');
+        $data = $data->makeVisible('deleted_at')->toArray();
         return $data;
     }
 
@@ -70,8 +73,18 @@ class FlowRunRepository
      */
     public function startExport()
     {
-        $formIds = request()->get('form_id');
-        $formIds = json_decode($formIds, true);
+        $filters = request()->query('filters');
+        $filters = rtrim($filters, ';');
+        $filtersData = explode(';', $filters);
+        $formIds = [];
+
+        foreach ($filtersData as $value) {
+            if (str_contains($value, 'form_id=')) {
+                $value = str_replace('form_id=', '', $value);
+                $formIds = json_decode($value, true);
+                $formIds = is_array($formIds) ? $formIds : [$formIds];
+            }
+        }
 
         $flowRun = FlowRun::filterByQueryString()
             ->sortByQueryString()
@@ -82,37 +95,17 @@ class FlowRunRepository
         $codeName = date('YmdHis') . str_random(6);
         $code = Auth::id() ? Auth::id() . $codeName : $codeName;
 
-        Artisan::queue('excel:flow-run', [
-            '--formId' => $formIds,
-            '--flowRunId' => $flowRunIds,
-            '--code' => $code
-        ]);
+//        Artisan::queue('excel:flow-run', [
+//            '--formId' => $formIds,
+//            '--flowRunId' => $flowRunIds,
+//            '--code' => $code
+//        ]);
 
-//        FlowRunLogDownloadJob::dispatch($this->jobExport($formIds,$flowRunIds,$code));
+        FlowRunLogDownloadJob::dispatch($formIds,$flowRunIds,$code);
         return $code;
 
 
     }
-    protected function jobExport($formIds,$flowRunIds,$code)
-    {
-        $form = Form::withTrashed()->findOrFail($formIds[0]);
-        $filePath = 'excel/' . $form->name . '-' . $code . '.xlsx';
-        $excel = new FormExport($formIds, $flowRunIds, $code, $filePath);
-
-//        $excel->queue($filePath,'public');
-
-        $excel->store($filePath, 'public');
-
-        $data = Cache::get($code);
-        Cache::put($code, [
-            'progress' => 100,
-            'type' => 'finish',
-            'message' => '完成',
-            'path' => $data['path'],
-            'url' => $data['url']
-        ], 120);
-    }
-
 
     /**
      * 获取导出进度

@@ -60,16 +60,14 @@ Route::namespace('Api\Admin')->middleware('auth:api')->group(function () {
      * 流程运行
      */
     Route::prefix('flow-run')->group(function () {
-        //通过流程ID获取表单数据（包含旧的）
-        Route::get('/form/flow/{flow_id}', 'FlowRunController@getFlowForm');
+        //通过流程number获取表单数据（包含旧的）
+        Route::get('/form/flow/{number}', 'FlowRunController@getFlowForm');
 
-        //通过表单ID获取表单数据（包含旧的）
-        Route::get('/form/{form_id}', 'FlowRunController@getForm');
+        //通过表单number获取表单数据（包含旧的）
+        Route::get('/form/{number}', 'FlowRunController@getForm');
 
         //获取列表
         Route::get('/', 'FlowRunController@index');
-        //获取导出数据
-//        Route::get('/get-export','FlowRunController@getExport');
         /*-----导出-----*/
         Route::get('/export/start', 'FlowRunController@startExport');
         Route::get('/export/get', 'FlowRunController@getExport');
