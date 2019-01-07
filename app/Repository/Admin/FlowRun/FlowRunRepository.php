@@ -101,7 +101,7 @@ class FlowRunRepository
 //            '--code' => $code
 //        ]);
 
-        FlowRunLogDownloadJob::dispatch($formIds,$flowRunIds,$code);
+        FlowRunLogDownloadJob::dispatch($formIds, $flowRunIds, $code)->onQueue('excel');
         return $code;
 
 
