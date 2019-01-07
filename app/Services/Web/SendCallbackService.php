@@ -98,7 +98,7 @@ class SendCallbackService
                 }
             } else {
                 //不接收返回值
-                SendCallback::dispatch($this->send($data, $url));
+                SendCallback::dispatch($data, $url)->onQueue('callback');
             }
         }
     }
@@ -128,7 +128,7 @@ class SendCallbackService
                     abort(400, array_get($result, 'msg', '流程回调接收的返回值错误'));
                 }
             } else {
-                SendCallback::dispatch($this->send($data, $url));
+                SendCallback::dispatch($data, $url)->onQueue('callback');
             }
         }
     }
@@ -157,7 +157,7 @@ class SendCallbackService
 //                    abort(400, array_get($result, 'msg', '流程回调接收的返回值错误'));
 //                }
 //            } else {
-//                SendCallback::dispatch($this->send($data, $url));
+//                SendCallback::dispatch($data, $url)->onQueue('callback');
 //            }
         }
     }
@@ -185,7 +185,7 @@ class SendCallbackService
                     abort(400, array_get($result, 'msg', '流程回调接收的返回值错误'));
                 }
             } else {
-                SendCallback::dispatch($this->send($data, $url));
+                SendCallback::dispatch($data, $url)->onQueue('callback');
             }
         }
     }
@@ -213,7 +213,7 @@ class SendCallbackService
                     abort(400, array_get($result, 'msg', '流程回调接收的返回值错误'));
                 }
             } else {
-                SendCallback::dispatch($data, $url);
+                SendCallback::dispatch($data, $url)->onQueue('callback');
             }
         }
     }
@@ -241,7 +241,7 @@ class SendCallbackService
                     abort(400, array_get($result, 'msg', '流程回调接收的返回值错误'));
                 }
             } else {
-                SendCallback::dispatch($this->send($data, $url));
+                SendCallback::dispatch($data, $url)->onQueue('callback');
             }
         }
     }
@@ -269,7 +269,7 @@ class SendCallbackService
                     abort(400, array_get($result, 'msg', '流程回调接收的返回值错误'));
                 }
             } else {
-                SendCallback::dispatch($this->send($data, $url));
+                SendCallback::dispatch($data, $url)->onQueue('callback');
             }
         }
     }
@@ -297,7 +297,7 @@ class SendCallbackService
                     abort(400, array_get($result, 'msg', '流程回调接收的返回值错误'));
                 }
             } else {
-                SendCallback::dispatch($this->send($data, $url));
+                SendCallback::dispatch($data, $url)->onQueue('callback');
             }
         }
     }
@@ -325,7 +325,7 @@ class SendCallbackService
                     abort(400, array_get($result, 'msg', '流程回调接收的返回值错误'));
                 }
             } else {
-                SendCallback::dispatch($this->send($data, $url));
+                SendCallback::dispatch($data, $url)->onQueue('callback');
             }
         }
     }

@@ -13,16 +13,18 @@ class SendCallback implements ShouldQueue
     use Dispatchable, InteractsWithQueue, Queueable, SerializesModels;
 
     public $tries = 3;//最大尝试次数
-    protected $sendFunction;//发起回调请求
+    protected $url;
+    protected $data;
 
     /**
      * Create a new job instance.
      *
      * @return void
      */
-    public function __construct($sendFunction)
+    public function __construct(array $data,string $url)
     {
-        $this->sendFunction= $sendFunction;
+        $this->data= $data;
+        $this->url= $url;
     }
 
     /**
@@ -32,7 +34,7 @@ class SendCallback implements ShouldQueue
      */
     public function handle()
     {
-        $this->sendFunction;
+        $result = app('curl')->sendMessageByPost($this->url, $this->data);
     }
 
     public function failed(\Exception $exception)
