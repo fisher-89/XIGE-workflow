@@ -14,6 +14,8 @@ class RoleDeleteEvent implements ShouldBroadcast
 {
     use Dispatchable, InteractsWithSockets, SerializesModels;
 
+    // 广播队列
+    public $broadcastQueue = 'broadcast';
     public $data;
     /**
      * Create a new event instance.
