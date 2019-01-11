@@ -43,25 +43,58 @@ class RoleRequest extends FormRequest
                 'numeric',
                 'between:100000,999999'
             ],
-            'handle' => [
+            'handle_flow' => [
                 'array'
             ],
-            'handle.*' => [
+            'handle_flow.*.number' => [
                 'integer',
-                Rule::in([1, 2, 3, 4])
             ],
-            'flow_auth' => [
+            'handle_flow.*.name' => [
+                'string',
+                'max:20'
+            ],
+            'handle_flow_type'=>[
                 'array'
             ],
-            'flow_auth.*' => [
-                'integer'
+            'handle_flow_type.*'=>[
+                Rule::in([1,2,3])
             ],
-            'form_auth' => [
+            'handle_form' => [
                 'array'
             ],
-            'form_auth.*' => [
-                'integer'
-            ]
+            'handle_form.*.number' => [
+                'integer',
+            ],
+            'handle_form.*.name' => [
+                'string',
+                'max:20'
+            ],
+            'handle_form_type'=>[
+                'array'
+            ],
+            'handle_form_type.*'=>[
+                Rule::in([1,2,3])
+            ],
+            'export_flow'=>[
+                'array'
+            ],
+            'export_flow.*.number' => [
+                'integer',
+            ],
+            'export_flow.*.name' => [
+                'string',
+                'max:20'
+            ],
+            'export_form'=>[
+                'array'
+            ],
+            'export_form.*.number' => [
+                'integer',
+            ],
+            'export_form.*.name' => [
+                'string',
+                'max:20'
+            ],
         ];
     }
 
@@ -69,15 +102,25 @@ class RoleRequest extends FormRequest
     {
         return [
             'name' => '角色名称',
-            'is_super'=>'是否超级管理员',
-            'staff' => '用户',
-            'staff.*.staff_sn' => '用户工号',
-            'handle' => '操作',
-            'handle.*' => '操作ID',
-            'flow_auth' => '流程',
-            'flow_auth.*' => '流程ID',
-            'form_auth' => '表单',
-            'form_auth.*' => '表单ID'
+            'is_super'=>'超级管理员',
+            'staff' => '关联员工',
+            'staff.*.staff_sn' => '关联员工工号',
+            'handle_flow' => '可操作流程',
+            'handle_flow.*.number' => '可操作流程编号',
+            'handle_flow.*.name' => '可操作流程名称',
+            'handle_flow_type'=>'操作类型',
+            'handle_flow_type.*'=>'操作类型值',
+            'handle_form' => '可操作表单',
+            'handle_form.*.number' => '可操作表单编号',
+            'handle_form.*.name' => '可操作表单名称',
+            'handle_form_type'=>'操作类型',
+            'handle_form_type.*'=>'操作类型值',
+            'export_flow'=>'可导出流程',
+            'export_flow.*.number'=>'可导出流程编号',
+            'export_flow.*.name'=>'可导出流程名称',
+            'export_form'=>'可导出表单',
+            'export_form.*.number'=>'可导出表单编号',
+            'export_form.*.name'=>'可导出表单名称',
         ];
     }
 }

@@ -2,8 +2,7 @@
 
 namespace App\Models;
 
-use App\Models\Auth\AuthFlowAuth;
-use App\Models\Auth\AuthRoleHasHandle;
+use App\Models\Auth\AuthRole;
 use App\Models\Auth\AuthStaffHasRole;
 use App\Models\Traits\ListScopes;
 use App\Services\Admin\Auth\RoleService;
@@ -91,11 +90,18 @@ class Flow extends Model
         //超级管理员
         $role = new RoleService();
         $super = $role->getSuperStaff();
-        $handleIds = [1,2,3,4];
+        $handleIds = [1,2,3];
         if (empty($super) || ($super && (!in_array(Auth::id(), $super)))){
             $userRoleIds = AuthStaffHasRole::where('staff_sn', Auth::id())->pluck('role_id')->all();
-            $roleIds = AuthFlowAuth::whereIn('role_id',$userRoleIds)->where('flow_number',$this->attributes['number'])->pluck('role_id')->all();
-            $handleIds = AuthRoleHasHandle::whereIn('role_id',$roleIds)->pluck('handle_id')->all();
+            $roleData = AuthRole::find($userRoleIds);
+            $handleIds = $roleData->map(function($role){
+                $number = array_pluck($role->handle_flow,'number');
+                if(in_array($this->attributes['number'],$number)){
+                    return $role->handle_flow_type;
+                }
+            });
+            $handleIds = $handleIds->collapse()->all();
+            $handleIds = array_unique($handleIds);
         }
         return $handleIds;
     }

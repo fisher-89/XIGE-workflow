@@ -9,8 +9,6 @@
 namespace App\Services\Admin\Auth;
 
 
-use App\Models\Auth\AuthFlowAuth;
-use App\Models\Auth\AuthFormAuth;
 use App\Models\Auth\AuthRole;
 use App\Models\Auth\AuthStaff;
 use App\Models\Auth\AuthStaffHasRole;
@@ -31,22 +29,8 @@ class RoleService
             //员工保存
             $staffSn = $this->staffHandle($request['staff']);
             $role->staff()->sync($staffSn);
-            //操作
-            $role->handle()->sync($request['handle']);
-
-            //流程权限编号
-            $flowAuthData = array_map(function ($item) {
-                return ['flow_number' => $item];
-            }, $request['flow_auth']);
-            $role->flowAuth()->createMany($flowAuthData);
-
-            //表单权限编号
-            $formAuthData = array_map(function ($item) {
-                return ['form_number' => $item];
-            }, $request['form_auth']);
-            $role->formAuth()->createMany($formAuthData);
         });
-        return $role->load('staff', 'handle', 'flowAuth.flow', 'formAuth.form');
+        return $role->load('staff');
     }
 
     /**
@@ -77,24 +61,8 @@ class RoleService
             //员工保存
             $staffSn = $this->staffHandle($request['staff']);
             $role->staff()->sync($staffSn);
-            //操作
-            $role->handle()->sync($request['handle']);
-
-            //流程权限编号
-            $role->flowAuth()->delete();
-            $flowAuthData = array_map(function ($item) {
-                return ['flow_number' => $item];
-            }, $request['flow_auth']);
-            $role->flowAuth()->createMany($flowAuthData);
-
-            //表单权限编号
-            $role->formAuth()->delete();
-            $formAuthData = array_map(function ($item) {
-                return ['form_number' => $item];
-            }, $request['form_auth']);
-            $role->formAuth()->createMany($formAuthData);
         });
-        return $role->load('staff', 'handle', 'flowAuth.flow', 'formAuth.form');
+        return $role->load('staff');
     }
 
     /**
@@ -106,9 +74,6 @@ class RoleService
         DB::transaction(function () use ($id) {
             $role = AuthRole::findOrFail($id);
             $role->staff()->sync([]);
-            $role->handle()->sync([]);
-            $role->flowAuth()->delete();
-            $role->formAuth()->delete();
             $role->delete();
         });
     }
@@ -128,85 +93,83 @@ class RoleService
         return $super;
     }
 
-    /*-----------------------流程start----------------*/
+    /*----------------流程start-----------------*/
     /**
-     * 获取流程权限
-     * @return AuthFlowAuth[]|\Illuminate\Database\Eloquent\Builder[]|\Illuminate\Database\Eloquent\Collection
+     * 获取操作流程number
+     * @return array
      */
-    public function getFlowAuth()
+    public function getHandleFlowNumber()
     {
         $roleIds = AuthStaffHasRole::where('staff_sn', Auth::id())->pluck('role_id')->all();
-        $flowAuth = AuthFlowAuth::with('roleHasHandles')->whereIn('role_id', $roleIds)->get();
-        return $flowAuth;
+        $roleData = AuthRole::find($roleIds);
+        $numbers = $roleData->map(function($role){
+            $number = array_pluck($role->handle_flow,'number');
+            return $number;
+        });
+        $numbers = $numbers->collapse()->all();
+        $numbers = array_unique($numbers);
+        return $numbers;
     }
 
     /**
-     * 获取流程编号
-     * @return array
-     */
-    public function getFlowNumber()
-    {
-        $flowAuth = $this->getFlowAuth();
-        $flowNumber = $flowAuth->pluck('flow_number')->all();
-        return $flowNumber;
-    }
-
-    /**
-     * 获取流程操作ID
+     * 获取流程的操作ID
      * @param int $flowNumber
-     * @return array
+     * @return mixed
      */
     public function getFlowHandleId(int $flowNumber)
     {
-        $flowAuth = $this->getFlowAuth();
-        $flowAuthKeyBy = $flowAuth->keyBy('flow_number')->toArray();
-        $handleIds = [];
-        if(array_has($flowAuthKeyBy,$flowNumber)){
-            $roleHasHandle = $flowAuthKeyBy[$flowNumber]['role_has_handles'];
-            $handleIds = array_pluck($roleHasHandle,'handle_id');
-        }
+        $roleIds = AuthStaffHasRole::where('staff_sn', Auth::id())->pluck('role_id')->all();
+        $roleData = AuthRole::find($roleIds);
+        $handleIds = $roleData->map(function($role)use($flowNumber){
+            $number = array_pluck($role->handle_flow,'number');
+            $handleId = [];
+            if(in_array($flowNumber,$number)){
+                $handleId =  $role->handle_flow_type;
+            }
+            return $handleId;
+        });
         return $handleIds;
     }
-    /*-----------------------流程end----------------*/
 
-    /*-----------------------表单start----------------*/
+    /*----------------流程end-----------------*/
+
+    /*----------------表单start-----------------*/
     /**
-     * 获取表单权限
-     * @return AuthFormAuth[]|\Illuminate\Database\Eloquent\Builder[]|\Illuminate\Database\Eloquent\Collection
+     * 获取操作表单number
+     * @return array
      */
-    public function getFormAuth()
+    public function getHandleFormNumber()
     {
         $roleIds = AuthStaffHasRole::where('staff_sn', Auth::id())->pluck('role_id')->all();
-        $formAuth = AuthFormAuth::with('roleHasHandles')->whereIn('role_id', $roleIds)->get();
-        return $formAuth;
+        $roleData = AuthRole::find($roleIds);
+        $numbers = $roleData->map(function($role){
+            $number = array_pluck($role->handle_form,'number');
+            return $number;
+        });
+        $numbers = $numbers->collapse()->all();
+        $numbers = array_unique($numbers);
+        return $numbers;
     }
 
     /**
-     * 获取表单编号
-     * @return array
-     */
-    public function getFormNumber()
-    {
-        $formAuth = $this->getFormAuth();
-        $formNumber = $formAuth->pluck('form_number')->all();
-        return $formNumber;
-    }
-
-    /**
-     * 获取表单权限操作ID
+     * 获取表单的操作ID
      * @param int $formNumber
-     * @return array
+     * @return mixed
      */
     public function getFormHandleId(int $formNumber)
     {
-        $formAuth = $this->getFormAuth();
-        $formAuthKeyBy = $formAuth->keyBy('form_number')->toArray();
-        $handleIds = [];
-        if(array_has($formAuthKeyBy,$formNumber)){
-            $roleHasHandle = $formAuthKeyBy[$formNumber]['role_has_handles'];
-            $handleIds = array_pluck($roleHasHandle,'handle_id');
-        }
+        $roleIds = AuthStaffHasRole::where('staff_sn', Auth::id())->pluck('role_id')->all();
+        $roleData = AuthRole::find($roleIds);
+        $handleIds = $roleData->map(function($role)use($formNumber){
+            $number = array_pluck($role->handle_form,'number');
+            $handleId = [];
+            if(in_array($formNumber,$number)){
+                $handleId =  $role->handle_flow_type;
+            }
+            return $handleId;
+        });
         return $handleIds;
     }
-    /*-----------------------表单end----------------*/
+
+    /*----------------表单end-----------------*/
 }

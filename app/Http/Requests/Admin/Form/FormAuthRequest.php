@@ -30,16 +30,16 @@ class FormAuthRequest extends FormRequest
             case 'PUT':
                 $requestId = $this->route('id');
                 $form = Form::findOrFail($requestId);
-                $formNumber = $role->getFormNumber();
+                $formNumber = $role->getHandleFormNumber();
                 $handleIds = $role->getFormHandleId($form->number);
-                if(in_array(Auth::id(),$super) || (in_array($form->number,$formNumber) && in_array(3,$handleIds)))
+                if(in_array(Auth::id(),$super) || (in_array($form->number,$formNumber) && in_array(2,$handleIds)))
                     return true;
                 break;
             case 'GET':
                 // 详情
                 $requestId = $this->route('id');
                 $form = Form::withTrashed()->findOrFail($requestId);
-                $formNumber = $role->getFormNumber();
+                $formNumber = $role->getHandleFormNumber();
                 $handleIds = $role->getFormHandleId($form->number);
                 if(in_array(Auth::id(),$super) || (in_array($form->number,$formNumber) && in_array(1,$handleIds))){
                     return true;
@@ -48,9 +48,9 @@ class FormAuthRequest extends FormRequest
             case 'DELETE':
                 $requestId = $this->route('id');
                 $form = Form::findOrFail($requestId);
-                $formNumber = $role->getFormNumber();
+                $formNumber = $role->getHandleFormNumber();
                 $handleIds = $role->getFormHandleId($form->number);
-                if(in_array(Auth::id(),$super) || (in_array($form->number,$formNumber) && in_array(4,$handleIds))){
+                if(in_array(Auth::id(),$super) || (in_array($form->number,$formNumber) && in_array(3,$handleIds))){
                     return true;
                 }
                 break;

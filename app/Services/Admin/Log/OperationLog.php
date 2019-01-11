@@ -102,7 +102,7 @@ class OperationLog
                 $data['before'] = StepDepartmentApprover::findOrFail($data['request_id'])->toArray();
                 break;
             case 'admin/auth/role/'.$data['request_id']:
-                $data['before'] = AuthRole::with('staff','handle','flowAuth.flow','formAuth.form')->findOrFail($data['request_id']);
+                $data['before'] = AuthRole::with('staff')->findOrFail($data['request_id']);
                 break;
             default:
                 $data['before'] = [];

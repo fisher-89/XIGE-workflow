@@ -30,16 +30,16 @@ class FlowAuthRequest extends FormRequest
             case 'PUT':
                 $requestId = $this->route('id');
                 $flow = Flow::findOrFail($requestId);
-                $flowNumber = $role->getFlowNumber();
+                $flowNumber = $role->getHandleFlowNumber();
                 $handleIds = $role->getFlowHandleId($flow->number);
-                if(in_array(Auth::id(),$super) || (in_array($flow->number,$flowNumber) && in_array(3,$handleIds)))
+                if(in_array(Auth::id(),$super) || (in_array($flow->number,$flowNumber) && in_array(2,$handleIds)))
                     return true;
                 break;
             case 'GET':
                 //详情
                 $requestId = $this->route('id');
                 $flow = Flow::withTrashed()->findOrFail($requestId);
-                $flowNumber = $role->getFlowNumber();
+                $flowNumber = $role->getHandleFlowNumber();
                 $handleIds = $role->getFlowHandleId($flow->number);
                 if(in_array(Auth::id(),$super) || (in_array($flow->number,$flowNumber) && in_array(1,$handleIds))){
                     return true;
@@ -49,9 +49,9 @@ class FlowAuthRequest extends FormRequest
                 //删除
                 $requestId = $this->route('id');
                 $flow = Flow::findOrFail($requestId);
-                $flowNumber = $role->getFlowNumber();
+                $flowNumber = $role->getHandleFlowNumber();
                 $handleIds = $role->getFlowHandleId($flow->number);
-                if(in_array(Auth::id(),$super) || (in_array($flow->number,$flowNumber) && in_array(4,$handleIds))){
+                if(in_array(Auth::id(),$super) || (in_array($flow->number,$flowNumber) && in_array(3,$handleIds))){
                     return true;
                 }
                 break;

@@ -69,8 +69,7 @@ class FormController extends Controller
     {
         //超级管理员
         $super = $this->role->getSuperStaff();
-        $formAuth = $this->role->getFormAuth();
-        $formNumber = $formAuth->pluck('form_number')->all();
+        $formNumber = $this->role->getHandleFormNumber();
 
         if (empty($super) || ($super && (!in_array(Auth::id(), $super)))) {
             //没有超级管理员 或 有超级管理员 并且不在超级管理员中

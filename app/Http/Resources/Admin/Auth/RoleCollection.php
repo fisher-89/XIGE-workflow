@@ -15,29 +15,11 @@ class RoleCollection extends ResourceCollection
     public function toArray($request)
     {
         return $this->collection->map(function($role){
-            // 关联员工筛选字段
-            $role->staff = $role->staff->map(function($staff){
+            $role->staff =  $role->staff->map(function($staff){
                 return $staff->only(['staff_sn','realname']);
             });
-
-            // 操作权限字段
-            $role->handle = $role->handle->pluck('id');
-
-            // 流程权限
-            $role->flow_auth = $role->flowAuth->pluck('flow_number');
-            $role->flow_auth_data = $role->flowAuth->map(function($flow){
-                 $data = $flow->flow->only(['name','number']);
-                 return $data;
-            });
-
-            // 表单权限
-            $role->form_auth = $role->formAuth->pluck('form_number');
-            $role->form_auth_data = $role->formAuth->map(function($form){
-               $data = $form->form->only(['name','number']);
-               return $data;
-            });
-            $role =  $role->only(['id','name','is_super','staff','handle','flow_auth','flow_auth_data','form_auth','form_auth_data']);
-            return $role;
+            $data = $role->only(['id','name','is_super','staff','handle_flow','handle_flow_type','handle_form','handle_form_type','export_flow','export_form']);
+            return $data;
         })->all();
     }
 }

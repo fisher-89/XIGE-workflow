@@ -62,10 +62,8 @@ class FlowController extends Controller
     {
         //超级管理员
         $super = $this->role->getSuperStaff();
-        // 获取流程权限
-        $flowAuth = $this->role->getFlowAuth();
         // 流程编号
-        $flowNumber = $flowAuth->pluck('flow_number')->all();
+        $flowNumber = $this->role->getHandleFlowNumber();
 
         if (empty($super) || ($super && (!in_array(Auth::id(), $super)))) {
             //没有超级管理员 或 有超级管理员 并且不在超级管理员中

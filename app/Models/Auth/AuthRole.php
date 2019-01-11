@@ -11,27 +11,27 @@ class AuthRole extends Model
 
     protected $fillable = [
         'name',
-        'is_super'
+        'is_super',
+        'handle_flow',
+        'handle_flow_type',
+        'handle_form',
+        'handle_form_type',
+        'export_flow',
+        'export_form',
+    ];
+
+    protected $casts = [
+        'handle_flow' => 'array',
+        'handle_flow_type' => 'array',
+        'handle_form' => 'array',
+        'handle_form_type' => 'array',
+        'export_flow' => 'array',
+        'export_form' => 'array',
     ];
 
 
     public function staff()
     {
-        return $this->belongsToMany(AuthStaff::class,'auth_staff_has_roles','role_id','staff_sn');
-    }
-
-    public function handle()
-    {
-        return $this->belongsToMany(AuthHandle::class,'auth_role_has_handles','role_id','handle_id');
-    }
-
-    public function flowAuth()
-    {
-        return $this->hasMany(AuthFlowAuth::class,'role_id');
-    }
-//
-    public function formAuth()
-    {
-        return $this->hasMany(AuthFormAuth::class,'role_id');
+        return $this->belongsToMany(AuthStaff::class, 'auth_staff_has_roles', 'role_id', 'staff_sn');
     }
 }
