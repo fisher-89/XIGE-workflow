@@ -60,6 +60,12 @@ Route::namespace('Api\Admin')->middleware('auth:api')->group(function () {
      * 流程运行
      */
     Route::prefix('flow-run')->group(function () {
+        // 获取导出流程列表
+        Route::get('/flow','FlowRunController@getFlowList');
+
+        // 获取导出表单列表
+        Route::get('/form','FlowRunController@getFormList');
+
         //通过流程number获取表单数据（包含旧的）
         Route::get('/form/flow/{number}', 'FlowRunController@getFlowForm');
 

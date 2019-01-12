@@ -172,4 +172,38 @@ class RoleService
     }
 
     /*----------------表单end-----------------*/
+
+    /**
+     * 导出流程number
+     * @return array
+     */
+    public function getExportFlowNumber()
+    {
+        $roleIds = AuthStaffHasRole::where('staff_sn', Auth::id())->pluck('role_id')->all();
+        $roleData = AuthRole::find($roleIds);
+        $numbers = $roleData->map(function($role){
+            $number = array_pluck($role->export_flow,'number');
+            return $number;
+        });
+        $numbers = $numbers->collapse()->all();
+        $numbers = array_unique($numbers);
+        return $numbers;
+    }
+
+    /**
+     * 导出表单number
+     * @return array
+     */
+    public function getExportFormNumber()
+    {
+        $roleIds = AuthStaffHasRole::where('staff_sn', Auth::id())->pluck('role_id')->all();
+        $roleData = AuthRole::find($roleIds);
+        $numbers = $roleData->map(function($role){
+            $number = array_pluck($role->export_form,'number');
+            return $number;
+        });
+        $numbers = $numbers->collapse()->all();
+        $numbers = array_unique($numbers);
+        return $numbers;
+    }
 }

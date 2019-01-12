@@ -13,6 +13,7 @@ use App\Jobs\FlowRunLogDownloadJob;
 use App\Models\Flow;
 use App\Models\FlowRun;
 use App\Models\Form;
+use App\Services\Admin\Auth\RoleService;
 use Illuminate\Support\Facades\Artisan;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Cache;
@@ -21,6 +22,12 @@ class FlowRunRepository
 {
     protected $excel = 'xlsx';
 
+    protected $role;
+
+    public function __construct(RoleService $roleService)
+    {
+        $this->role = $roleService;
+    }
 
     /**
      * 通过流程number获取表单数据（包含旧的）
@@ -64,6 +71,38 @@ class FlowRunRepository
         $data = FlowRun::filterByQueryString()
             ->sortByQueryString()
             ->withPagination();
+        return $data;
+    }
+
+    /**
+     * 获取导出流程列表
+     * @return mixed
+     */
+    public function getFlowList()
+    {
+        $super = $this->role->getSuperStaff();
+        $flowNumber = $this->role->getExportFlowNumber();
+        if(in_array(Auth::id(),$super)){
+            $data = Flow::select('id','name','number')->orderBy('sort', 'asc')->get();
+        }else{
+            $data = Flow::whereIn('number', $flowNumber)->select('id','name','number')->orderBy('sort', 'asc')->get();
+        }
+       return $data;
+    }
+
+    /**
+     * 获取导出表单列表
+     * @return mixed
+     */
+    public function getFormList()
+    {
+        $super = $this->role->getSuperStaff();
+        $formNumber = $this->role->getExportFormNumber();
+        if(in_array(Auth::id(),$super)){
+            $data = Form::select('id','name','number')->orderBy('sort', 'asc')->get();
+        }else{
+            $data = Form::whereIn('number', $formNumber)->select('id','name','number')->orderBy('sort', 'asc')->get();
+        }
         return $data;
     }
     /*---------------------------导出start---------------------------*/

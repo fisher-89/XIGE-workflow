@@ -31,6 +31,25 @@ class FlowRunController extends Controller
         return $this->response->get($data);
     }
 
+    /**
+     * 获取导出流程列表
+     * @return \Illuminate\Contracts\Routing\ResponseFactory|\Symfony\Component\HttpFoundation\Response
+     */
+    public function getFlowList()
+    {
+        $data = $this->flowRun->getFlowList();
+        return $this->response->get($data);
+    }
+    /**
+     * 获取导出表单列表
+     * @return \Illuminate\Contracts\Routing\ResponseFactory|\Symfony\Component\HttpFoundation\Response
+     */
+    public function getFormList()
+    {
+        $data = $this->flowRun->getFormList();
+        return $this->response->get($data);
+    }
+
 
     /*------------------导出start------------------*/
 
