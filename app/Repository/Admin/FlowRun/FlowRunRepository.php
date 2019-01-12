@@ -83,9 +83,9 @@ class FlowRunRepository
         $super = $this->role->getSuperStaff();
         $flowNumber = $this->role->getExportFlowNumber();
         if(in_array(Auth::id(),$super)){
-            $data = Flow::select('id','name','number')->orderBy('sort', 'asc')->get();
+            $data = Flow::orderBy('sort', 'asc')->get();
         }else{
-            $data = Flow::whereIn('number', $flowNumber)->select('id','name','number')->orderBy('sort', 'asc')->get();
+            $data = Flow::whereIn('number', $flowNumber)->orderBy('sort', 'asc')->get();
         }
        return $data;
     }
@@ -99,9 +99,9 @@ class FlowRunRepository
         $super = $this->role->getSuperStaff();
         $formNumber = $this->role->getExportFormNumber();
         if(in_array(Auth::id(),$super)){
-            $data = Form::select('id','name','number')->orderBy('sort', 'asc')->get();
+            $data = Form::orderBy('sort', 'asc')->get();
         }else{
-            $data = Form::whereIn('number', $formNumber)->select('id','name','number')->orderBy('sort', 'asc')->get();
+            $data = Form::whereIn('number', $formNumber)->orderBy('sort', 'asc')->get();
         }
         return $data;
     }
