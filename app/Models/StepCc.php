@@ -32,4 +32,9 @@ class StepCc extends Model
     {
         return $this->belongsTo(FlowRun::class);
     }
+
+    public function form()
+    {
+        return $this->belongsTo(Form::class)->withTrashed();
+    }
 }
