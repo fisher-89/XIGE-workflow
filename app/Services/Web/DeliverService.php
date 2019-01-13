@@ -101,6 +101,8 @@ class DeliverService
                 //发送工作通知OA消息
                 $oaMsgResult = $this->dingTalkMessage->sendJobOaMessage($stepRun, $formData);
                 abort_if($oaMsgResult == 0, 400, '发送工作通知失败');
+                $stepRun->is_send_todo = 1;
+                $stepRun->save();
             }
 
             //发送工作通知text消息 给发起人
