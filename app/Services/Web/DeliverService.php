@@ -43,9 +43,14 @@ class DeliverService
             $stepRun->save();
             $stepRunData = array_except($stepRun->toArray(), ['id', 'approver_sn', 'approver_name', 'acted_at', 'created_at', 'updated_at', 'deleted_at']);
             $data = $stepRunData;
+            $data['checked_at'] = null;
             $data['action_type'] = 0;
+            $data['acted_at'] = null;
+            $data['remark'] = '';
+            $data['is_rejected'] = 0;
             $data['prev_id'] = [$stepRun->id];
             $data['next_id'] = [];
+            $data['is_send_todo'] = 0;
             $data = array_collapse([$data, $request->only(['approver_sn', 'approver_name'])]);
             $deliverData = StepRun::create($data);
 
