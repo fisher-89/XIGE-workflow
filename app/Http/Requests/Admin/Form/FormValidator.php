@@ -211,16 +211,16 @@ class FormValidator
             'fields.*.x' => [
                 'integer',
                 'nullable',
-                'between:1,65535',
+                'between:0,65535',
                 'required_if:pc_template,1',
-                'distinct'
+//                'distinct'
             ],
             'fields.*.y' => [
                 'integer',
                 'nullable',
-                'between:1,65535',
+                'between:0,65535',
                 'required_if:pc_template,1',
-                'distinct'
+//                'distinct'
             ],
             'fields.*.mobile_y' => [
                 'integer',
@@ -265,12 +265,12 @@ class FormValidator
             'grids.*.x' => [
                 'nullable',
                 'integer',
-                'between:1,65535',
+                'between:0,65535',
             ],
             'grids.*.y' => [
                 'nullable',
                 'integer',
-                'between:1,65535',
+                'between:0,65535',
             ],
             'grids.*.fields' => [
                 'required',
@@ -339,16 +339,16 @@ class FormValidator
             'grids.*.fields.*.x' => [
                 'integer',
                 'nullable',
-                'between:1,65535',
+                'between:0,65535',
                 'required_if:pc_template,1',
-                'distinct'
+//                'distinct'
             ],
             'grids.*.fields.*.y' => [
                 'integer',
                 'nullable',
-                'between:1,65535',
+                'between:0,65535',
                 'required_if:pc_template,1',
-                'distinct'
+//                'distinct'
             ],
             'grids.*.fields.*.mobile_sort' => [
                 'integer',
