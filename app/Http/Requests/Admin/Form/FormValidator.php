@@ -68,6 +68,7 @@ class FormValidator
         'grids.*.col' => '列',
         'grids.*.x' => 'x轴',
         'grids.*.y' => 'y轴',
+        'grids.*.mobile_y' => '移动端控件y轴',
         'grids.*.fields' => '字段',
         'grids.*.fields.*.id' => '字段ID',
         'grids.*.fields.*.key' => '键名',
@@ -268,6 +269,11 @@ class FormValidator
                 'between:0,65535',
             ],
             'grids.*.y' => [
+                'nullable',
+                'integer',
+                'between:0,65535',
+            ],
+            'grids.*.mobile_y' => [
                 'nullable',
                 'integer',
                 'between:0,65535',

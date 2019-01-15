@@ -50,6 +50,7 @@ class CreateWorkflowTable extends Migration
             $table->unsignedSmallInteger('col')->nullable()->comment('控件列');
             $table->unsignedSmallInteger('x')->nullable()->comment('控件x轴');
             $table->unsignedSmallInteger('y')->nullable()->comment('控件y轴');
+            $table->unsignedSmallInteger('mobile_y')->comment('移动端控件y轴')->nullable();
             $table->unsignedInteger('form_id')->comment('表单id');
             $table->foreign('form_id')->references('id')->on('forms');
             $table->timestamps();
