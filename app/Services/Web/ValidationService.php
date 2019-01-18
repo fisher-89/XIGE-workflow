@@ -43,6 +43,7 @@ class ValidationService
                     case 'int':
                         if ($field->scale == 0) {
                             $fieldRules[] = 'integer';
+                            $fieldRules[] = 'nullable';
                         } else if ($field->scale > 0) {
                             $fieldRules[] = 'numeric';
                             $fieldRules[] = 'nullable';
