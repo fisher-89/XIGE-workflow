@@ -48,7 +48,7 @@ class PresetRequest extends FormRequest
                 'array',
             ],
         ];
-        $fieldsRules = app('validation')->makeStepFormValidationRules($this->step);
+        $fieldsRules = app('validation')->makeStepFormValidationRules($this->step,$this);
         return array_collapse([$basicRules, $fieldsRules]);
     }
 

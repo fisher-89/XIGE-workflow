@@ -13,6 +13,7 @@ use Illuminate\Validation\Rule;
 
 class ValidationService
 {
+    protected $request;
     /**
      * 生成步骤的表单验证规则
      *
@@ -20,8 +21,9 @@ class ValidationService
      *
      * @return array
      */
-    public function makeStepFormValidationRules($step)
+    public function makeStepFormValidationRules($step,$request)
     {
+        $this->request = $request;
         $fields = $step->flow->form->fields;
         $editableFields = $step->editable_fields;
         $requiredFields = $step->required_fields;
@@ -152,7 +154,7 @@ class ValidationService
                         break;
                 }
 
-                $this->pushMinAndMaxRules($fieldRules, $field,$key,$requiredFields);
+                $this->pushMinAndMaxRules($fieldRules, $field);
                 if (in_array($key, $requiredFields)) {
                     $fieldRules[] = 'required';
                     if (strpos($key, '.*.')) {
@@ -165,13 +167,13 @@ class ValidationService
         return $rules;
     }
 
-    protected function pushMinAndMaxRules(&$fieldRules, $field,$key,$requiredFields)
+    protected function pushMinAndMaxRules(&$fieldRules, $field)
     {
         if (in_array($field->type, ['date', 'datetime', 'time'])) {
             if ($field->max) $fieldRules[] = 'before_or_equal:' . $field->max;
             if ($field->min) $fieldRules[] = 'after_or_equal:' . $field->min;
         } else {
-            if(($field->min) && in_array($key,$requiredFields)){
+            if(($field->min) && !empty($this->request->form_data[$field->key])){
                 $fieldRules[] = 'min:' . $field->min;
             }
             if ($field->max) $fieldRules[] = 'max:' . $field->max;
