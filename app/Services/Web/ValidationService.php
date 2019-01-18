@@ -152,7 +152,7 @@ class ValidationService
                         break;
                 }
 
-                $this->pushMinAndMaxRules($fieldRules, $field);
+                $this->pushMinAndMaxRules($fieldRules, $field,$key,$requiredFields);
                 if (in_array($key, $requiredFields)) {
                     $fieldRules[] = 'required';
                     if (strpos($key, '.*.')) {
@@ -165,14 +165,17 @@ class ValidationService
         return $rules;
     }
 
-    protected function pushMinAndMaxRules(&$fieldRules, $field)
+    protected function pushMinAndMaxRules(&$fieldRules, $field,$key,$requiredFields)
     {
         if (in_array($field->type, ['date', 'datetime', 'time'])) {
             if ($field->max) $fieldRules[] = 'before_or_equal:' . $field->max;
             if ($field->min) $fieldRules[] = 'after_or_equal:' . $field->min;
         } else {
+            if(($field->min) && in_array($key,$requiredFields)){
+                $fieldRules[] = 'min:' . $field->min;
+            }
             if ($field->max) $fieldRules[] = 'max:' . $field->max;
-            if ($field->min) $fieldRules[] = 'min:' . $field->min;
+//            if ($field->min) $fieldRules[] = 'min:' . $field->min;
         }
     }
 
