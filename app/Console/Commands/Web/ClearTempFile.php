@@ -43,21 +43,21 @@ class ClearTempFile extends Command
      */
     public function handle()
     {
+        $year = date('Y');
         //清除的月份
         $month = $this->argument('month');
         //定时开关
         $crontab = $this->option('crontab');
         if ($crontab) {
             //定时任务执行
+            $year = date('Y', strtotime('-1 month'));
             $month = date('m', strtotime('-1 month'));
-        } else {
-            //command 命令执行
         }
-        $clear = $this->images->clearTempFile($month);
+        $clear = $this->images->clearTempFile($year,$month);
         if ($crontab) {
             $data = [
                 'type' => 'file',
-                'year' => date('Y'),
+                'year' => $year,
                 'month' => $month,
                 'status' => $clear ? "1" : "0",
             ];

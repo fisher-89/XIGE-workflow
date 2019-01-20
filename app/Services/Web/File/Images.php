@@ -108,12 +108,12 @@ class Images
      * @param int|null $month
      * @return mixed
      */
-    public function clearTempFile(int $month = null)
+    public function clearTempFile(int $year = null,int $month = null)
     {
         if(is_null($month)){
             //删除全部
             return Storage::disk('public')->deleteDirectory('uploads/temporary');
         }
-        return Storage::disk('public')->deleteDirectory('uploads/temporary/'.date('Y').'/'.$month);
+        return Storage::disk('public')->deleteDirectory('uploads/temporary/'.$year.'/'.$month);
     }
 }

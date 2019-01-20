@@ -24,16 +24,4 @@ class FileController extends Controller
         $data = $this->images->uploadPic();
         return $this->response->post($data);
     }
-
-    /**
-     * 清楚临时文件
-     * @return mixed
-     */
-    public function clearTempFile()
-    {
-        $isOk = $this->images->clearTempFile();
-        if (!$isOk)
-            abort(403, '清楚临时文件失败');
-        return $this->response->delete();
-    }
 }

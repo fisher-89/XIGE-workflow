@@ -37,7 +37,6 @@ Route::middleware('auth:api')->namespace('Api\Web')->group(function () {
     Route::get('flow-chart/{step_run_id}','ChartController@index');//流程图
 
     Route::post('files','FileController@index');//上传临时存储文件
-    Route::delete('clear-temp-file','FileController@clearTempFile');//清楚临时文件
 
     //获取员工数据
     Route::get('/staff','WidgetController@getStaff');
