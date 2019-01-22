@@ -228,7 +228,7 @@ class FormValidator
                 'nullable',
                 'between:0,255',
                 'required_if:mobile_template,1',
-                'distinct'
+//                'distinct'
             ],
             'fields.*.validator_id' => [
                 'nullable',
@@ -356,12 +356,12 @@ class FormValidator
                 'required_if:pc_template,1',
 //                'distinct'
             ],
-            'grids.*.fields.*.mobile_sort' => [
+            'grids.*.fields.*.mobile_y' => [
                 'integer',
                 'nullable',
                 'between:0,65535',
                 'required_if:mobile_template,1',
-                'distinct'
+//                'distinct'
             ],
             'grids.*.fields.*.validator_id' => [
                 'nullable',
