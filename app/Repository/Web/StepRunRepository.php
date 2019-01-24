@@ -114,7 +114,7 @@ class StepRunRepository
             'step_run' => $stepRun,
             //抄送人
             'cc_person' => $stepRun->stepCc()->select('staff_sn', 'staff_name')->get()->toArray(),
-            'field_group'=>$stepRun->fieldGroups->toArray()
+            'field_groups'=>$stepRun->fieldGroups->toArray()
         ];
         return $data;
     }
