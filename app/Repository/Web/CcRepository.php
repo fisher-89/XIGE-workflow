@@ -34,7 +34,7 @@ class CcRepository
      */
     public function detail($id)
     {
-        $data = StepCc::with(['form','step','flowRun'])->where('staff_sn',Auth::id())->findOrFail($id);
+        $data = StepCc::with(['form.fieldGroups','step','flowRun'])->where('staff_sn',Auth::id())->findOrFail($id);
         //表单data
         $formRepository = new FormRepository();
         //表单data

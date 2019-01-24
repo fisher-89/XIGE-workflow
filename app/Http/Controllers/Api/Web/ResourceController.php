@@ -64,7 +64,7 @@ class ResourceController extends Controller
 //        $flowAuthorized = (bool)FlowAuth::checkFlowAuthorize($flow->id);//该流程的当前用户权限
 //        if ($flowAuthorized === false)
 //            abort(403, '该流程你无权限');
-        $flow = Flow::with('form')->where('number',$number)->where('is_active',1)->orderBy('id','desc')->firstOrFail();
+        $flow = Flow::with('form.fieldGroups')->where('number',$number)->where('is_active',1)->orderBy('id','desc')->firstOrFail();
 //        if ($flow->is_active === 0)
 //            abort(400, '该流程未启动');
         $flowRepository = new FlowRepository();

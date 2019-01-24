@@ -33,4 +33,9 @@ class StepRun extends Model
     {
         return $this->hasMany(StepCc::class);
     }
+
+    public function fieldGroups()
+    {
+        return $this->hasMany(FieldGroup::class,'form_id','form_id');
+    }
 }
