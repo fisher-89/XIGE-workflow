@@ -28,6 +28,10 @@ trait Update
             //表单数据表无数据
             $form = $this->formDataIsNullUpdateSave($form);
         }
+        $form->fieldGroups()->delete();
+        // 字段分组保存
+        $form->fieldGroups()->createMany($request->input('field_group'));
+
         $this->updateStepFieldsKey($request);//修改步骤字段 (可以、必填、编辑、隐藏字段)
         $data = Form::with([
             'fields' => function ($query) {

@@ -56,6 +56,11 @@ class Form extends Model
         return $this->hasMany(FormGrid::class);
     }
 
+    public function fieldGroups()
+    {
+        return $this->hasMany(FieldGroup::class);
+    }
+
     /**
      * 获取表单权限的操作ID
      * @return array

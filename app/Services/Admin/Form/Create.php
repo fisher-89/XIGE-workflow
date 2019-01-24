@@ -30,6 +30,8 @@ trait Create
         if ($request->has('grids') && $request->grids) {
             $this->formGridsSave($request);//保存列表控件数据 并创建控件表
         }
+        // 字段分组保存
+        $formData->fieldGroups()->createMany($request->input('field_group'));
         $formDataTable = new FormDataTableService($formData->id);
         $formDataTable->createFormDataTable();//创建表单data表
         return $formData;
