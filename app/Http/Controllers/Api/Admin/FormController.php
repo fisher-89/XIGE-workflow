@@ -106,7 +106,8 @@ class FormController extends Controller
                 $query->whereNull('form_grid_id')->orderBy('sort', 'asc');
             },
             'fields.validator',
-            'grids.fields.validator'
+            'grids.fields.validator',
+            'fieldGroups'
         ])->findOrFail($id);
         return $this->response->get($data);
     }

@@ -30,7 +30,7 @@ trait Update
         }
         $form->fieldGroups()->delete();
         // 字段分组保存
-        $form->fieldGroups()->createMany($request->input('field_group'));
+        $form->fieldGroups()->createMany($request->input('field_groups'));
 
         $this->updateStepFieldsKey($request);//修改步骤字段 (可以、必填、编辑、隐藏字段)
         $data = Form::with([

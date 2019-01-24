@@ -94,12 +94,12 @@ class FormValidator
         'grids.*.fields.*.mobile_y' => '移动端y轴',
         'grids.*.fields.*.validator_id' => '验证规则',
         'grids.*.fields.*.validator_id.*' => '验证规则ID',
-        'field_group.*.title' => '标题',
-        'field_group.*.top' => '头部位置',
-        'field_group.*.bottom' => '底部位置',
-        'field_group.*.left' => '左边位置',
-        'field_group.*.right' => '右边位置',
-        'field_group.*.background' => '右边位置',
+        'field_groups.*.title' => '标题',
+        'field_groups.*.top' => '头部位置',
+        'field_groups.*.bottom' => '底部位置',
+        'field_groups.*.left' => '左边位置',
+        'field_groups.*.right' => '右边位置',
+        'field_groups.*.background' => '右边位置',
     ];
 
     public function rules($request)
@@ -396,34 +396,34 @@ class FormValidator
     protected function getFieldGroupRule()
     {
         return [
-            'field_group' => [
+            'field_groups' => [
                 'array',
             ],
-            'field_group.*.title' => [
+            'field_groups.*.title' => [
                 'string',
                 'max:20',
             ],
-            'field_group.*.top' => [
+            'field_groups.*.top' => [
                 'integer',
                 'nullable',
                 'between:0,65535',
             ],
-            'field_group.*.bottom' => [
+            'field_groups.*.bottom' => [
                 'integer',
                 'nullable',
                 'between:0,65535',
             ],
-            'field_group.*.left' => [
+            'field_groups.*.left' => [
                 'integer',
                 'nullable',
                 'between:0,65535',
             ],
-            'field_group.*.right' => [
+            'field_groups.*.right' => [
                 'integer',
                 'nullable',
                 'between:0,65535',
             ],
-            'field_group.*.background' => [
+            'field_groups.*.background' => [
                 'string',
                 'max:20',
             ],
