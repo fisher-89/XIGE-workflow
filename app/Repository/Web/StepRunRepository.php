@@ -31,7 +31,7 @@ class StepRunRepository
     public function getApproval($request)
     {
         $actionType = $this->actionType($request->type);
-        $data = StepRun::with('flowRun')
+        $data = StepRun::with('flowRun.stepRun')
             ->where(['approver_sn' => $this->staffSn])
             ->whereIn('action_type', $actionType)
             ->when(($request->has('flow_id') && intval($request->flow_id)), function ($query) use ($request) {
