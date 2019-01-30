@@ -20,7 +20,7 @@ class CcRepository
      */
     public function index()
     {
-        $data = StepCc::where('staff_sn',Auth::id())
+        $data = StepCc::with('flowRun.stepRun')->where('staff_sn',Auth::id())
             ->filterByQueryString()
             ->sortByQueryString()
             ->withPagination();
