@@ -20,7 +20,7 @@ class CcRepository
      */
     public function index()
     {
-        $data = StepCc::with('flowRun.stepRun')->where('staff_sn',Auth::id())
+        $data = StepCc::with('flowRun.stepRun')->where('staff_sn', Auth::id())
             ->filterByQueryString()
             ->sortByQueryString()
             ->withPagination();
@@ -34,7 +34,7 @@ class CcRepository
      */
     public function detail($id)
     {
-        $data = StepCc::with(['form.fieldGroups','step','flowRun'])->where('staff_sn',Auth::id())->findOrFail($id);
+        $data = StepCc::with(['form', 'step', 'flowRun'])->where('staff_sn', Auth::id())->findOrFail($id);
         //表单data
         $formRepository = new FormRepository();
         //表单data
@@ -43,6 +43,7 @@ class CcRepository
         $fields = $formRepository->getFields($data->form_id);
         $data->form_data = $formData;
         $data->fields = $fields;
+        $data->field_groups = $data->form->fieldGroups->toArray();
         return $data;
     }
 }
