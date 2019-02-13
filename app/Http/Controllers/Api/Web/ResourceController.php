@@ -40,7 +40,7 @@ class ResourceController extends Controller
         $flow = FlowType::with(['flow' => function ($query) use ($flowId) {
             $query->whereIn('id', $flowId)
                 ->where('is_active', 1)
-                ->where('is_client',1)
+                ->where('is_client', 1)
 //                ->select('id', 'name', 'description', 'flow_type_id','sort','number')
                 ->orderBy('sort', 'asc');
         }])
@@ -64,7 +64,7 @@ class ResourceController extends Controller
 //        $flowAuthorized = (bool)FlowAuth::checkFlowAuthorize($flow->id);//该流程的当前用户权限
 //        if ($flowAuthorized === false)
 //            abort(403, '该流程你无权限');
-        $flow = Flow::with('form.fieldGroups')->where('number',$number)->where('is_active',1)->orderBy('id','desc')->firstOrFail();
+        $flow = Flow::with('form')->where('number', $number)->where('is_active', 1)->orderBy('id', 'desc')->firstOrFail();
 //        if ($flow->is_active === 0)
 //            abort(400, '该流程未启动');
         $flowRepository = new FlowRepository();
@@ -81,7 +81,8 @@ class ResourceController extends Controller
             'step' => new StepResource($firstStepData),
             'form_data' => $filterFormData,
             'fields' => $fields,
-            'flow'=>$flow->toArray(),
+            'field_groups' => $flow->form->fieldGroups->toArray(),
+            'flow' => $flow->toArray(),
         ];
         return $this->response->get($data);
     }
@@ -113,7 +114,7 @@ class ResourceController extends Controller
         $data = $stepRunRepository->getDetail($stepRun);
         //步骤查看回调
         $sendCallback = new SendCallbackService();
-        $sendCallback->sendCallback($stepRun->id,'step_check');
+        $sendCallback->sendCallback($stepRun->id, 'step_check');
         return $this->response->get($data);
     }
 
