@@ -78,6 +78,8 @@ class StepRunRepository
                     $newValue = json_decode($value, true);
                     if (is_array($newValue) && $newValue && !is_null($newValue)) {
                         $value = $newValue['text'];
+                    }else if(empty($newValue)){
+                        $value = '';
                     }
                     if ($count < 4) {
                         $newFormData[] = [$key => $value];
