@@ -47,6 +47,7 @@ class ValidationService
                         } else if ($field->scale > 0) {
                             $fieldRules[] = 'numeric';
                             $fieldRules[] = 'nullable';
+                            $fieldRules[] = 'regex:/^\-?\d+\.\d{'.$field->scale .'}$/';
                         }
                         break;
                     case 'text':
