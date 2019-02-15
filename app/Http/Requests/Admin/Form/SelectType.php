@@ -16,7 +16,7 @@ trait SelectType
     protected $key;
     protected $gridIndex;
 
-    protected function getSelectTypeRule($key,$field,$gridIndex)
+    protected function getSelectTypeRule($key, $field, $gridIndex)
     {
 
         $this->key = $key;
@@ -30,7 +30,7 @@ trait SelectType
             'fields.' . $key . '.min' => [
                 'nullable',
                 'numeric',
-                'min:'.(($field['is_checkbox']==1 && $field['min']<1) ? 1 : $field['min']),
+                'min:' . ($field['is_checkbox'] == 1 ? max(1, $field['min']) : ($field['min'] ?: 0)),
                 'max:' . ($field['max'] ?: 9999999)
             ],
             'fields.' . $key . '.max' => [
@@ -53,10 +53,10 @@ trait SelectType
         ];
 
         //控件字段
-        if(!is_null($this->gridIndex)){
+        if (!is_null($this->gridIndex)) {
             $gridSelectRule = [];
-            foreach($selectRule as $k=>$v){
-                $k = 'grids.'.$this->gridIndex.'.'.$k;
+            foreach ($selectRule as $k => $v) {
+                $k = 'grids.' . $this->gridIndex . '.' . $k;
                 $gridSelectRule[$k] = $v;
             }
             $selectRule = $gridSelectRule;
@@ -77,10 +77,10 @@ trait SelectType
             'fields.' . $this->key . '.options' => '可选值',
         ];
         //控件字段
-        if(!is_null($this->gridIndex)){
+        if (!is_null($this->gridIndex)) {
             $gridMessage = [];
-            foreach($message as $k=>$v){
-                $k = 'grids.'.$this->gridIndex.'.'.$k;
+            foreach ($message as $k => $v) {
+                $k = 'grids.' . $this->gridIndex . '.' . $k;
                 $gridMessage[$k] = $v;
             }
             $message = $gridMessage;
