@@ -24,7 +24,6 @@ class StepDepartmentApproverRequest extends FormRequest
      */
     public function rules()
     {
-        dd($this->route('id'));
         return [
             'step_approver_id' => [
                 Rule::exists('step_approvers', 'id')->whereNull('deleted_at')
