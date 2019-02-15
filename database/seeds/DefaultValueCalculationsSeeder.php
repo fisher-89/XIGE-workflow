@@ -28,8 +28,8 @@ class DefaultValueCalculationsSeeder extends Seeder
             ['id' => 14, 'code' => '!'],
             ['id' => 15, 'code' => '('],
             ['id' => 16, 'code' => ')'],
-            ['id' => 17, 'code' => 'array_sum'],
-            ['id' => 18, 'code' => 'count'],
+//            ['id' => 17, 'code' => 'array_sum'],
+//            ['id' => 18, 'code' => 'count'],
         ];
         \App\Models\DefaultValueCalculation::insert($data);
     }
