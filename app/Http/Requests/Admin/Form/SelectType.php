@@ -30,7 +30,7 @@ trait SelectType
             'fields.' . $key . '.min' => [
                 'nullable',
                 'numeric',
-                'min:' . ($field['is_checkbox'] == 1 ? max(1, $field['min']) : ($field['min'] ?: 0)),
+                'min:' . ($field['is_checkbox'] == 1 ? max(1, $field['min']) : ($field['min'] ?: null)),
                 'max:' . ($field['max'] ?: 9999999)
             ],
             'fields.' . $key . '.max' => [
