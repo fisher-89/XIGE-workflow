@@ -30,7 +30,7 @@ trait IntType
         }
         //去除默认值含有运算符号、系统变量、字段类型的验证
         $regex = '/(({<(\d+)>})|({{(\w+)}})|({\?(\w+)\?}))/';
-        if($field['default_value'] && preg_match($regex,$field['default_value'])){
+        if ($field['default_value'] && preg_match($regex, $field['default_value'])) {
             $intRule['fields.' . $this->key . '.default_value'] = 'string';
         }
         //控件字段
@@ -69,7 +69,7 @@ trait IntType
             ],
             'fields.' . $this->key . '.default_value' => [
                 'numeric',
-                'between:' . ($field['min'] ?: 0) . ',' . ($field['max'] && $field['max'] <9223372036854775807 ?: 9223372036854775807)
+                'between:' . ($field['min'] ?: 0) . ',' . ($field['max'] && $field['max'] < 9223372036854775807 ?: 9223372036854775807)
             ],
             'fields.' . $this->key . '.options' => [
                 'array',
@@ -103,8 +103,8 @@ trait IntType
             'fields.' . $this->key . '.default_value' => [
                 'nullable',
                 'numeric',
-                'regex:'.$scaleRegex,
-                'between:' . ($field['min'] ?: 0) . ',' . ($field['max'] && $field['max'] <9223372036854775807 ?: 9223372036854775807)
+                'regex:' . $scaleRegex,
+                'between:' . ($field['min'] ?: 0) . ',' . (($field['max'] && $field['max'] < 9223372036854775807) ? $field['max'] : 9223372036854775807)
             ],
             'fields.' . $this->key . '.options' => [
                 'array',
@@ -123,7 +123,7 @@ trait IntType
             'fields.' . $this->key . '.options' => '可选值',
         ];
         //控件字段
-        if(!is_null($this->gridIndex)) {
+        if (!is_null($this->gridIndex)) {
             $gridMessage = [];
             foreach ($message as $k => $v) {
                 $k = 'grids.' . $this->gridIndex . '.' . $k;
@@ -131,6 +131,6 @@ trait IntType
             }
             $message = $gridMessage;
         }
-            $this->msg = array_collapse([$this->msg, $message]);
+        $this->msg = array_collapse([$this->msg, $message]);
     }
 }
