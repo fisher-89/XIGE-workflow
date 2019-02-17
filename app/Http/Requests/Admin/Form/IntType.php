@@ -57,11 +57,11 @@ trait IntType
             ],
             'fields.' . $this->key . '.min' => [
                 'numeric',
-                'max:' . ($field['max'] && $field['max'] < 9223372036854775807 ?: 9223372036854775807),
+                'max:' . (($field['max'] && $field['max'] < 9223372036854775807) ? $field['max'] : 9223372036854775807),
             ],
             'fields.' . $this->key . '.max' => [
                 'numeric',
-                'min:' . ($field['min'] ?: 0)
+                'min:' . ($field['min'] ?: -9223372036854775808)
             ],
             'fields.' . $this->key . '.scale' => [
                 'required',
@@ -69,7 +69,7 @@ trait IntType
             ],
             'fields.' . $this->key . '.default_value' => [
                 'numeric',
-                'between:' . ($field['min'] ?: 0) . ',' . ($field['max'] && $field['max'] < 9223372036854775807 ?: 9223372036854775807)
+                'between:' . ($field['min'] ?: -9223372036854775808) . ',' . (($field['max'] && $field['max'] < 9223372036854775807) ? $field['max'] : 9223372036854775807)
             ],
             'fields.' . $this->key . '.options' => [
                 'array',
@@ -89,12 +89,12 @@ trait IntType
             'fields.' . $this->key . '.min' => [
                 'numeric',
                 'regex:' . $scaleRegex,
-                'max:' . ($field['max'] && $field['max'] < 9223372036854775807 ?: 9223372036854775807),
+                'max:' . (($field['max'] && $field['max'] < 9223372036854775807) ? $field['max'] : 9223372036854775807),
             ],
             'fields.' . $this->key . '.max' => [
                 'numeric',
                 'regex:' . $scaleRegex,
-                'min:' . ($field['min'] ?: 0)
+                'min:' . ($field['min'] ?: -9223372036854775808)
             ],
             'fields.' . $this->key . '.scale' => [
                 'numeric',
@@ -104,7 +104,7 @@ trait IntType
                 'nullable',
                 'numeric',
                 'regex:' . $scaleRegex,
-                'between:' . ($field['min'] ?: 0) . ',' . (($field['max'] && $field['max'] < 9223372036854775807) ? $field['max'] : 9223372036854775807)
+                'between:' . ($field['min'] ?: -9223372036854775808) . ',' . (($field['max'] && $field['max'] < 9223372036854775807) ? $field['max'] : 9223372036854775807)
             ],
             'fields.' . $this->key . '.options' => [
                 'array',
