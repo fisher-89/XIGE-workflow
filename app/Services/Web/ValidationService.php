@@ -146,8 +146,17 @@ class ValidationService
                         if (count($field->widgets) > 0) {
                             $departmentIds = $field->widgets->pluck('value')->all();
                             if ($field->is_checkbox == 0) {
+                                if($field->default_value && $field->default_value['value'] == 'department'){
+                                    array_push($departmentIds,Auth::user()->department['id']);
+                                }
                                 $rules['form_data.' . $key . '.value'] = 'in:' . implode(',', $departmentIds);
                             } else {
+                                if($field->default_value){
+                                    $array = array_pluck($field->default_value,'value');
+                                    if(array_has($array,'department')){
+                                        array_push($staffSns,Auth::user()->department['id']);
+                                    }
+                                }
                                 $rules['form_data.' . $key . '.*.value'] = 'in:' . implode(',', $departmentIds);
                             }
                         }
@@ -157,8 +166,17 @@ class ValidationService
                         if (count($field->widgets) > 0) {
                             $shopIds = $field->widgets->pluck('value')->all();
                             if ($field->is_checkbox == 0) {
+                                if($field->default_value && $field->default_value['value'] == 'shop'){
+                                    array_push($shopIds,Auth::user()->shop['shop_sn']);
+                                }
                                 $rules['form_data.' . $key . '.value'] = 'in:' . implode(',', $shopIds);
                             } else {
+                                if($field->default_value){
+                                    $array = array_pluck($field->default_value,'value');
+                                    if(array_has($array,'shop')){
+                                        array_push($shopIds,Auth::user()->shop['shop_sn']);
+                                    }
+                                }
                                 $rules['form_data.' . $key . '.*.value'] = 'in:' . implode(',', $shopIds);
                             }
                         }
