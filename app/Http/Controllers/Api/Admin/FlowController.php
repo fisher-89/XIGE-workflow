@@ -83,7 +83,7 @@ class FlowController extends Controller
     {
         $flow = Flow::findOrFail($id);
         if ($flow->is_active == 1)
-            abort(403, '该流程已启用无法进行删除');
+            abort(400, '该流程已启用无法进行删除');
         $flow->delete();
         broadcast(new FlowDeleteEvent($flow));
         return $this->response->delete();

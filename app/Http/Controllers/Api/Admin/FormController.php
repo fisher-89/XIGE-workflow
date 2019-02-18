@@ -90,7 +90,7 @@ class FormController extends Controller
     {
         $data = Form::withCount('flows')->findOrFail($id);
         if ($data->flows_count > 0)
-            abort(403, '该表单已被 ' . $data->flows_count . ' 流程使用了');
+            abort(400, '该表单已被 ' . $data->flows_count . ' 流程使用了');
         $data->delete();
         return $this->response->delete();
     }
