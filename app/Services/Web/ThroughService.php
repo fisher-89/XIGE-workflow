@@ -526,6 +526,14 @@ class ThroughService
         $nextData = [];
         foreach ($nextSteps as $v) {
             $stepData = Step::find($v['step_id']);
+            // 上一步id
+            $prevId = [$this->stepRun->id];
+            if($stepData->merge_type == 1){
+                $prevStepKeys = $stepData->prev_step_key;
+                $prevStepIds = Step::where('flow_id', $this->stepRun->flow_id)->whereIn('step_key', $prevStepKeys)->pluck('id')->all();
+                $prevId = StepRun::where(['flow_id' => $this->stepRun->flow_id, 'flow_run_id' => $this->stepRun->flow_run_id])
+                    ->whereIn('step_id', $prevStepIds)->pluck('id')->all();
+            }
             $v['step_key'] = $stepData->step_key;
             $v['step_name'] = $stepData->name;
             $v['flow_type_id'] = $this->stepRun->flow_type_id;
@@ -535,7 +543,7 @@ class ThroughService
             $v['form_id'] = $this->stepRun->form_id;
             $v['data_id'] = $this->stepRun->data_id;
             $v['action_type'] = 0;
-            $v['prev_id'] = [$this->stepRun->id];
+            $v['prev_id'] = $prevId;
             $v['next_id'] = [];
             $stepRunData = StepRun::create($v);
             $nextData[] = $stepRunData;
