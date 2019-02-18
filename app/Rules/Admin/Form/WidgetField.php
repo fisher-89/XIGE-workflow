@@ -31,7 +31,16 @@ class WidgetField implements Rule
         if ($this->field['is_checkbox'] == 1) {
             if ($value && $this->field['available_options']) {
                foreach ($value as $v){
-                   if(!in_array($v['value'],array_pluck($this->field['available_options'],'value'))){
+                   $availableOptionsValues = array_pluck($this->field['available_options'],'value');
+                   if($this->field['type'] == 'staff'){
+                       array_push($availableOptionsValues,'staff');
+                   }else if ($this->field['type'] == 'shop'){
+                       array_push($availableOptionsValues,'shop');
+                   }else if ($this->field['type'] == 'department'){
+                       array_push($availableOptionsValues,'department');
+                   }
+
+                   if(!in_array($v['value'], $availableOptionsValues)){
                        $this->msg = '默认值 '.$v['text'].'不在可选项里';
                        return false;
                    }
@@ -51,6 +60,7 @@ class WidgetField implements Rule
                 return false;
             }
         } else {
+            // 单选
             if ($value && $this->field['available_options'] && !in_array($value['value'], array_pluck($this->field['available_options'], 'value')) && !in_array($value['value'], ['staff', 'department', 'shop'])) {
                 $this->msg = '默认值 不在可选项里';
                 return false;
