@@ -9,6 +9,7 @@
 namespace App\Services\Web;
 
 
+use Illuminate\Support\Facades\Auth;
 use Illuminate\Validation\Rule;
 
 class ValidationService
@@ -125,6 +126,10 @@ class ValidationService
                         if (count($field->widgets) > 0) {
                             $staffSns = $field->widgets->pluck('value')->all();
                             if ($field->is_checkbox == 0) {
+                                $defaultValue = json_decode($field->default_value,true);
+                                if($defaultValue){
+                                    array_push($staffSns,Auth::id());
+                                }
                                 $rules['form_data.' . $key . '.value'] = 'in:' . implode(',', $staffSns);
                             } else {
                                 $rules['form_data.' . $key . '.*.value'] = 'in:' . implode(',', $staffSns);
