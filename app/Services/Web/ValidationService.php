@@ -126,12 +126,17 @@ class ValidationService
                         if (count($field->widgets) > 0) {
                             $staffSns = $field->widgets->pluck('value')->all();
                             if ($field->is_checkbox == 0) {
-                                $defaultValue = json_decode($field->default_value,true);
-                                if($defaultValue && $defaultValue['value'] == 'staff'){
+                                if($field->default_value && $field->default_value['value'] == 'staff'){
                                     array_push($staffSns,Auth::id());
                                 }
                                 $rules['form_data.' . $key . '.value'] = 'in:' . implode(',', $staffSns);
                             } else {
+                                if($field->default_value){
+                                    $array = array_pluck($field->default_value,'value');
+                                    if(array_has($array,'staff')){
+                                        array_push($staffSns,Auth::id());
+                                    }
+                                }
                                 $rules['form_data.' . $key . '.*.value'] = 'in:' . implode(',', $staffSns);
                             }
                         }
