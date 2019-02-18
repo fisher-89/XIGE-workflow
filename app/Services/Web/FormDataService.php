@@ -71,13 +71,13 @@ class FormDataService
                     $defaultValue = $field->default_value == 'time' ? date('H:i:s') : $field->default_value;
                     break;
                 case 'staff':
-                    $defaultValue = $this->getCurrentStaffDefaultValue($field->default_value);
+                    $defaultValue = $this->getCurrentStaffDefaultValue($field);
                     break;
                 case 'department':
-                    $defaultValue = $this->getCurrentDepartmentDefaultValue($field->default_value);
+                    $defaultValue = $this->getCurrentDepartmentDefaultValue($field);
                     break;
                 case 'shop':
-                    $defaultValue = $this->getCurrentShopDefaultValue($field->default_value);
+                    $defaultValue = $this->getCurrentShopDefaultValue($field);
                     break;
                 default:
                     $defaultValue = $field->default_value;
@@ -123,16 +123,31 @@ class FormDataService
 
     /**
      * 获取当前部门默认值
-     * @param $defaultValue
+     * @param $field
      */
-    protected function getCurrentDepartmentDefaultValue($defaultValue)
+    protected function getCurrentDepartmentDefaultValue($field)
     {
-        if (count($defaultValue) == count($defaultValue, 1)) {
-            if ($defaultValue['value'] == 'department') {
-                $defaultValue = [
-                    'value' => Auth::user()->department['id'],
-                    'text' => Auth::user()->department['full_name']
-                ];
+        $defaultValue = $field->default_value;
+        if($defaultValue){
+            if($field->is_checkbox==1){
+                // 多选  默认值是数组
+                foreach($defaultValue as $k=> $v){
+                    if($v['value'] == 'department'){
+                        $department = [
+                            'value' => Auth::user()->department['id'],
+                            'text' => Auth::user()->department['full_name']
+                        ];
+                        $defaultValue[$k] = $department;
+                    }
+                }
+            }else{
+                // 单选  默认值是对象
+                if ($defaultValue['value'] == 'department') {
+                    $defaultValue = [
+                        'value' => Auth::user()->department['id'],
+                        'text' => Auth::user()->department['full_name']
+                    ];
+                }
             }
         }
         return $defaultValue;
@@ -140,16 +155,32 @@ class FormDataService
 
     /**
      * 获取当前员工默认值
-     * @param $defaultValue
+     * @param $field
      */
-    protected function getCurrentStaffDefaultValue($defaultValue)
+    protected function getCurrentStaffDefaultValue($field)
     {
-        if (count($defaultValue) == count($defaultValue, 1)) {
-            if ($defaultValue['value'] == 'staff') {
-                $defaultValue = [
-                    'value' => Auth::id(),
-                    'text' => Auth::user()->realname
-                ];
+
+        $defaultValue = $field->default_value;
+        if($defaultValue){
+            if($field->is_checkbox==1){
+                // 多选  默认值是数组
+                foreach($defaultValue as $k=> $v){
+                    if($v['value'] == 'staff'){
+                        $staff = [
+                            'value' => Auth::id(),
+                            'text' => Auth::user()->realname
+                        ];
+                        $defaultValue[$k] = $staff;
+                    }
+                }
+            }else{
+                // 单选  默认值是对象
+                if ($defaultValue['value'] == 'staff') {
+                    $defaultValue =[
+                        'value' => Auth::id(),
+                        'text' => Auth::user()->realname
+                    ];
+                }
             }
         }
         return $defaultValue;
@@ -157,16 +188,31 @@ class FormDataService
 
     /**
      * 获取当前员工默认值
-     * @param $defaultValue
+     * @param $field
      */
-    protected function getCurrentShopDefaultValue($defaultValue)
+    protected function getCurrentShopDefaultValue($field)
     {
-        if (count($defaultValue) == count($defaultValue, 1)) {
-            if ($defaultValue['value'] == 'shop') {
-                $defaultValue = [
-                    'value' => Auth::user()->shop['shop_sn'],
-                    'text' => Auth::user()->shop['name']
-                ];
+        $defaultValue = $field->default_value;
+        if($defaultValue){
+            if($field->is_checkbox==1){
+                // 多选  默认值是数组
+                foreach($defaultValue as $k=> $v){
+                    if($v['value'] == 'shop'){
+                        $shop =  [
+                            'value' => Auth::user()->shop['shop_sn'],
+                            'text' => Auth::user()->shop['name']
+                        ];
+                        $defaultValue[$k] = $shop;
+                    }
+                }
+            }else{
+                // 单选  默认值是对象
+                if ($defaultValue['value'] == 'shop') {
+                    $defaultValue =  [
+                        'value' => Auth::user()->shop['shop_sn'],
+                        'text' => Auth::user()->shop['name']
+                    ];
+                }
             }
         }
         return $defaultValue;
