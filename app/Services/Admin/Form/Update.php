@@ -283,6 +283,8 @@ trait Update
                 $formDataTable->saveFormGridTableComment($data);
             } else {
                 //新增
+                $field['form_id'] =$formGrid->form_id;
+                $field['form_grid_id'] =$formGrid->id;
                 $fieldData = (array)$this->fieldsItemSave($field);//新增控件字段
                 $data['key'] = $formGrid->key;
                 $data['field'] = $fieldData;
