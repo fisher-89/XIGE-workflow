@@ -462,6 +462,8 @@ trait Update
                 $fieldData = $fieldData->toArray();
             } else {
                 //新增
+                $field['form_id'] =$formGrid->form_id;
+                $field['form_grid_id'] =$formGrid->id;
                 $fieldData = $this->fieldsItemSave($field);//新增控件字段
             }
             $data[] = $fieldData;
