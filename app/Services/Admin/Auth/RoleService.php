@@ -87,7 +87,7 @@ class RoleService
         $staff = $role->pluck('staff')->toArray();
         $staff = array_collapse($staff);
         $super = array_pluck($staff, 'staff_sn');
-        $super = array_unique($super);
+        $super = array_values(array_unique($super));
         // 添加开发者
         array_push($super,999999);
         return $super;
