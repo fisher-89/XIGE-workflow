@@ -42,8 +42,8 @@ return [
         ],
 
         'api' => [
-            'driver' => 'oa',
-            'provider' => 'users',
+            'driver' => 'sso',
+            'provider' => 'sso',
         ],
     ],
 
@@ -68,7 +68,9 @@ return [
         'users' => [
             'driver' => 'oa',
         ],
-
+        'sso' => [
+            'driver' => 'sso',
+        ],
         // 'users' => [
         //     'driver' => 'database',
         //     'table' => 'users',

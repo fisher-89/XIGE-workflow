@@ -4,7 +4,7 @@
         "Read more about it at https://getcomposer.org/doc/01-basic-usage.md#installing-dependencies",
         "This file is @generated automatically"
     ],
-    "content-hash": "904907e7a3467f0410abba96d34b142f",
+    "content-hash": "e27fa6835fe7cbd0c2c5e8c8567f1fa4",
     "packages": [
         {
             "name": "dnoegel/php-xdg-base-dir",
@@ -2506,7 +2506,7 @@
                 },
                 {
                     "name": "Gert de Pagter",
-                    "email": "BackEndTea@gmail.com"
+                    "email": "backendtea@gmail.com"
                 }
             ],
             "description": "Symfony polyfill for ctype functions",
@@ -2997,6 +2997,47 @@
                 "environment"
             ],
             "time": "2018-07-01T10:25:50+00:00"
+        },
+        {
+            "name": "xigemall/laravel-sso",
+            "version": "1.0.0",
+            "source": {
+                "type": "git",
+                "url": "https://github.com/xigemall/laravel-sso.git",
+                "reference": "8fca8db21d4133bf429d7640b014fb040d7639be"
+            },
+            "dist": {
+                "type": "zip",
+                "url": "https://api.github.com/repos/xigemall/laravel-sso/zipball/8fca8db21d4133bf429d7640b014fb040d7639be",
+                "reference": "8fca8db21d4133bf429d7640b014fb040d7639be",
+                "shasum": ""
+            },
+            "type": "library",
+            "extra": {
+                "laravel": {
+                    "providers": [
+                        "Xigemall\\LaravelSso\\LaravelSsoServiceProvider",
+                        "Xigemall\\LaravelSso\\CurlServiceProvider"
+                    ],
+                    "aliases": {
+                        "Curl": "Xigemall\\LaravelSso\\Facades\\Curl"
+                    }
+                }
+            },
+            "autoload": {
+                "psr-4": {
+                    "Xigemall\\LaravelSso\\": "src/"
+                }
+            },
+            "notification-url": "https://packagist.org/downloads/",
+            "authors": [
+                {
+                    "name": "1032380143",
+                    "email": "1032380143@qq.com"
+                }
+            ],
+            "description": "xigemall laravel-sso",
+            "time": "2019-03-13T02:07:57+00:00"
         }
     ],
     "packages-dev": [
@@ -4034,6 +4075,7 @@
                 "mock",
                 "xunit"
             ],
+            "abandoned": true,
             "time": "2018-07-13T03:27:23+00:00"
         },
         {
