@@ -16,7 +16,7 @@ class RoleUpdateEvent implements ShouldBroadcast
     use Dispatchable, InteractsWithSockets, SerializesModels;
 
     // 广播队列
-    public $broadcastQueue = 'broadcast';
+    public $broadcastQueue;
     public $data;
     /**
      * Create a new event instance.
@@ -26,6 +26,7 @@ class RoleUpdateEvent implements ShouldBroadcast
     public function __construct($data)
     {
         $this->data = $data;
+        $this->broadcastQueue = config('app.name').'-broadcast';
     }
 
     /**
