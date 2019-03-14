@@ -3004,12 +3004,12 @@
             "source": {
                 "type": "git",
                 "url": "https://github.com/xigemall/laravel-sso.git",
-                "reference": "8fca8db21d4133bf429d7640b014fb040d7639be"
+                "reference": "8c0ce91e0bacd732cb1b972978615c3a1cecb3e5"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/xigemall/laravel-sso/zipball/8fca8db21d4133bf429d7640b014fb040d7639be",
-                "reference": "8fca8db21d4133bf429d7640b014fb040d7639be",
+                "url": "https://api.github.com/repos/xigemall/laravel-sso/zipball/8c0ce91e0bacd732cb1b972978615c3a1cecb3e5",
+                "reference": "8c0ce91e0bacd732cb1b972978615c3a1cecb3e5",
                 "shasum": ""
             },
             "type": "library",
@@ -3037,7 +3037,7 @@
                 }
             ],
             "description": "xigemall laravel-sso",
-            "time": "2019-03-13T02:07:57+00:00"
+            "time": "2019-03-14T07:07:42+00:00"
         }
     ],
     "packages-dev": [
