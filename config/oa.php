@@ -6,7 +6,7 @@
  * Time: 21:59
  */
 
-$host = env('OA_HOST', 'http://192.168.20.18:8001');
+$host = env('SSO_URL', 'http://192.168.20.18:8001');
 return [
     'client_id' => env('OA_CLIENT_ID', ''),
     'client_secret' => env('OA_CLIENT_SECRET', ''),
