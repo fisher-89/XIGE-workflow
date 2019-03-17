@@ -364,7 +364,7 @@ class SendCallbackService
      */
     protected function send(array $data, string $url)
     {
-        $result = app('curl')->sendMessageByPost($url, $data);
+        $result = app('curl')->post($url, $data);
         return $result;
     }
 }

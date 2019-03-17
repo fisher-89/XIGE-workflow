@@ -91,7 +91,7 @@ class OaApiService
     public function sendDingtalkJobNotificationMessage($data)
     {
         $url = config('oa.dingtalk.message');
-        return app('curl')->sendMessageByPost($url, $data);
+        return app('curl')->post($url, $data);
     }
 
     /**
@@ -111,7 +111,7 @@ class OaApiService
     public function sendAddTodoMessage($data)
     {
         $url = config('oa.dingtalk.todo.add');
-        $result = app('curl')->sendMessageByPost($url, $data);
+        $result = app('curl')->post($url, $data);
         return $result;
     }
 
@@ -123,7 +123,7 @@ class OaApiService
     public function updateTodo($data)
     {
         $url = config('oa.dingtalk.todo.update');
-        $result = app('curl')->sendMessageByPost($url,$data);
+        $result = app('curl')->post($url,$data);
         return $result;
     }
 
@@ -146,7 +146,7 @@ class OaApiService
     public function retraceTodo($id)
     {
         $url = config('oa.todo').'/'.$id;
-        return app('curl')->sendMessageByPost($url,[]);
+        return app('curl')->post($url,[]);
     }
 
     /**
@@ -168,6 +168,6 @@ class OaApiService
     public function retraceJob($id)
     {
         $url = config('oa.job').'/'.$id;
-        return app('curl')->sendMessageByPost($url,[]);
+        return app('curl')->post($url,[]);
     }
 }
