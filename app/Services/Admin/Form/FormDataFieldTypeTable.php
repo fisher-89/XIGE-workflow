@@ -60,8 +60,8 @@ trait FormDataFieldTypeTable
                 $table->engine = 'InnoDB';
                 $table->increments('id');
                 $table->unsignedInteger('run_id')->index()->comment('运行id');
-                $table->string('value')->index()->comment('控件键')->nullable();
-                $table->string('text')->comment('控件值')->nullable();
+                $table->string('value')->index()->comment('控件键')->nullable()->default('');
+                $table->string('text')->comment('控件值')->nullable()->dedault('');
             });
         }
     }
