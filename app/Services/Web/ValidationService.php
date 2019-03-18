@@ -53,19 +53,21 @@ class ValidationService
                         break;
                     case 'text':
                         $fieldRules[] = 'string';
+                        $fieldRules[] = 'nullable';
                         break;
                     case 'file':
                         $rules['form_data.' . $key] = 'array';
                         $rules['form_data.' . $key . '.*'] = 'string';
-//                        $fieldRules[] = 'array';
+                        $fieldRules[] = 'nullable';
                         break;
                     case 'select':
                         $rules['form_data.' . $key . '.*'] = $fieldRules;
-//                        $fieldRules = ['array'];
+                        $fieldRules[] = 'nullable';
                         break;
                     case 'array':
                         $rules['form_data.' . $key . '.*'] = $fieldRules;
                         $fieldRules = ['array'];
+                        $fieldRules[] = 'nullable';
                         break;
                     case 'date':
                         $fieldRules[] = 'date_format:"Y-m-d"';
