@@ -85,6 +85,16 @@ class FormDataService
         } else {
             $defaultValue = $field->default_value;
             switch($field->type){
+                case 'int':
+                    $defaultValue = null;
+                    break;
+                case 'text':
+                    if($field->max && $field->max < 255){
+                        $defaultValue = '';
+                    }else{
+                        $defaultValue = null;
+                    }
+                    break;
                 case 'file':
                     $defaultValue = [];
                     break;
@@ -97,9 +107,10 @@ class FormDataService
                 case 'time':
                     $defaultValue = null;
                     break;
-                case 'int':
+                case 'api':
                     $defaultValue = null;
                     break;
+
             }
         }
 
