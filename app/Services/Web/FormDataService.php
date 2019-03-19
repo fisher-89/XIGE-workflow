@@ -48,7 +48,7 @@ class FormDataService
      */
     public function getFormDataDefaultValue($field)
     {
-        if (!empty($field->default_value)) {
+        if (!empty($field->default_value) || $field->default_value == 0) {
             switch ($field->type) {
                 case 'int':
                     $defaultValue = $this->getTextOrIntDefaultValue($field->default_value);
@@ -84,14 +84,14 @@ class FormDataService
             }
         } else {
             $defaultValue = $field->default_value;
-            switch($field->type){
+            switch ($field->type) {
                 case 'int':
                     $defaultValue = null;
                     break;
                 case 'text':
-                    if($field->max && $field->max < 255){
+                    if ($field->max && $field->max < 255) {
                         $defaultValue = '';
-                    }else{
+                    } else {
                         $defaultValue = null;
                     }
                     break;
@@ -139,11 +139,11 @@ class FormDataService
     protected function getCurrentDepartmentDefaultValue($field)
     {
         $defaultValue = $field->default_value;
-        if($defaultValue){
-            if($field->is_checkbox==1){
+        if ($defaultValue) {
+            if ($field->is_checkbox == 1) {
                 // 多选  默认值是数组
-                foreach($defaultValue as $k=> $v){
-                    if($v['value'] == 'department'){
+                foreach ($defaultValue as $k => $v) {
+                    if ($v['value'] == 'department') {
                         $department = [
                             'value' => Auth::user()->department['id'],
                             'text' => Auth::user()->department['full_name']
@@ -151,7 +151,7 @@ class FormDataService
                         $defaultValue[$k] = $department;
                     }
                 }
-            }else{
+            } else {
                 // 单选  默认值是对象
                 if ($defaultValue['value'] == 'department') {
                     $defaultValue = [
@@ -172,11 +172,11 @@ class FormDataService
     {
 
         $defaultValue = $field->default_value;
-        if($defaultValue){
-            if($field->is_checkbox==1){
+        if ($defaultValue) {
+            if ($field->is_checkbox == 1) {
                 // 多选  默认值是数组
-                foreach($defaultValue as $k=> $v){
-                    if($v['value'] == 'staff'){
+                foreach ($defaultValue as $k => $v) {
+                    if ($v['value'] == 'staff') {
                         $staff = [
                             'value' => Auth::id(),
                             'text' => Auth::user()->realname
@@ -184,10 +184,10 @@ class FormDataService
                         $defaultValue[$k] = $staff;
                     }
                 }
-            }else{
+            } else {
                 // 单选  默认值是对象
                 if ($defaultValue['value'] == 'staff') {
-                    $defaultValue =[
+                    $defaultValue = [
                         'value' => Auth::id(),
                         'text' => Auth::user()->realname
                     ];
@@ -204,22 +204,22 @@ class FormDataService
     protected function getCurrentShopDefaultValue($field)
     {
         $defaultValue = $field->default_value;
-        if($defaultValue){
-            if($field->is_checkbox==1){
+        if ($defaultValue) {
+            if ($field->is_checkbox == 1) {
                 // 多选  默认值是数组
-                foreach($defaultValue as $k=> $v){
-                    if($v['value'] == 'shop'){
-                        $shop =  [
+                foreach ($defaultValue as $k => $v) {
+                    if ($v['value'] == 'shop') {
+                        $shop = [
                             'value' => Auth::user()->shop['shop_sn'],
                             'text' => Auth::user()->shop['name']
                         ];
                         $defaultValue[$k] = $shop;
                     }
                 }
-            }else{
+            } else {
                 // 单选  默认值是对象
                 if ($defaultValue['value'] == 'shop') {
-                    $defaultValue =  [
+                    $defaultValue = [
                         'value' => Auth::user()->shop['shop_sn'],
                         'text' => Auth::user()->shop['name']
                     ];
