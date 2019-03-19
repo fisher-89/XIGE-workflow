@@ -37,18 +37,23 @@ trait RegionType
             ],
             'fields.' . $key . '.default_value' => [
                 'array',
+                'nullable',
             ],
             'fields.' . $key . '.default_value.province_id' => [
                 Rule::exists('region', 'id')->where('level', 1),
+                'nullable',
             ],
             'fields.' . $key . '.default_value.city_id' => [
                 Rule::exists('region', 'id')->where('parent_id', ($field['default_value']['province_id'] ?? 2)),
+                'nullable',
             ],
             'fields.' . $key . '.default_value.county_id' => [
                 Rule::exists('region', 'id')->where('parent_id', ($field['default_value']['city_id'] ?? 3)),
+                'nullable',
             ],
             'fields.' . $key . '.default_value.address' => [
                 'string',
+                'nullable',
             ],
             'fields.' . $key . '.options' => [
                 'array',
