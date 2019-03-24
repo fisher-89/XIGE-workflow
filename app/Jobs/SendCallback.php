@@ -34,7 +34,7 @@ class SendCallback implements ShouldQueue
      */
     public function handle()
     {
-        $result = app('curl')->sendMessageByPost($this->url, $this->data);
+        $result = app('curl')->post($this->url, $this->data);
     }
 
     public function failed(\Exception $exception)
